@@ -1,0 +1,25 @@
+{
+  "nav": { "search": "Search for Advisor" },
+  "account": {
+    "login": "LOGIN",
+    "signup": "SIGNUP",
+    "email": "E-mail",
+    "password": "Password",
+    "repeatpw": "Repeat Password",
+    "forgotpw": "Forgot password?",
+    "donthaveacc": "Don't have an account?",
+    "alreadyhaveacc": "Already have an account? Login",
+    "validate": {
+      "enteremail": "Please enter your email address.",
+      "validemail": "Please enter a valid email address.",
+      "enterpw": "Please enter a password.",
+      "pwagain": "Please repeat the password.",
+      "pwdonotmatch": "Passwords do not match."
+    },
+    "firebase": {
+      "emailalready": "This email is already in use.",
+      "validemail": "Please enter a valid email address.",
+      "weakpw": "Your password is too weak."
+    }
+  }
+}
