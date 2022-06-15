@@ -10,6 +10,7 @@ import { useTranslation } from "next-i18next";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase.config";
 import { useRouter } from "next/router";
+import axios from "axios";
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -48,19 +49,21 @@ const SignupForm = (props) => {
 
     if (validate()) {
       try {
-        await createUserWithEmailAndPassword(
+        const userCredential = await createUserWithEmailAndPassword(
           auth,
           input.email,
           input.password
-        ).then((userCredential) => {
-          const user = userCredential;
-          console.log(user);
-        });
+        );
+        console.log("client side userCredential ", userCredential);
+        const { user } = userCredential;
+        const idTokenResult = await user.getIdTokenResult();
 
-        //const idTokenResult = await user.getIdTokenResult();
-
-        // const dbRes = await createOrGetUser(idTokenResult.token);
-        // console.log("create or get user res: ", dbRes);
+        const dbRes = await axios.post(
+          "/api/create-or-get-user",
+          {},
+          { headers: { authtoken: idTokenResult.token } }
+        );
+        console.log("create or get user res: ", dbRes);
 
         // dispatch(
         //   loggedInUser({

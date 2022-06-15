@@ -2,3 +2,5 @@ firebase.config.js
 package-lock.json
 /.next
 /node_modules
+.env
+fbServiceAccountKey.json
