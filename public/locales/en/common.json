@@ -1,5 +1,9 @@
 {
-  "nav": { "search": "Search for Advisor" },
+  "nav": {
+    "search": "Search for Advisor",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
   "account": {
     "login": "LOGIN",
     "signup": "SIGNUP",
@@ -19,7 +23,9 @@
     "firebase": {
       "emailalready": "This email is already in use.",
       "validemail": "Please enter a valid email address.",
-      "weakpw": "Your password is too weak."
+      "weakpw": "Your password is too weak.",
+      "usernotfound": "This account doesn't exist.",
+      "wrongpw": "Wrong password."
     }
   }
 }

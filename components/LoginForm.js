@@ -7,6 +7,10 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import LinearProgress from "@mui/material/LinearProgress";
 import { useTranslation } from "next-i18next";
+import { auth } from "../firebase.config";
+import { useRouter } from "next/router";
+import axios from "axios";
+import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -27,9 +31,59 @@ const LoginForm = (props) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {};
-
   const { t } = useTranslation();
+  const router = useRouter();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setLoading(true);
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      console.log("client side userCredential ", userCredential);
+      const { user } = userCredential;
+      const idTokenResult = await user.getIdTokenResult();
+
+      const dbRes = await axios.post(
+        "/api/create-or-get-user",
+        {},
+        { headers: { authtoken: idTokenResult.token } }
+      );
+      console.log("create or get user res: ", dbRes);
+
+      // dispatch(
+      //   loggedInUser({
+      //     id: dbRes.data.id,
+      //     email: dbRes.data.email,
+      //     role: dbRes.data.role,
+      //     token: idTokenResult.token,
+      //   })
+      // );
+
+      setEmail("");
+      setPassword("");
+      setErrors({});
+      setLoading(false);
+      router.push("/");
+    } catch (error) {
+      const errorCode = error.code;
+      setLoading(false);
+      if (errorCode === "auth/invalid-email") {
+        setErrors({ email: t("account.firebase.validemail") });
+      } else if (errorCode === "auth/user-not-found") {
+        setErrors({ password: t("account.firebase.usernotfound") });
+      } else if (errorCode === "auth/wrong-password") {
+        setErrors({ password: t("account.firebase.wrongpw") });
+      } else {
+        setErrors({ password: error.message });
+      }
+    }
+  };
 
   return (
     <Wrapper>

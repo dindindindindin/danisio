@@ -1,5 +1,9 @@
 {
-  "nav": { "search": "Danışman Ara" },
+  "nav": {
+    "search": "Danışman Ara",
+    "profile": "Profilim",
+    "logout": "Çıkış Yap"
+  },
   "account": {
     "login": "GİRİŞ YAP",
     "signup": "ÜYE OL",
@@ -19,7 +23,9 @@
     "firebase": {
       "emailalready": "Bu e-posta zaten kayıtlı.",
       "validemail": "Lütfen geçerli bir e-posta giriniz.",
-      "weakpw": "Şifreniz çok zayıf."
+      "weakpw": "Şifreniz çok zayıf.",
+      "usernotfound": "Girilen hesap geçersiz.",
+      "wrongpw": "Girilen şifre hatalı."
     }
   }
 }

@@ -12,6 +12,7 @@ async function createOrGetUser(req, res) {
     console.log("firebaseUser in userAuth ", firebaseUser);
   } catch (err) {
     res.status(401).json({ err: "invalid or expired token" });
+    return;
   }
 
   const user = await query(

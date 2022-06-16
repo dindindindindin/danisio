@@ -23,6 +23,8 @@ import Paper from "@mui/material/Paper";
 import Image from "next/image";
 import MuiLink from "@mui/material/Link";
 import NextLink from "next/link";
+import { auth } from "../firebase.config";
+import { useRouter } from "next/router";
 
 import { useTranslation, i18n } from "next-i18next";
 
@@ -77,6 +79,7 @@ export default function Layout(props) {
   const transAnchorRef = useRef(null);
 
   const { t } = useTranslation();
+  const router = useRouter();
 
   const handleTransToggle = () => {
     setTransOpen((prevOpen) => !prevOpen);
@@ -131,7 +134,11 @@ export default function Layout(props) {
   const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
-
+  const handleLogout = () => {
+    auth.signOut();
+    handleMenuClose();
+    router.push("/");
+  };
   const profileLoggedOut = (
     <NextLink href="/account">
       <MuiLink color="inherit">
@@ -141,9 +148,14 @@ export default function Layout(props) {
       </MuiLink>
     </NextLink>
   );
+  const profileLoggedIn = (
+    <IconButton edge="end" color="inherit" onClick={handleProfileMenuOpen}>
+      <AccountCircle />
+    </IconButton>
+  );
 
   const menuId = "primary-search-account-menu";
-  const renderMenu = (
+  const renderProfileMenu = (
     <Menu
       anchorEl={anchorEl}
       anchorOrigin={{
@@ -159,8 +171,8 @@ export default function Layout(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
-      <MenuItem onClick={handleMenuClose}>My account</MenuItem>
+      <MenuItem onClick={handleMenuClose}>{t("nav.profile")}</MenuItem>
+      <MenuItem onClick={handleLogout}>{t("nav.logout")}</MenuItem>
     </Menu>
   );
 
@@ -301,7 +313,7 @@ export default function Layout(props) {
               <AccountCircle />
             </IconButton>
   */}
-              {profileLoggedOut}
+              {profileLoggedIn}
             </Box>
             <Box sx={{ display: { xs: "flex", md: "none" } }}>
               <IconButton
@@ -315,7 +327,7 @@ export default function Layout(props) {
           </Toolbar>
         </AppBar>
         {renderMobileMenu}
-        {renderMenu}
+        {renderProfileMenu}
       </Box>
 
       <Main>{props.children}</Main>
