@@ -2,7 +2,8 @@
   "nav": {
     "search": "Search for Advisor",
     "profile": "Profile",
-    "logout": "Logout"
+    "logout": "Logout",
+    "account": "Account"
   },
   "account": {
     "login": "LOGIN",

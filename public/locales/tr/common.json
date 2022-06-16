@@ -2,7 +2,8 @@
   "nav": {
     "search": "Danışman Ara",
     "profile": "Profilim",
-    "logout": "Çıkış Yap"
+    "logout": "Çıkış Yap",
+    "account": "Hesap"
   },
   "account": {
     "login": "GİRİŞ YAP",

@@ -6,15 +6,12 @@ import Toolbar from "@mui/material/Toolbar";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import InputBase from "@mui/material/InputBase";
-import Badge from "@mui/material/Badge";
 import MenuItem from "@mui/material/MenuItem";
 import MenuList from "@mui/material/MenuList";
 import Menu from "@mui/material/Menu";
-import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+import LogoutIcon from "@mui/icons-material/Logout";
 import MoreIcon from "@mui/icons-material/MoreVert";
 import Popper from "@mui/material/Popper";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
@@ -78,6 +75,7 @@ const Main = styled("main")(({ theme }) => ({
 export default function Layout(props) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState(null);
+  const [mobileTransMenuAnchorEl, setMobileTransMenuAnchorEl] = useState(null);
   const [transOpen, setTransOpen] = useState(false);
   const transAnchorRef = useRef(null);
 
@@ -117,6 +115,42 @@ export default function Layout(props) {
     }
   }, []);
 
+  // return focus to the button when we transitioned from !open -> open
+  const prevOpen = useRef(transOpen);
+  useEffect(() => {
+    if (prevOpen.current === true && transOpen === false) {
+      transAnchorRef.current.focus();
+    }
+
+    prevOpen.current = transOpen;
+  }, [transOpen]);
+
+  const isMenuOpen = Boolean(anchorEl);
+  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
+  const isMobileTransMenuOpen = Boolean(mobileTransMenuAnchorEl);
+
+  const handleProfileMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleMobileTransMenuOpen = (event) => {
+    setMobileTransMenuAnchorEl(event.currentTarget);
+  };
+  const handleMobileTransMenuClose = () => {
+    setMobileTransMenuAnchorEl(null);
+    handleMobileMenuClose();
+  };
+
+  const handleMobileMenuOpen = (event) => {
+    setMobileMoreAnchorEl(event.currentTarget);
+  };
+  const handleMobileMenuClose = () => {
+    setMobileMoreAnchorEl(null);
+  };
+
   const handleTransToggle = () => {
     setTransOpen((prevOpen) => !prevOpen);
   };
@@ -141,41 +175,19 @@ export default function Layout(props) {
     }
   }
 
-  // return focus to the button when we transitioned from !open -> open
-  const prevOpen = useRef(transOpen);
-  useEffect(() => {
-    if (prevOpen.current === true && transOpen === false) {
-      transAnchorRef.current.focus();
-    }
-
-    prevOpen.current = transOpen;
-  }, [transOpen]);
-
-  const isMenuOpen = Boolean(anchorEl);
-  const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
-
-  const handleProfileMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMoreAnchorEl(null);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-    handleMobileMenuClose();
-  };
-
-  const handleMobileMenuOpen = (event) => {
-    setMobileMoreAnchorEl(event.currentTarget);
-  };
   const handleLogout = () => {
     auth.signOut();
     dispatch(logout());
     handleMenuClose();
     router.push("/");
   };
+  const handleMobileLogout = () => {
+    auth.signOut();
+    dispatch(logout());
+    handleMobileMenuClose();
+    router.push("/");
+  };
+
   const profileLoggedOut = (
     <NextLink href="/account">
       <MuiLink color="inherit">
@@ -190,8 +202,34 @@ export default function Layout(props) {
       <AccountCircle />
     </IconButton>
   );
+  const loggedInMobileButtons = [
+    <MenuItem key="profile">
+      <IconButton size="large" color="inherit">
+        <AccountCircle />
+      </IconButton>
+      <p>{t("nav.profile")}</p>
+    </MenuItem>,
+    <MenuItem key="logout" onClick={handleMobileLogout}>
+      <IconButton size="large" color="inherit">
+        <LogoutIcon />
+      </IconButton>
+      <p>{t("nav.logout")}</p>
+    </MenuItem>,
+  ];
 
-  const menuId = "primary-search-account-menu";
+  const loggedOutMobileButtons = (
+    <NextLink href="/account">
+      <MuiLink color="inherit" underline="none">
+        <MenuItem onClick={handleMobileMenuClose}>
+          <IconButton size="large" color="inherit">
+            <AccountCircle />
+          </IconButton>
+          <p>{t("nav.account")}</p>
+        </MenuItem>
+      </MuiLink>
+    </NextLink>
+  );
+
   const renderProfileMenu = (
     <Menu
       anchorEl={anchorEl}
@@ -199,7 +237,6 @@ export default function Layout(props) {
         vertical: "top",
         horizontal: "right",
       }}
-      id={menuId}
       keepMounted
       transformOrigin={{
         vertical: "top",
@@ -208,8 +245,12 @@ export default function Layout(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>{t("nav.profile")}</MenuItem>
-      <MenuItem onClick={handleLogout}>{t("nav.logout")}</MenuItem>
+      <MenuItem onClick={handleMenuClose}>
+        <p>{t("nav.profile")}</p>
+      </MenuItem>
+      <MenuItem onClick={handleLogout}>
+        <p>{t("nav.logout")}</p>
+      </MenuItem>
     </Menu>
   );
 
@@ -277,28 +318,59 @@ export default function Layout(props) {
       open={isMobileMenuOpen}
       onClose={handleMobileMenuClose}
     >
-      <MenuItem>
-        <IconButton size="large" color="inherit">
-          <MailIcon />
-        </IconButton>
-        <p>Language</p>
-      </MenuItem>
+      {i18n.language == "en" ? (
+        <MenuItem onClick={handleMobileTransMenuOpen}>
+          <IconButton size="large" color="inherit">
+            <Image src="/images/united-kingdom.png" height={22} width={22} />
+          </IconButton>
+          <p>English</p>
+        </MenuItem>
+      ) : (
+        <MenuItem onClick={handleMobileTransMenuOpen}>
+          <IconButton size="large" color="inherit">
+            <Image src="/images/turkey.png" height={22} width={22} />
+          </IconButton>
+          <p>Türkçe</p>
+        </MenuItem>
+      )}
+      {user === null ? loggedOutMobileButtons : loggedInMobileButtons}
+    </Menu>
+  );
 
-      <MenuItem>
-        <IconButton size="large" color="inherit">
-          <MailIcon />
-        </IconButton>
-        <p>Profile</p>
+  const renderMobileTransMenu = (
+    <Menu
+      anchorEl={mobileTransMenuAnchorEl}
+      anchorOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      keepMounted
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "right",
+      }}
+      open={isMobileTransMenuOpen}
+      onClose={handleMobileTransMenuClose}
+    >
+      <MenuItem
+        onClick={(e) => {
+          i18n.changeLanguage("en");
+          handleMobileTransMenuClose(e);
+        }}
+      >
+        English
       </MenuItem>
-
-      <MenuItem onClick={handleProfileMenuOpen}>
-        <IconButton size="large" color="inherit">
-          <AccountCircle />
-        </IconButton>
-        <p>Logout</p>
+      <MenuItem
+        onClick={(e) => {
+          i18n.changeLanguage("tr");
+          handleMobileTransMenuClose(e);
+        }}
+      >
+        Türkçe
       </MenuItem>
     </Menu>
   );
+
   return (
     <div>
       <Box sx={{ flexGrow: 1 }}>
@@ -352,6 +424,7 @@ export default function Layout(props) {
         </AppBar>
         {renderMobileMenu}
         {renderProfileMenu}
+        {renderMobileTransMenu}
       </Box>
 
       <Main>{props.children}</Main>
