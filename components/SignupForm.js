@@ -11,6 +11,8 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase.config";
 import { useRouter } from "next/router";
 import axios from "axios";
+import { useDispatch } from "react-redux";
+import { loggedInUser } from "../redux/userSlice";
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -35,6 +37,7 @@ const SignupForm = (props) => {
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const handleChange = useCallback(
     ({ target: { name, value } }) =>
@@ -65,14 +68,14 @@ const SignupForm = (props) => {
         );
         console.log("create or get user res: ", dbRes);
 
-        // dispatch(
-        //   loggedInUser({
-        //     id: dbRes.data.id,
-        //     email: dbRes.data.email,
-        //     role: dbRes.data.role,
-        //     token: idTokenResult.token,
-        //   })
-        // );
+        dispatch(
+          loggedInUser({
+            id: dbRes.data.id,
+            email: dbRes.data.email,
+            role: dbRes.data.role,
+            token: idTokenResult.token,
+          })
+        );
 
         let emptyInput = {};
         emptyInput["email"] = "";

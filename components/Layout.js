@@ -25,8 +25,11 @@ import MuiLink from "@mui/material/Link";
 import NextLink from "next/link";
 import { auth } from "../firebase.config";
 import { useRouter } from "next/router";
-
 import { useTranslation, i18n } from "next-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { logout, loggedInUser } from "../redux/userSlice";
+import { onAuthStateChanged } from "firebase/auth";
+import axios from "axios";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -80,6 +83,39 @@ export default function Layout(props) {
 
   const { t } = useTranslation();
   const router = useRouter();
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+
+  useEffect(() => {
+    try {
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const idTokenResult = await user.getIdTokenResult();
+
+          const dbRes = await axios.post(
+            "/api/create-or-get-user",
+            {},
+            { headers: { authtoken: idTokenResult.token } }
+          );
+          console.log("create or get user res (useEffect): ", dbRes);
+
+          dispatch(
+            loggedInUser({
+              id: dbRes.data.id,
+              email: dbRes.data.email,
+              role: dbRes.data.role,
+              token: idTokenResult.token,
+            })
+          );
+        } else {
+          dispatch(logout());
+          console.log("user is not logged in.");
+        }
+      });
+    } catch (err) {
+      console.log(error.message);
+    }
+  }, []);
 
   const handleTransToggle = () => {
     setTransOpen((prevOpen) => !prevOpen);
@@ -136,6 +172,7 @@ export default function Layout(props) {
   };
   const handleLogout = () => {
     auth.signOut();
+    dispatch(logout());
     handleMenuClose();
     router.push("/");
   };
@@ -241,27 +278,24 @@ export default function Layout(props) {
       onClose={handleMobileMenuClose}
     >
       <MenuItem>
-        <IconButton size="large" aria-label="show 4 new mails" color="inherit">
-          <Badge badgeContent={4} color="error">
-            <MailIcon />
-          </Badge>
+        <IconButton size="large" color="inherit">
+          <MailIcon />
         </IconButton>
-        <p>Messages</p>
+        <p>Language</p>
       </MenuItem>
+
       <MenuItem>
         <IconButton size="large" color="inherit">
-          <Badge badgeContent={17} color="error">
-            <NotificationsIcon />
-          </Badge>
+          <MailIcon />
         </IconButton>
-        <p>Notifications</p>
+        <p>Profile</p>
       </MenuItem>
 
       <MenuItem onClick={handleProfileMenuOpen}>
         <IconButton size="large" color="inherit">
           <AccountCircle />
         </IconButton>
-        <p>Profile</p>
+        <p>Logout</p>
       </MenuItem>
     </Menu>
   );
@@ -295,25 +329,15 @@ export default function Layout(props) {
                 {i18n.language == "en" ? (
                   <Image
                     src="/images/united-kingdom.png"
-                    height={24}
-                    width={24}
+                    height={22}
+                    width={22}
                   />
                 ) : (
-                  <Image src="/images/turkey.png" height={24} width={24} />
+                  <Image src="/images/turkey.png" height={22} width={22} />
                 )}
               </IconButton>
               {renderTransMenu}
-              {/*
-            <IconButton
-              size="large"
-              edge="end"
-              onClick={handleProfileMenuOpen}
-              color="inherit"
-            >
-              <AccountCircle />
-            </IconButton>
-  */}
-              {profileLoggedIn}
+              {user === null ? profileLoggedOut : profileLoggedIn}
             </Box>
             <Box sx={{ display: { xs: "flex", md: "none" } }}>
               <IconButton

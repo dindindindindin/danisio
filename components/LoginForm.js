@@ -11,6 +11,8 @@ import { auth } from "../firebase.config";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import { useDispatch } from "react-redux";
+import { loggedInUser } from "../redux/userSlice";
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -33,6 +35,7 @@ const LoginForm = (props) => {
 
   const { t } = useTranslation();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,14 +59,14 @@ const LoginForm = (props) => {
       );
       console.log("create or get user res: ", dbRes);
 
-      // dispatch(
-      //   loggedInUser({
-      //     id: dbRes.data.id,
-      //     email: dbRes.data.email,
-      //     role: dbRes.data.role,
-      //     token: idTokenResult.token,
-      //   })
-      // );
+      dispatch(
+        loggedInUser({
+          id: dbRes.data.id,
+          email: dbRes.data.email,
+          role: dbRes.data.role,
+          token: idTokenResult.token,
+        })
+      );
 
       setEmail("");
       setPassword("");
