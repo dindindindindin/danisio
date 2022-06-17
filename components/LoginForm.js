@@ -13,6 +13,7 @@ import axios from "axios";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { loggedInUser } from "../redux/userSlice";
+import NextLink from "next/link";
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -127,9 +128,11 @@ const LoginForm = (props) => {
         </SubmitButton>
         <Grid container>
           <Grid item xs>
-            <MuiLink href="#" variant="body2" underline="none">
-              {t("account.forgotpw")}
-            </MuiLink>
+            <NextLink href="/forgot-password" passHref>
+              <MuiLink variant="body2" underline="none">
+                {t("account.forgotpw")}
+              </MuiLink>
+            </NextLink>
           </Grid>
           <Grid item>
             <MuiLink

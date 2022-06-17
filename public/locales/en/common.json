@@ -14,6 +14,8 @@
     "forgotpw": "Forgot password?",
     "donthaveacc": "Don't have an account?",
     "alreadyhaveacc": "Already have an account? Login",
+    "forgotpwsuccess": "Password reset e-mail has been sent.",
+    "sendemail": "SEND E-MAIL",
     "validate": {
       "enteremail": "Please enter your email address.",
       "validemail": "Please enter a valid email address.",

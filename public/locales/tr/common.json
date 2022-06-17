@@ -14,6 +14,8 @@
     "forgotpw": "Şifrenizi mi unuttunuz?",
     "donthaveacc": "Hesabınız yok mu?",
     "alreadyhaveacc": "Zaten hesabınız var mı? Giriş yap",
+    "forgotpwsuccess": "Şifre sıfırlama linki e-posta adresinize gönderildi.",
+    "sendemail": "E-POSTA GÖNDER",
     "validate": {
       "enteremail": "Lütfen e-posta adresinizi giriniz.",
       "validemail": "Lütfen geçerli bir e-posta giriniz.",

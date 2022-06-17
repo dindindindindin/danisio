@@ -218,7 +218,7 @@ export default function Layout(props) {
   ];
 
   const loggedOutMobileButtons = (
-    <NextLink href="/account">
+    <NextLink href="/account" passHref>
       <MuiLink color="inherit" underline="none">
         <MenuItem onClick={handleMobileMenuClose}>
           <IconButton size="large" color="inherit">

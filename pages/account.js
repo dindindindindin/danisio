@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { styled } from "@mui/material/styles";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
@@ -9,6 +9,8 @@ import SignupForm from "../components/SignupForm";
 import Layout from "../components/Layout";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
+import { useRouter } from "next/router";
+import { useSelector } from "react-redux";
 
 const Wrapper = styled("div")(({ theme }) => ({
   flexGrow: 1,
@@ -44,6 +46,12 @@ const Account = (props) => {
   };
 
   const { t } = useTranslation();
+  const router = useRouter();
+  const user = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (user && user.token) router.push("/");
+  }, [user]);
 
   return (
     <Layout props>
