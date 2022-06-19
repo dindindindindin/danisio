@@ -17,6 +17,7 @@ import Popper from "@mui/material/Popper";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import Grow from "@mui/material/Grow";
 import Paper from "@mui/material/Paper";
+import CssBaseline from "@mui/material/CssBaseline";
 import Image from "next/image";
 import MuiLink from "@mui/material/Link";
 import NextLink from "next/link";
@@ -383,6 +384,7 @@ export default function Layout(props) {
 
   return (
     <div>
+      <CssBaseline />
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
