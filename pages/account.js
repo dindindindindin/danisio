@@ -11,6 +11,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
+//import withAuthUser from "../lib/HOC/withAuthUser";
 
 const Wrapper = styled("div")(({ theme }) => ({
   flexGrow: 1,
@@ -52,7 +53,6 @@ const Account = (props) => {
   useEffect(() => {
     if (user && user.token) router.push("/");
   }, [user]);
-
   return (
     <Layout props>
       <Container maxWidth="xs">

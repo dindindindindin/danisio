@@ -13,6 +13,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { loggedInUser } from "../redux/userSlice";
+import { setCookies } from "cookies-next";
 
 const Wrapper = styled("div")(({ theme }) => ({
   display: "flex",
@@ -57,25 +58,29 @@ const SignupForm = (props) => {
           input.email,
           input.password
         );
-        console.log("client side userCredential ", userCredential);
+
         const { user } = userCredential;
-        const idTokenResult = await user.getIdTokenResult();
+        const idToken = await user.getIdToken(true);
 
         const dbRes = await axios.post(
           "/api/create-or-get-user",
           {},
-          { headers: { authtoken: idTokenResult.token } }
+          { headers: { authtoken: idToken } }
         );
-        console.log("create or get user res: ", dbRes);
+        console.log("create or get user res: (signup form) ", dbRes);
 
         dispatch(
           loggedInUser({
             id: dbRes.data.id,
             email: dbRes.data.email,
             role: dbRes.data.role,
-            token: idTokenResult.token,
+            token: idToken,
+            refreshToken: user.refreshToken,
           })
         );
+
+        setCookies("idToken", idToken);
+        setCookies("refreshToken", user.refreshToken);
 
         let emptyInput = {};
         emptyInput["email"] = "";

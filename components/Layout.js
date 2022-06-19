@@ -27,6 +27,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout, loggedInUser } from "../redux/userSlice";
 import { onAuthStateChanged } from "firebase/auth";
 import axios from "axios";
+import { setCookies, removeCookies } from "cookies-next";
 
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -88,12 +89,12 @@ export default function Layout(props) {
     try {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
-          const idTokenResult = await user.getIdTokenResult();
+          const idToken = await user.getIdToken(true);
 
           const dbRes = await axios.post(
             "/api/create-or-get-user",
             {},
-            { headers: { authtoken: idTokenResult.token } }
+            { headers: { authtoken: idToken } }
           );
           console.log("create or get user res (useEffect): ", dbRes);
 
@@ -102,16 +103,21 @@ export default function Layout(props) {
               id: dbRes.data.id,
               email: dbRes.data.email,
               role: dbRes.data.role,
-              token: idTokenResult.token,
+              token: idToken,
+              refreshToken: user.refreshToken,
             })
           );
+          setCookies("idToken", idToken);
+          setCookies("refreshToken", user.refreshToken);
         } else {
           dispatch(logout());
+          removeCookies("idToken");
+          removeCookies("refreshToken");
           console.log("user is not logged in.");
         }
       });
     } catch (err) {
-      console.log(error.message);
+      console.log(err.message);
     }
   }, []);
 
@@ -178,12 +184,16 @@ export default function Layout(props) {
   const handleLogout = () => {
     auth.signOut();
     dispatch(logout());
+    removeCookies("idToken");
+    removeCookies("refreshToken");
     handleMenuClose();
     router.push("/");
   };
   const handleMobileLogout = () => {
     auth.signOut();
     dispatch(logout());
+    removeCookies("idToken");
+    removeCookies("refreshToken");
     handleMobileMenuClose();
     router.push("/");
   };
