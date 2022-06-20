@@ -1,7 +1,7 @@
 {
   "nav": {
     "search": "Search for Advisor",
-    "profile": "Profile",
+    "settings": "Settings",
     "logout": "Logout",
     "account": "Account"
   },
@@ -29,6 +29,16 @@
       "weakpw": "Your password is too weak.",
       "usernotfound": "This account doesn't exist.",
       "wrongpw": "Wrong password."
+    }
+  },
+  "settings": {
+    "changepw": {
+      "changepwtitle": "Change Password",
+      "loginagain": "For security reasons you need to login again to change your password.",
+      "changepwsuccess": "Your password has been changed.",
+      "changepw": "CHANGE PASSWORD",
+      "newpw": "New Password",
+      "repeatnewpw": "Repeat New Password"
     }
   }
 }

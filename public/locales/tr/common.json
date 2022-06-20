@@ -1,7 +1,7 @@
 {
   "nav": {
     "search": "Danışman Ara",
-    "profile": "Profilim",
+    "settings": "Ayarlar",
     "logout": "Çıkış Yap",
     "account": "Hesap"
   },
@@ -29,6 +29,16 @@
       "weakpw": "Şifreniz çok zayıf.",
       "usernotfound": "Girilen hesap geçersiz.",
       "wrongpw": "Girilen şifre hatalı."
+    }
+  },
+  "settings": {
+    "changepw": {
+      "changepwtitle": "Şifremi Değiştir",
+      "loginagain": "Güvenlik sebebiyle şifrenizi değiştirebilmek için yeniden giriş yapmanız gerekli.",
+      "changepwsuccess": "Şifreniz değişmiştir.",
+      "changepw": "ŞİFREMİ DEĞİŞTİR",
+      "newpw": "Yeni Şifre",
+      "repeatnewpw": "Tekrar Yeni Şifre"
     }
   }
 }

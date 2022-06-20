@@ -1,14 +1,32 @@
 import Layout from "../../components/Layout";
-import SettingsLayout from "../../components/SettingsLayout";
+import MemberSettingsLayout from "../../components/MemberSettingsLayout";
 import { userAuth } from "../../lib/HOC/withAuthSSR";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
-
+import { useTranslation } from "next-i18next";
+import { auth } from "../../firebase.config";
+import { useState } from "react";
 import Typography from "@mui/material/Typography";
-//import { styled } from "@mui/material/styles";
+import LinearProgress from "@mui/material/LinearProgress";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Paper from "@mui/material/Paper";
+import { updatePassword } from "firebase/auth";
+import { styled } from "@mui/material/styles";
 
-// const Div = styled("div")(({ theme }) => ({
-//   marginTop: "80px",
-// }));
+const Wrapper = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexWrap: "wrap",
+  [theme.breakpoints.down("xs")]: {
+    flexDirection: "column",
+    alignItems: "center",
+  },
+}));
+const StyledPaper = styled(Paper)(({ theme }) => ({
+  padding: theme.spacing(2),
+}));
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  marginTop: "0",
+}));
 
 export const getServerSideProps = userAuth(async (context) => {
   const user = context.req.user;
@@ -22,39 +40,123 @@ export const getServerSideProps = userAuth(async (context) => {
 });
 
 export default function ChangePassword(props) {
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [successful, setSuccessful] = useState(false);
+
+  const { t } = useTranslation();
+  const user = auth.currentUser;
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (validate()) {
+      try {
+        await updatePassword(user, password);
+        setPassword("");
+        setConfirmPassword("");
+        setLoading(false);
+        setSuccessful(true);
+      } catch (error) {
+        const errorCode = error.code;
+        setLoading(false);
+
+        if (errorCode === "auth/weak-password") {
+          setErrors({ password: t("account.firebase.weakpw") });
+        } else if (errorCode === "auth/requires-recent-login") {
+          setErrors({
+            confirmPassword: t("settings.changepw.loginagain"),
+          });
+        } else {
+          setErrors({ confirmPassword: error.message });
+          console.log(errorCode);
+        }
+      }
+    }
+  };
+
+  const validate = () => {
+    let currentErrors = {};
+    let isValid = true;
+
+    if (!password) {
+      setLoading(false);
+      isValid = false;
+      currentErrors["password"] = t("account.validate.enterpw");
+    }
+
+    if (!confirmPassword) {
+      setLoading(false);
+      isValid = false;
+      currentErrors["confirmPassword"] = t("account.validate.pwagain");
+    }
+
+    if (password !== "" && confirmPassword !== "") {
+      if (password !== confirmPassword) {
+        setLoading(false);
+        isValid = false;
+        currentErrors["password"] = t("account.validate.pwdonotmatch");
+      }
+    }
+    setErrors(currentErrors);
+
+    return isValid;
+  };
+
   return (
     <Layout props>
-      <SettingsLayout>
-        <Typography paragraph>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Rhoncus
-          dolor purus non enim praesent elementum facilisis leo vel. Risus at
-          ultrices mi tempus imperdiet. Semper risus in hendrerit gravida rutrum
-          quisque non tellus. Convallis convallis tellus id interdum velit
-          laoreet id donec ultrices. Odio morbi quis commodo odio aenean sed
-          adipiscing. Amet nisl suscipit adipiscing bibendum est ultricies
-          integer quis. Cursus euismod quis viverra nibh cras. Metus vulputate
-          eu scelerisque felis imperdiet proin fermentum leo. Mauris commodo
-          quis imperdiet massa tincidunt. Cras tincidunt lobortis feugiat
-          vivamus at augue. At augue eget arcu dictum varius duis at consectetur
-          lorem. Velit sed ullamcorper morbi tincidunt. Lorem donec massa sapien
-          faucibus et molestie ac.
-        </Typography>
-        <Typography paragraph>
-          Consequat mauris nunc congue nisi vitae suscipit. Fringilla est
-          ullamcorper eget nulla facilisi etiam dignissim diam. Pulvinar
-          elementum integer enim neque volutpat ac tincidunt. Ornare suspendisse
-          sed nisi lacus sed viverra tellus. Purus sit amet volutpat consequat
-          mauris. Elementum eu facilisis sed odio morbi. Euismod lacinia at quis
-          risus sed vulputate odio. Morbi tincidunt ornare massa eget egestas
-          purus viverra accumsan in. In hendrerit gravida rutrum quisque non
-          tellus orci ac. Pellentesque nec nam aliquam sem et tortor. Habitant
-          morbi tristique senectus et. Adipiscing elit duis tristique
-          sollicitudin nibh sit. Ornare aenean euismod elementum nisi quis
-          eleifend. Commodo viverra maecenas accumsan lacus vel facilisis. Nulla
-          posuere sollicitudin aliquam ultrices sagittis orci a.
-        </Typography>
-      </SettingsLayout>
+      <MemberSettingsLayout heading={t("settings.changepw.changepwtitle")}>
+        <Wrapper>
+          <StyledPaper>
+            <form noValidate>
+              <StyledTextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                name="password"
+                label={t("settings.changepw.newpw")}
+                type="password"
+                autoComplete="current-password"
+                onChange={(e) => setPassword(e.target.value)}
+                value={password}
+              />
+              <Typography color="error">{errors.password}</Typography>
+              <TextField
+                variant="outlined"
+                margin="normal"
+                required
+                fullWidth
+                name="confirmPassword"
+                label={t("settings.changepw.repeatnewpw")}
+                type="password"
+                autoComplete="current-password"
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={confirmPassword}
+              />
+              <Typography color="error">{errors.confirmPassword}</Typography>
+              {loading && <LinearProgress />}
+              {successful && (
+                <Typography color="primary">
+                  {t("settings.changepw.changepwsuccess")}
+                </Typography>
+              )}
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+              >
+                {t("settings.changepw.changepw")}
+              </Button>
+            </form>
+          </StyledPaper>
+        </Wrapper>
+      </MemberSettingsLayout>
     </Layout>
   );
 }

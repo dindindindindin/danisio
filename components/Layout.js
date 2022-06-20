@@ -218,7 +218,7 @@ export default function Layout(props) {
       <IconButton size="large" color="inherit">
         <AccountCircle />
       </IconButton>
-      <p>{t("nav.profile")}</p>
+      <p>{t("nav.settings")}</p>
     </MenuItem>,
     <MenuItem key="logout" onClick={handleMobileLogout}>
       <IconButton size="large" color="inherit">
@@ -257,7 +257,7 @@ export default function Layout(props) {
       onClose={handleMenuClose}
     >
       <MenuItem onClick={handleMenuClose}>
-        <p>{t("nav.profile")}</p>
+        <p>{t("nav.settings")}</p>
       </MenuItem>
       <MenuItem onClick={handleLogout}>
         <p>{t("nav.logout")}</p>

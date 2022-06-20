@@ -21,7 +21,7 @@ const drawerWidth = 240;
 //   marginTop: "80px",
 // }));
 
-export default function SettingsLayout(props) {
+export default function MemberSettingsLayout(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -79,7 +79,7 @@ export default function SettingsLayout(props) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Responsive drawer
+            {props.heading}
           </Typography>
         </Toolbar>
       </AppBar>
