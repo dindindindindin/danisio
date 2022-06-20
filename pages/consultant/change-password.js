@@ -1,6 +1,6 @@
 import Layout from "../../components/Layout";
-import MemberSettingsLayout from "../../components/MemberSettingsLayout";
-import { withMemberAuth } from "../../lib/HOC/withAuthSSR";
+import ConsultantSettingsLayout from "../../components/MemberSettingsLayout";
+import { withConsultantAuth } from "../../lib/HOC/withAuthSSR";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import { auth } from "../../firebase.config";
@@ -28,8 +28,15 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   marginTop: "0",
 }));
 
-export const getServerSideProps = withMemberAuth(async (context) => {
+export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const user = context.req.user;
+  if (error) {
+    return {
+      redirect: {
+        destination: "/",
+      },
+    };
+  }
   return {
     props: {
       ...(await serverSideTranslations(context.locale, ["common"])),
@@ -108,7 +115,7 @@ export default function ChangePassword(props) {
 
   return (
     <Layout props>
-      <MemberSettingsLayout heading={t("settings.changepw.changepwtitle")}>
+      <ConsultantSettingsLayout heading={t("settings.changepw.changepwtitle")}>
         <Wrapper>
           <StyledPaper>
             <form noValidate>
@@ -156,7 +163,7 @@ export default function ChangePassword(props) {
             </form>
           </StyledPaper>
         </Wrapper>
-      </MemberSettingsLayout>
+      </ConsultantSettingsLayout>
     </Layout>
   );
 }
