@@ -10,6 +10,7 @@ import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import axios from "axios";
+import query from "../../db";
 
 const StyledImage = styled(Image)(({ theme }) => ({
   borderRadius: "50%",
@@ -22,6 +23,7 @@ const FileInput = styled("input")`
 
 export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const user = context.req.user;
+
   if (error) {
     return {
       redirect: {
@@ -29,10 +31,18 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
       },
     };
   }
+
+  let profilePic = "default-profile-picture.png";
+  const dbProfilePicRes = query(
+    `SELECT profile_picture_url FROM consultants WHERE email = ${user.email} INNER JOIN users ON users.id = consultants.user_id`
+  );
+  if (dbProfilePicRes[0]) profilePic = dbProfilePicRes[0];
+
   return {
     props: {
       ...(await serverSideTranslations(context.locale, ["common"])),
       user,
+      profilePic,
       // Will be passed to the page component as props
     },
   };
@@ -40,6 +50,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 
 export default function ProfileSettings(props) {
   const [selectedImage, setSelectedImage] = useState(null);
+  const [profileImageUrl, setProfileImageUrl] = useState(props.profilePic);
   const { t } = useTranslation();
 
   const handleImageInput = async (file) => {
@@ -57,6 +68,7 @@ export default function ProfileSettings(props) {
         },
       }
     );
+    setProfileImageUrl(`${props.user.email}/profile-picture.jpg`);
     console.log("image client dbRes: ", dbRes);
   };
 
@@ -66,8 +78,8 @@ export default function ProfileSettings(props) {
         <Container>
           <Box display="flex" justifyContent="center">
             <StyledImage
-              src="/images/default-profile-picture.png"
-              alt="Default profile picture"
+              src={`/images/${profileImageUrl}`}
+              alt="Consultant profile picture"
               width="150"
               height="150"
             />
