@@ -1,8 +1,7 @@
-//import query from "../../db";
+import query from "../../../../db";
 const admin = require("../../../../fbAdmin.config");
 import multer from "multer";
 import nextConnect from "next-connect";
-//import formidable from "formidable";
 import sharp from "sharp";
 var fs = require("fs");
 
@@ -11,13 +10,6 @@ export const config = {
     bodyParser: false,
   },
 };
-
-// var storage = multer.diskStorage({
-//   destination: "./public/images/sample",
-//   filename: function (req, file, cb) {
-//     cb(null, "profile-pic.jpg");
-//   },
-// });
 
 var storage = multer.memoryStorage();
 
@@ -55,38 +47,39 @@ apiRoute.post(async (req, res) => {
   }
   sharp(req.file.buffer)
     .resize(400, 400)
-    .toFile(`./public/images/${req.user.email}/profile-picture.jpg`, (err) => {
-      if (err) {
-        console.log(err);
-        res.status(500).json({ error: "resizing image error" });
-      } else res.status(200).json({ data: "success" });
-    });
+    .toFile(
+      `./public/images/${req.user.email}/profile-picture.jpg`,
+      async (err) => {
+        if (err) {
+          console.log(err);
+          res.status(500).json({ error: "resizing image error" });
+          return;
+        } else {
+          try {
+            const userId = await query(
+              `SELECT users.id, profile_picture_url FROM users INNER JOIN consultants ON consultants.user_id = users.id WHERE email = '${req.user.email}'`
+            );
+            console.log("userId: ", userId);
+            if (
+              userId[0].profile_picture_url ===
+              "/images/default-profile-picture.png"
+            ) {
+              await query(
+                `UPDATE consultants SET profile_picture_url = '/images/${req.user.email}/profile-picture.jpg' WHERE user_id = ${userId[0].id}`
+              );
+              res
+                .status(200)
+                .json({ data: "consultant profile pic url updated" });
+              return;
+            }
+          } catch (err) {
+            res.status(500).json({ error: "db error" });
+            return;
+          }
+          res.status(200).json({ data: "success" });
+        }
+      }
+    );
 });
 
-// async function profilePictureUpload(req, res) {
-//   //console.log("request: ", req);
-//   try {
-//     const firebaseUser = await admin.auth().verifyIdToken(req.cookies.idToken);
-
-//     req.user = firebaseUser;
-//   } catch (err) {
-//     res.status(401).json({ err: "invalid or expired token" });
-//     return;
-//   }
-
-// const form = new formidable.IncomingForm({
-//   uploadDir: "./public/images/sample",
-//   keepExtensions: true,
-//   filename: "profile-picture",
-// });
-// form.uploadDir = "./public/images/sample";
-// form.keepExtensions = true;
-// form.filename = "profile-picture";
-//   form.parse(req, (err, fields, files) => {
-//     console.log(err, fields, files);
-//   });
-//   res.status(200).send({});
-// }
-
-// export default profilePictureUpload;
 export default apiRoute;

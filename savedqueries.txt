@@ -1,9 +1,17 @@
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS countries;
+DROP TABLE IF EXISTS consultants;
+DROP TABLE IF EXISTS consultant_countries;
+DROP TABLE IF EXISTS services;
+DROP TABLE IF EXISTS consultant_services;
+DROP TABLE IF EXISTS consultant_addresses;
+
 CREATE TABLE users (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(60) NOT NULL,
     role VARCHAR (50) NOT NULL DEFAULT 'member');
 
-    CREATE TABLE countries(
+CREATE TABLE countries(
     id INT(4) NOT NULL PRIMARY KEY,
     name VARCHAR(20));
 
@@ -14,7 +22,7 @@ CREATE TABLE consultants(
     last_name VARCHAR(40),
     about VARCHAR(200),
     phone_number VARCHAR(12),
-    profile_picture_url VARCHAR(150),
+    profile_picture_url VARCHAR(150) DEFAULT '/images/default-profile-picture.png',
     country_id INT(4),
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(country_id) REFERENCES countries(id));
@@ -45,10 +53,15 @@ CREATE TABLE consultant_addresses(
     is_primary BOOLEAN DEFAULT 0,
     FOREIGN KEY(consultant_id) REFERENCES consultants(id));
 
+DELIMITER $$
 CREATE TRIGGER consultant_creator_trigger
 AFTER INSERT ON users
 FOR EACH ROW
 BEGIN
-IF new.role = 'consultant'
-THEN INSERT INTO consultants (user_id) VALUES (new.id);
-END;
+IF (NEW.role = 'consultant')
+THEN INSERT INTO consultants (user_id) VALUES (NEW.id);
+END IF;
+END$$
+DELIMITER ;
+
+INSERT INTO users (email, role) VALUES ('dincercetiner@hotmail.com', 'consultant');
