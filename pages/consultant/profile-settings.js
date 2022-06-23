@@ -38,17 +38,20 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
     };
   }
 
-  const dbProfilePicRes = await query(
-    `SELECT profile_picture_url FROM consultants INNER JOIN users ON users.id = consultants.user_id WHERE email = '${user.email}'`
+  //retrieve id and profilePicUrl from db
+  const dbRes = await query(
+    `SELECT users.id, profile_picture_url FROM consultants INNER JOIN users ON users.id = consultants.user_id WHERE email = '${user.email}'`
   );
-  console.log("dbProfilePicRes: ", dbProfilePicRes);
-  const profilePic = dbProfilePicRes[0].profile_picture_url;
+  console.log("userId profilePic dbRes: ", dbRes);
+  const profilePic = dbRes[0].profile_picture_url;
+  const userId = dbRes[0].id;
 
   return {
     props: {
       ...(await serverSideTranslations(context.locale, ["common"])),
       user,
       profilePic,
+      userId,
       // Will be passed to the page component as props
     },
   };
@@ -80,12 +83,11 @@ export default function ProfileSettings(props) {
     );
 
     //force rerender
-    if (profileImageUrl === `/images/${props.user.email}/profile-picture.jpg`) {
+    if (profileImageUrl === `/images/${props.userId}/profile-picture.jpg`) {
       setProfileImageUrl(
-        `http://localhost:3000/images/${props.user.email}/profile-picture.jpg`
+        `http://localhost:3000/images/${props.userId}/profile-picture.jpg`
       );
-    } else
-      setProfileImageUrl(`/images/${props.user.email}/profile-picture.jpg`);
+    } else setProfileImageUrl(`/images/${props.userId}/profile-picture.jpg`);
 
     e.target.value = "";
 
@@ -93,7 +95,7 @@ export default function ProfileSettings(props) {
   };
 
   const handleImageRemoval = async () => {
-    await axios.get("/api/consultant/profile-settings/profile-picture-remove");
+    await axios.put("/api/consultant/profile-settings/profile-picture-remove");
     setProfileImageUrl("/images/default-profile-picture.png");
   };
 

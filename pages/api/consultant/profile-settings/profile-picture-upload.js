@@ -5,16 +5,18 @@ import nextConnect from "next-connect";
 import sharp from "sharp";
 var fs = require("fs");
 
+//required for successful formData transfer
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
+//multer config
 var storage = multer.memoryStorage();
-
 var upload = multer({ storage: storage });
 
+//next-connect main function
 const apiRoute = nextConnect({
   onError(error, req, res) {
     res
@@ -26,6 +28,7 @@ const apiRoute = nextConnect({
   },
 });
 
+//check id token
 apiRoute.use(async (req, res, next) => {
   try {
     const firebaseUser = await admin.auth().verifyIdToken(req.cookies.idToken);
@@ -38,17 +41,31 @@ apiRoute.use(async (req, res, next) => {
   }
 });
 
+//multer middleware call to create image buffer in memory
 apiRoute.use(upload.single("imagefile"));
 
 apiRoute.post(async (req, res) => {
-  let dir = `./public/images/${req.user.email}`;
+  //retrieve id and profile pic url from db
+  try {
+    var userId = await query(
+      `SELECT users.id, profile_picture_url FROM users INNER JOIN consultants ON consultants.user_id = users.id WHERE email = '${req.user.email}'`
+    );
+  } catch (err) {
+    res.status(500).json({ error: "fetch id and url from db error" });
+    return;
+  }
+
+  //create folder if not exists
+  let dir = `./public/images/${userId[0].id}`;
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
   }
+
+  //write the file from memory to folder
   sharp(req.file.buffer)
     .resize(400, 400)
     .toFile(
-      `./public/images/${req.user.email}/profile-picture.jpg`,
+      `./public/images/${userId[0].id}/profile-picture.jpg`,
       async (err) => {
         if (err) {
           console.log(err);
@@ -56,16 +73,13 @@ apiRoute.post(async (req, res) => {
           return;
         } else {
           try {
-            const userId = await query(
-              `SELECT users.id, profile_picture_url FROM users INNER JOIN consultants ON consultants.user_id = users.id WHERE email = '${req.user.email}'`
-            );
-            console.log("userId: ", userId);
+            //if profile pic is default change url
             if (
               userId[0].profile_picture_url ===
               "/images/default-profile-picture.png"
             ) {
               await query(
-                `UPDATE consultants SET profile_picture_url = '/images/${req.user.email}/profile-picture.jpg' WHERE user_id = ${userId[0].id}`
+                `UPDATE consultants SET profile_picture_url = '/images/${userId[0].id}/profile-picture.jpg' WHERE user_id = ${userId[0].id}`
               );
               res
                 .status(200)
@@ -73,7 +87,7 @@ apiRoute.post(async (req, res) => {
               return;
             }
           } catch (err) {
-            res.status(500).json({ error: "db error" });
+            res.status(500).json({ error: "update url db error" });
             return;
           }
           res.status(200).json({ data: "success" });
