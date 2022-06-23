@@ -39,6 +39,7 @@
       "changepw": "CHANGE PASSWORD",
       "newpw": "New Password",
       "repeatnewpw": "Repeat New Password"
-    }
+    },
+    "profile-settings": { "profile-settings-title": "Profile Settings" }
   }
 }

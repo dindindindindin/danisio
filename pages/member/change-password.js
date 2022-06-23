@@ -1,5 +1,5 @@
 import Layout from "../../components/Layout";
-import MemberSettingsLayout from "../../components/MemberSettingsLayout";
+import MemberSettingsLayout from "../../components/Member/MemberSettingsLayout";
 import { withMemberAuth } from "../../lib/HOC/withAuthSSR";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";

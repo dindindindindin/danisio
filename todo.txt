@@ -1,2 +1,3 @@
 cookies must persist
 profile pic in settings is not stable
+separate component for settings

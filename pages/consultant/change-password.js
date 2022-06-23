@@ -1,5 +1,5 @@
 import Layout from "../../components/Layout";
-import ConsultantSettingsLayout from "../../components/MemberSettingsLayout";
+import ConsultantSettingsLayout from "../../components/Consultant/ConsultantSettingsLayout";
 import { withConsultantAuth } from "../../lib/HOC/withAuthSSR";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";

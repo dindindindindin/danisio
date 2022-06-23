@@ -39,6 +39,7 @@
       "changepw": "ŞİFREMİ DEĞİŞTİR",
       "newpw": "Yeni Şifre",
       "repeatnewpw": "Tekrar Yeni Şifre"
-    }
+    },
+    "profile-settings": { "profile-settings-title": "Profil Ayarları" }
   }
 }
