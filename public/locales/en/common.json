@@ -40,6 +40,12 @@
       "newpw": "New Password",
       "repeatnewpw": "Repeat New Password"
     },
-    "profile-settings": { "profile-settings-title": "Profile Settings" }
+    "profile-settings": {
+      "profile-settings-title": "Profile Settings",
+      "first-name": "First Name",
+      "last-name": "Last Name",
+      "about-me": "About Me",
+      "update": "UPDATE"
+    }
   }
 }

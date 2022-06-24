@@ -40,6 +40,12 @@
       "newpw": "Yeni Şifre",
       "repeatnewpw": "Tekrar Yeni Şifre"
     },
-    "profile-settings": { "profile-settings-title": "Profil Ayarları" }
+    "profile-settings": {
+      "profile-settings-title": "Profil Ayarları",
+      "first-name": "İsim",
+      "last-name": "Soyisim",
+      "about-me": "Hakkımda",
+      "update": "GÜNCELLE"
+    }
   }
 }

@@ -1,3 +1,5 @@
+settings side nav marginTop bug
 cookies must persist
 profile pic in settings is not stable
-separate component for settings
+implement nav settings link
+populate settings side nav
