@@ -18,7 +18,7 @@ async function profilePictureRemove(req, res) {
     `SELECT users.id, profile_picture_url FROM users INNER JOIN consultants ON consultants.user_id = users.id WHERE email = '${req.user.email}'`
   );
 
-  //remove folder if exists
+  //remove file if exists
   let filePath = `./public/images/${userId[0].id}/profile-picture.jpg`;
   if (fs.existsSync(filePath)) {
     fs.unlinkSync(filePath);

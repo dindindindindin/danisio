@@ -1,10 +1,11 @@
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS countries;
-DROP TABLE IF EXISTS consultants;
-DROP TABLE IF EXISTS consultant_countries;
-DROP TABLE IF EXISTS services;
 DROP TABLE IF EXISTS consultant_services;
 DROP TABLE IF EXISTS consultant_addresses;
+DROP TABLE IF EXISTS consultant_countries;
+DROP TABLE IF EXISTS consultants;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS countries;
+DROP TABLE IF EXISTS services;
+
 
 CREATE TABLE users (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -12,8 +13,9 @@ CREATE TABLE users (
     role VARCHAR (50) NOT NULL DEFAULT 'member');
 
 CREATE TABLE countries(
-    id INT(4) NOT NULL PRIMARY KEY,
-    name VARCHAR(20));
+    id INT(3) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(20),
+    region VARCHAR(20));
 
 CREATE TABLE consultants(
     id INT(6) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -23,14 +25,14 @@ CREATE TABLE consultants(
     about VARCHAR(200),
     phone_number VARCHAR(12),
     profile_picture_url VARCHAR(150) DEFAULT '/images/default-profile-picture.png',
-    country_id INT(4),
+    country_id INT(3),
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(country_id) REFERENCES countries(id));
 
 CREATE TABLE consultant_countries(
     id INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     consultant_id INT(6) NOT NULL,
-    country_id INT(4) NOT NULL,
+    country_id INT(3) NOT NULL,
 	FOREIGN KEY(consultant_id) REFERENCES consultants(id),
 	FOREIGN KEY(country_id) REFERENCES countries(id));
 
@@ -65,3 +67,10 @@ END$$
 DELIMITER ;
 
 INSERT INTO users (email, role) VALUES ('dincercetiner@hotmail.com', 'consultant');
+
+INSERT INTO countries VALUES (1, 'United States', 'North America');
+INSERT INTO countries VALUES (2, 'United Kingdom', 'Europe');
+INSERT INTO countries VALUES (3, 'Germany', 'Europe');
+INSERT INTO countries VALUES (4, 'Canada', 'North America');
+INSERT INTO countries VALUES (5, 'China', 'Asia');
+INSERT INTO countries VALUES (6, 'Japan', 'Asia');

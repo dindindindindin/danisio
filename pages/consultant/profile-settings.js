@@ -8,6 +8,7 @@ import Container from "@mui/material/Container";
 import query from "../../db";
 import ProfilePicture from "../../components/Consultant/ProfileSettings/ProfilePicture";
 import FirstLastAbout from "../../components/Consultant/ProfileSettings/FirstLastAbout";
+import Countries from "../../components/Consultant/ProfileSettings/Countries";
 
 export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const user = context.req.user;
@@ -21,20 +22,23 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   }
 
   //retrieve id and profilePicUrl from db
-  const dbRes = await query(
+  const dbUserRes = await query(
     `SELECT users.id, profile_picture_url, first_name, last_name, about FROM consultants INNER JOIN users ON users.id = consultants.user_id WHERE email = '${user.email}'`
   );
-  console.log("userId profilePic dbRes: ", dbRes);
-  const profilePicUrl = dbRes[0].profile_picture_url;
-  const userId = dbRes[0].id;
+  const profilePicUrl = dbUserRes[0].profile_picture_url;
+  const userId = dbUserRes[0].id;
+
+  //retrieve countries
+  const countriesRes = await query("SELECT name, region FROM countries");
+  const countries = JSON.stringify(countriesRes);
 
   //if null change to empty string
-  if (dbRes[0].first_name === null) var firstName = "";
-  else var firstName = dbRes[0].first_name;
-  if (dbRes[0].last_name === null) var lastName = "";
-  else var lastName = dbRes[0].last_name;
-  if (dbRes[0].about === null) var aboutMe = "";
-  else var aboutMe = dbRes[0].about;
+  if (dbUserRes[0].first_name === null) var firstName = "";
+  else var firstName = dbUserRes[0].first_name;
+  if (dbUserRes[0].last_name === null) var lastName = "";
+  else var lastName = dbUserRes[0].last_name;
+  if (dbUserRes[0].about === null) var aboutMe = "";
+  else var aboutMe = dbUserRes[0].about;
 
   return {
     props: {
@@ -45,6 +49,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
       firstName,
       lastName,
       aboutMe,
+      countries,
       // Will be passed to the page component as props
     },
   };
@@ -73,6 +78,7 @@ export default function ProfileSettings(props) {
               aboutMe={props.aboutMe}
               {...props}
             />
+            <Countries countries={props.countries} {...props} />
           </Container>
         </ConsultantSettingsLayout>
       </Layout>

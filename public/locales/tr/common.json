@@ -48,7 +48,9 @@
       "update": "GÜNCELLE",
       "first-name-error": "İsim 60 karakterden uzun olamaz.",
       "last-name-error": "Soyisim 40 karakterden uzun olamaz.",
-      "about-me-error": "Hakkımda kısmı 200 karakterden uzun olamaz."
+      "about-me-error": "Hakkımda kısmı 200 karakterden uzun olamaz.",
+      "relevant-countries": "İlgili olduğunuz ülkeleri ekleyiniz:",
+      "countries": "Ülkeler"
     }
   }
 }

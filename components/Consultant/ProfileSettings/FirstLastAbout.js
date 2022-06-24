@@ -1,4 +1,7 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import axios from "axios";
