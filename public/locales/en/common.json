@@ -45,7 +45,10 @@
       "first-name": "First Name",
       "last-name": "Last Name",
       "about-me": "About Me",
-      "update": "UPDATE"
+      "update": "UPDATE",
+      "first-name-error": "First name cannot be longer than 60 characters.",
+      "last-name-error": "Last name cannot be longer than 40 characters.",
+      "about-me-error": "About me section cannot be longer than 200 characters."
     }
   }
 }

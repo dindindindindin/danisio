@@ -12,6 +12,18 @@ export default async function firstLastAboutUpdate(req, res) {
     return;
   }
 
+  //check character length
+  if (req.body.firstName.length > 60) {
+    res.status(500).json({ error: "first name too long" });
+    return;
+  } else if (req.body.lastName.length > 40) {
+    res.status(500).json({ error: "last name too long" });
+    return;
+  } else if (req.body.aboutMe.length > 200) {
+    res.status(500).json({ error: "about me too long" });
+    return;
+  }
+
   //retrieve userId
   try {
     var userId = await query(
