@@ -50,7 +50,9 @@
       "last-name-error": "Soyisim 40 karakterden uzun olamaz.",
       "about-me-error": "Hakkımda kısmı 200 karakterden uzun olamaz.",
       "relevant-countries": "İlgili olduğunuz ülkeleri ekleyiniz:",
-      "countries": "Ülkeler"
+      "countries": "Ülkeler",
+      "offered-services": "Verdiğiniz hizmetleri ekleyiniz:",
+      "services": "Hizmetler"
     }
   },
   "countries": {
@@ -65,5 +67,10 @@
     "North America": "Kuzey Amerika",
     "Europe": "Avrupa",
     "Asia": "Asya"
+  },
+  "services": {
+    "High School": "Lise",
+    "University": "Üniversite",
+    "Language School": "Dil Okulu"
   }
 }

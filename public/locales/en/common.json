@@ -50,7 +50,9 @@
       "last-name-error": "Last name cannot be longer than 40 characters.",
       "about-me-error": "About me section cannot be longer than 200 characters.",
       "relevant-countries": "Add countries relevant to you:",
-      "countries": "Countries"
+      "countries": "Countries",
+      "offered-services": "Add services you offer:",
+      "services": "Services"
     }
   },
   "countries": {
@@ -65,5 +67,10 @@
     "North America": "North America",
     "Europe": "Europe",
     "Asia": "Asia"
+  },
+  "services": {
+    "High School": "High School",
+    "University": "University",
+    "Language School": "Language School"
   }
 }

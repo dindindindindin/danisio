@@ -9,6 +9,7 @@ import query from "../../db";
 import ProfilePicture from "../../components/Consultant/ProfileSettings/ProfilePicture";
 import FirstLastAbout from "../../components/Consultant/ProfileSettings/FirstLastAbout";
 import Countries from "../../components/Consultant/ProfileSettings/Countries";
+import Services from "../../components/Consultant/ProfileSettings/Services";
 
 export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const user = context.req.user;
@@ -54,6 +55,24 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
     consultantCountries.push(country.country_id);
   });
 
+  //retrieve services
+  const servicesRes = await query("SELECT id, service FROM services");
+  const services = JSON.parse(JSON.stringify(servicesRes));
+
+  //retrieve consultant services
+  const consultantServicesRes = await query(
+    `SELECT service_id FROM consultant_services WHERE user_id = ${userId}`
+  );
+  const consultantServicesObj = JSON.parse(
+    JSON.stringify(consultantServicesRes)
+  );
+
+  //push the ids into array
+  let consultantServices = [];
+  consultantServicesObj.map((service) => {
+    consultantServices.push(service.service_id);
+  });
+
   return {
     props: {
       ...(await serverSideTranslations(context.locale, ["common"])),
@@ -65,6 +84,8 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
       aboutMe,
       countries,
       consultantCountries,
+      services,
+      consultantServices,
       // Will be passed to the page component as props
     },
   };
@@ -96,6 +117,11 @@ export default function ProfileSettings(props) {
             <Countries
               countries={props.countries}
               consultantCountries={props.consultantCountries}
+              {...props}
+            />
+            <Services
+              services={props.services}
+              consultantServices={props.consultantServices}
               {...props}
             />
           </Container>

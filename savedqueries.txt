@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS services;
 
 
 CREATE TABLE users (
-    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id INT(6) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(60) NOT NULL,
     role VARCHAR (50) NOT NULL DEFAULT 'member');
 
@@ -19,7 +19,7 @@ CREATE TABLE countries(
 
 CREATE TABLE consultants(
     id INT(6) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    user_id INT(6) NOT NULL,
+    user_id INT(6) UNIQUE NOT NULL,
     first_name VARCHAR(60),
     last_name VARCHAR(40),
     about VARCHAR(200),
@@ -31,9 +31,9 @@ CREATE TABLE consultants(
 
 CREATE TABLE consultant_countries(
     id INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    consultant_id INT(6) NOT NULL,
+    user_id INT(6) NOT NULL,
     country_id INT(3) NOT NULL,
-	FOREIGN KEY(consultant_id) REFERENCES consultants(id),
+	FOREIGN KEY(user_id) REFERENCES consultants(user_id),
 	FOREIGN KEY(country_id) REFERENCES countries(id));
 
 CREATE TABLE services(
@@ -42,18 +42,18 @@ CREATE TABLE services(
 
 CREATE TABLE consultant_services(
     id INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    consultant_id INT(6) NOT NULL,
+    user_id INT(6) NOT NULL,
     service_id INT(3) NOT NULL,
-    FOREIGN KEY(consultant_id) REFERENCES consultants(id),
+    FOREIGN KEY(user_id) REFERENCES consultants(user_id),
     FOREIGN KEY(service_id) REFERENCES services(id));
 
 CREATE TABLE consultant_addresses(
     id INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    consultant_id INT(6) NOT NULL,
+    user_id INT(6) NOT NULL,
     city VARCHAR(20),
     address VARCHAR(200),
     is_primary BOOLEAN DEFAULT 0,
-    FOREIGN KEY(consultant_id) REFERENCES consultants(id));
+    FOREIGN KEY(user_id) REFERENCES consultants(user_id));
 
 DELIMITER $$
 CREATE TRIGGER consultant_creator_trigger
@@ -68,9 +68,13 @@ DELIMITER ;
 
 INSERT INTO users (email, role) VALUES ('dincercetiner@hotmail.com', 'consultant');
 
-INSERT INTO countries VALUES (1, 'United States', 'North America');
-INSERT INTO countries VALUES (2, 'United Kingdom', 'Europe');
-INSERT INTO countries VALUES (3, 'Germany', 'Europe');
-INSERT INTO countries VALUES (4, 'Canada', 'North America');
-INSERT INTO countries VALUES (5, 'China', 'Asia');
-INSERT INTO countries VALUES (6, 'Japan', 'Asia');
+INSERT INTO countries (name, region) VALUES ('United States', 'North America');
+INSERT INTO countries (name, region) VALUES ('United Kingdom', 'Europe');
+INSERT INTO countries (name, region) VALUES ('Germany', 'Europe');
+INSERT INTO countries (name, region) VALUES ('Canada', 'North America');
+INSERT INTO countries (name, region) VALUES ('China', 'Asia');
+INSERT INTO countries (name, region) VALUES ('Japan', 'Asia');
+
+INSERT INTO services (service) VALUES ('High School');
+INSERT INTO services (service) VALUES ('University');
+INSERT INTO services (service) VALUES ('Language School');
