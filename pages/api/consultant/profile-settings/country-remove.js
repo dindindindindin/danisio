@@ -1,7 +1,7 @@
 import query from "../../../../db";
 const admin = require("../../../../fbAdmin.config");
 
-export default async function countryAdd(req, res) {
+export default async function countryRemove(req, res) {
   //check token
   try {
     const firebaseUser = await admin.auth().verifyIdToken(req.cookies.idToken);
@@ -22,15 +22,14 @@ export default async function countryAdd(req, res) {
     return;
   }
 
-  //insert into consultant_countries
+  //delete from db
   try {
     await query(
-      `INSERT INTO consultant_countries (user_id, country_id) VALUES (${userId[0].id}, ${req.body.id});`
+      `DELETE FROM consultant_countries WHERE user_id = ${userId[0].id} AND country_id = ${req.body.countryId};`
     );
   } catch (err) {
-    res.status(500).json({ error: "insert country error" });
+    res.status(500).json({ error: "consultant_countries deletion error" });
     return;
   }
-
   res.status(200).json({ success: "success" });
 }

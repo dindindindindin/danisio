@@ -10,6 +10,9 @@ export default function Countries(props) {
   const { t } = useTranslation();
   const countries = JSON.parse(props.countries);
 
+  //for removeOption
+  let currentCountryIds = props.consultantCountries;
+
   const handleChange = async (e, values, reason) => {
     console.log("e: ", e.target, " values: ", values, " reason: ", reason);
 
@@ -17,6 +20,10 @@ export default function Countries(props) {
     if (reason === "selectOption") {
       values.map(async (value) => {
         if (value.name === e.target.innerText) {
+          //populate for comparison in removeOption
+          currentCountryIds.push(value.id);
+
+          //api call
           await axios.post("/api/consultant/profile-settings/country-add", {
             id: value.id,
           });
@@ -25,6 +32,24 @@ export default function Countries(props) {
     }
 
     if (reason === "removeOption") {
+      let valueIds = [];
+      let idToRemove = null;
+      values.map((value) => valueIds.push(value.id));
+
+      //check the missing country in values
+      currentCountryIds.map(async (currentCountryId) => {
+        if (!valueIds.includes(currentCountryId)) {
+          idToRemove = currentCountryId;
+
+          //api call
+          await axios.post("/api/consultant/profile-settings/country-remove", {
+            countryId: currentCountryId,
+          });
+        }
+      });
+      for (let i = 0; i < currentCountryIds.length; i++) {
+        if (currentCountryIds[i] === idToRemove) currentCountryIds.splice(i, 1);
+      }
     }
   };
 
@@ -48,7 +73,7 @@ export default function Countries(props) {
   return (
     <Box border="2px solid #f0f0f4" borderRadius="5px" marginTop="30px">
       <form>
-        <Typography>
+        <Typography sx={{ margin: "15px 2% 15px 2%" }}>
           {t("settings.profile-settings.relevant-countries")}
         </Typography>
         <Autocomplete
@@ -58,13 +83,16 @@ export default function Countries(props) {
           groupBy={(option) => option.region}
           filterSelectedOptions
           disableClearable
+          sx={{ margin: "15px 2% 15px 2%" }}
           defaultValue={defaultValues()}
-          renderInput={(params) => (
-            <TextField
-              {...params}
-              label={t("settings.profile-settings.countries")}
-            />
-          )}
+          renderInput={(params) => {
+            return (
+              <TextField
+                {...params}
+                label={t("settings.profile-settings.countries")}
+              />
+            );
+          }}
           onChange={handleChange}
         />
       </form>
