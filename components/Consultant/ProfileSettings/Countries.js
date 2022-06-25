@@ -10,8 +10,39 @@ export default function Countries(props) {
   const { t } = useTranslation();
   const countries = JSON.parse(props.countries);
 
-  const handleChange = (e, value, reason) => {
-    console.log("e: ", e, " value: ", value, " reason: ", reason);
+  const handleChange = async (e, values, reason) => {
+    console.log("e: ", e.target, " values: ", values, " reason: ", reason);
+
+    //add consultant country to db
+    if (reason === "selectOption") {
+      values.map(async (value) => {
+        if (value.name === e.target.innerText) {
+          await axios.post("/api/consultant/profile-settings/country-add", {
+            id: value.id,
+          });
+        }
+      });
+    }
+
+    if (reason === "removeOption") {
+    }
+  };
+
+  //get sorted list of countries
+  const getOptions = () => {
+    return countries.sort((a, b) => a.region.localeCompare(b.region));
+  };
+
+  //prepopulate the autocomplete
+  const defaultValues = () => {
+    const options = getOptions();
+    let defaultValues = [];
+    options.map((option) => {
+      props.consultantCountries.map((id) => {
+        if (option.id === id) defaultValues.push(option);
+      });
+    });
+    return defaultValues;
   };
 
   return (
@@ -22,11 +53,12 @@ export default function Countries(props) {
         </Typography>
         <Autocomplete
           multiple
-          options={countries.sort((a, b) => a.region.localeCompare(b.region))}
+          options={getOptions()}
           getOptionLabel={(option) => option.name}
           groupBy={(option) => option.region}
           filterSelectedOptions
           disableClearable
+          defaultValue={defaultValues()}
           renderInput={(params) => (
             <TextField
               {...params}

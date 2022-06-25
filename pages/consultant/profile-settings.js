@@ -28,10 +28,6 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const profilePicUrl = dbUserRes[0].profile_picture_url;
   const userId = dbUserRes[0].id;
 
-  //retrieve countries
-  const countriesRes = await query("SELECT name, region FROM countries");
-  const countries = JSON.stringify(countriesRes);
-
   //if null change to empty string
   if (dbUserRes[0].first_name === null) var firstName = "";
   else var firstName = dbUserRes[0].first_name;
@@ -39,6 +35,24 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   else var lastName = dbUserRes[0].last_name;
   if (dbUserRes[0].about === null) var aboutMe = "";
   else var aboutMe = dbUserRes[0].about;
+
+  //retrieve countries
+  const countriesRes = await query("SELECT id, name, region FROM countries");
+  const countries = JSON.stringify(countriesRes);
+
+  //retrieve consultant countries
+  const consultantCountriesRes = await query(
+    `SELECT country_id FROM consultant_countries WHERE user_id = ${userId}`
+  );
+  const consultantCountriesObj = JSON.parse(
+    JSON.stringify(consultantCountriesRes)
+  );
+
+  //push the ids into array
+  let consultantCountries = [];
+  consultantCountriesObj.map((country) => {
+    consultantCountries.push(country.country_id);
+  });
 
   return {
     props: {
@@ -50,6 +64,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
       lastName,
       aboutMe,
       countries,
+      consultantCountries,
       // Will be passed to the page component as props
     },
   };
@@ -78,7 +93,11 @@ export default function ProfileSettings(props) {
               aboutMe={props.aboutMe}
               {...props}
             />
-            <Countries countries={props.countries} {...props} />
+            <Countries
+              countries={props.countries}
+              consultantCountries={props.consultantCountries}
+              {...props}
+            />
           </Container>
         </ConsultantSettingsLayout>
       </Layout>
