@@ -3,12 +3,21 @@ import Typography from "@mui/material/Typography";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import { useTranslation } from "next-i18next";
-import { useState } from "react";
 import axios from "axios";
 
 export default function Countries(props) {
   const { t } = useTranslation();
-  const countries = JSON.parse(props.countries);
+
+  //translate and push into countries array
+  const rawCountries = JSON.parse(props.countries);
+  const countries = [];
+  rawCountries.map((country) => {
+    countries.push({
+      id: country.id,
+      name: t(`countries.${country.name}`),
+      region: t(`regions.${country.region}`),
+    });
+  });
 
   //for removeOption
   let currentCountryIds = props.consultantCountries;

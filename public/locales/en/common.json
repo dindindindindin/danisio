@@ -52,5 +52,18 @@
       "relevant-countries": "Add countries relevant to you:",
       "countries": "Countries"
     }
+  },
+  "countries": {
+    "Japan": "Japan",
+    "United Kingdom": "United Kingdom",
+    "China": "China",
+    "United States": "United States",
+    "Germany": "Germany",
+    "Canada": "Canada"
+  },
+  "regions": {
+    "North America": "North America",
+    "Europe": "Europe",
+    "Asia": "Asia"
   }
 }

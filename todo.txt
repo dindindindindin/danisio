@@ -1,5 +1,8 @@
+profile-settings countries translation doesn't apply to chosen ones
 settings side nav marginTop bug
 cookies must persist
 profile pic in settings is not stable
 implement nav settings link
 populate settings side nav
+change z-index of transMenu
+'none of the options match with' error autocomplete
