@@ -102,6 +102,7 @@ export default function ProfileSettings(props) {
       <Layout props>
         <ConsultantSettingsLayout
           heading={t("settings.profile-settings.profile-settings-title")}
+          {...props}
         >
           <Container>
             <ProfilePicture

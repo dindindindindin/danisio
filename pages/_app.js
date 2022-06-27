@@ -6,11 +6,18 @@ import "@fontsource/roboto/700.css";
 import { appWithTranslation } from "next-i18next";
 import store from "../redux/store";
 import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistStore } from "redux-persist";
+import LinearProgress from "@mui/material/LinearProgress";
 
 function MyApp({ Component, pageProps }) {
+  let persistor = persistStore(store);
+
   return (
     <Provider store={store}>
-      <Component {...pageProps} />
+      <PersistGate loading={<LinearProgress />} persistor={persistor}>
+        <Component {...pageProps} />
+      </PersistGate>
     </Provider>
   );
 }

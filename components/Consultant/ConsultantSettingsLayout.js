@@ -3,16 +3,19 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import IconButton from "@mui/material/IconButton";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
-import MailIcon from "@mui/icons-material/Mail";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import KeyIcon from "@mui/icons-material/Key";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import { useTranslation } from "next-i18next";
+import MuiLink from "@mui/material/Link";
+import NextLink from "next/link";
 //import { styled } from "@mui/material/styles";
 
 const drawerWidth = 240;
@@ -25,6 +28,8 @@ export default function MemberSettingsLayout(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const { t } = useTranslation();
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -32,25 +37,42 @@ export default function MemberSettingsLayout(props) {
   const drawer = (
     <div>
       <List>
-        {[
-          "Inbox",
-          "Starred",
-          "Send email",
-          "Drafts",
-          "Inboxs",
-          "Starreds",
-          "Send emails",
-          "Draftss",
-        ].map((text, index) => (
-          <ListItem key={text} disablePadding>
-            <ListItemButton>
-              <ListItemIcon>
-                {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-              </ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItemButton>
-          </ListItem>
-        ))}
+        <NextLink
+          key="profileSettings"
+          href="/consultant/profile-settings"
+          passHref
+        >
+          <MuiLink color="inherit" underline="none">
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <ManageAccountsIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={t(
+                    "settings.profile-settings.profile-settings-title"
+                  )}
+                />
+              </ListItemButton>
+            </ListItem>
+          </MuiLink>
+        </NextLink>
+        <NextLink
+          key="changePassword"
+          href="/consultant/change-password"
+          passHref
+        >
+          <MuiLink color="inherit" underline="none">
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <KeyIcon />
+                </ListItemIcon>
+                <ListItemText primary={t("settings.changepw.changepwtitle")} />
+              </ListItemButton>
+            </ListItem>
+          </MuiLink>
+        </NextLink>
       </List>
     </div>
   );

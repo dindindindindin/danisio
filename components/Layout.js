@@ -88,9 +88,9 @@ export default function Layout(props) {
 
   useEffect(() => {
     try {
-      onAuthStateChanged(auth, async (user) => {
-        if (user) {
-          const idToken = await user.getIdToken(true);
+      onAuthStateChanged(auth, async (authUser) => {
+        if (authUser) {
+          const idToken = await authUser.getIdToken(true);
 
           const dbRes = await axios.post(
             "/api/create-or-get-user",
@@ -105,11 +105,11 @@ export default function Layout(props) {
               email: dbRes.data.email,
               role: dbRes.data.role,
               token: idToken,
-              refreshToken: user.refreshToken,
+              refreshToken: authUser.refreshToken,
             })
           );
           setCookies("idToken", idToken);
-          setCookies("refreshToken", user.refreshToken);
+          setCookies("refreshToken", authUser.refreshToken);
         } else {
           dispatch(logout());
           removeCookies("idToken");
@@ -214,13 +214,40 @@ export default function Layout(props) {
     </IconButton>
   );
   const loggedInMobileButtons = [
-    <MenuItem key="profile">
-      <IconButton size="large" color="inherit">
-        <AccountCircle />
-      </IconButton>
-      <p>{t("nav.settings")}</p>
-    </MenuItem>,
-    <MenuItem key="logout" onClick={handleMobileLogout}>
+    user !== null ? (
+      user.role === "consultant" ? (
+        <NextLink
+          key="consultantSettingsMobile"
+          href="/consultant/profile-settings"
+          passHref
+        >
+          <MuiLink color="inherit" underline="none">
+            <MenuItem>
+              <IconButton size="large" color="inherit">
+                <AccountCircle />
+              </IconButton>
+              <p>{t("nav.settings")}</p>
+            </MenuItem>
+          </MuiLink>
+        </NextLink>
+      ) : (
+        <NextLink key="memberSettingsMobile" href="/member/change-password">
+          <MuiLink color="inherit" underline="none">
+            <MenuItem onClick={handleMenuClose}>
+              <p>{t("nav.settings")}</p>
+            </MenuItem>
+          </MuiLink>
+        </NextLink>
+      )
+    ) : (
+      <MenuItem key="settingsMobile">
+        <IconButton size="large" color="inherit">
+          <AccountCircle />
+        </IconButton>
+        <p>{t("nav.settings")}</p>
+      </MenuItem>
+    ),
+    <MenuItem key="logoutMobile" onClick={handleMobileLogout}>
       <IconButton size="large" color="inherit">
         <LogoutIcon />
       </IconButton>
@@ -229,7 +256,7 @@ export default function Layout(props) {
   ];
 
   const loggedOutMobileButtons = (
-    <NextLink href="/account" passHref>
+    <NextLink key="account" href="/account" passHref>
       <MuiLink color="inherit" underline="none">
         <MenuItem onClick={handleMobileMenuClose}>
           <IconButton size="large" color="inherit">
@@ -256,10 +283,33 @@ export default function Layout(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}>
-        <p>{t("nav.settings")}</p>
-      </MenuItem>
-      <MenuItem onClick={handleLogout}>
+      {user !== null ? (
+        user.role === "consultant" ? (
+          <NextLink
+            key="consultantSettings"
+            href="/consultant/profile-settings"
+          >
+            <MuiLink color="inherit" underline="none">
+              <MenuItem onClick={handleMenuClose}>
+                <p>{t("nav.settings")}</p>
+              </MenuItem>
+            </MuiLink>
+          </NextLink>
+        ) : (
+          <NextLink key="memberSettings" href="/member/change-password">
+            <MuiLink color="inherit" underline="none">
+              <MenuItem onClick={handleMenuClose}>
+                <p>{t("nav.settings")}</p>
+              </MenuItem>
+            </MuiLink>
+          </NextLink>
+        )
+      ) : (
+        <MenuItem key="settings" onClick={handleMenuClose}>
+          <p>{t("nav.settings")}</p>
+        </MenuItem>
+      )}
+      <MenuItem key="logout" onClick={handleLogout}>
         <p>{t("nav.logout")}</p>
       </MenuItem>
     </Menu>
@@ -273,6 +323,7 @@ export default function Layout(props) {
       placement="bottom-start"
       transition
       disablePortal
+      sx={{ zIndex: "1101" }}
     >
       {({ TransitionProps, placement }) => (
         <Grow
@@ -291,6 +342,7 @@ export default function Layout(props) {
                 onKeyDown={handleListKeyDown}
               >
                 <MenuItem
+                  key="english"
                   onClick={(e) => {
                     i18n.changeLanguage("en");
                     handleTransClose(e);
@@ -299,6 +351,7 @@ export default function Layout(props) {
                   English
                 </MenuItem>
                 <MenuItem
+                  key="turkish"
                   onClick={(e) => {
                     i18n.changeLanguage("tr");
                     handleTransClose(e);
@@ -330,14 +383,14 @@ export default function Layout(props) {
       onClose={handleMobileMenuClose}
     >
       {i18n.language == "en" ? (
-        <MenuItem onClick={handleMobileTransMenuOpen}>
+        <MenuItem key="englishMobile" onClick={handleMobileTransMenuOpen}>
           <IconButton size="large" color="inherit">
             <Image src="/images/united-kingdom.png" height={22} width={22} />
           </IconButton>
           <p>English</p>
         </MenuItem>
       ) : (
-        <MenuItem onClick={handleMobileTransMenuOpen}>
+        <MenuItem key="turkishMobile" onClick={handleMobileTransMenuOpen}>
           <IconButton size="large" color="inherit">
             <Image src="/images/turkey.png" height={22} width={22} />
           </IconButton>
@@ -364,6 +417,7 @@ export default function Layout(props) {
       onClose={handleMobileTransMenuClose}
     >
       <MenuItem
+        key="englishOptionMobile"
         onClick={(e) => {
           i18n.changeLanguage("en");
           handleMobileTransMenuClose(e);
@@ -372,6 +426,7 @@ export default function Layout(props) {
         English
       </MenuItem>
       <MenuItem
+        key="turkishOptionMobile"
         onClick={(e) => {
           i18n.changeLanguage("tr");
           handleMobileTransMenuClose(e);
