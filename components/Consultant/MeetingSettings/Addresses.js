@@ -9,13 +9,14 @@ import axios from "axios";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import SelectCountry from "./SelectCountry";
+import Divider from "@mui/material/Divider";
 
 export default function Addresses(props) {
   const { t } = useTranslation();
   const [isNewAddressOpen, setIsNewAddressOpen] = useState(false);
+  //selected country states
   const [countryHasStates, setCountryHasStates] = useState(false);
   const [countryStateVariant, setCountryStateVariant] = useState(null);
-
   const [countrySelected, setCountrySelected] = useState(() => {
     if (props.meetingCountryId === null) return "";
     else {
@@ -24,45 +25,43 @@ export default function Addresses(props) {
         if (country.id === props.meetingCountryId) {
           countryName = country.country;
           setCountryHasStates(country.has_states);
-          setCountryStateVariant(country.state_variant); //will be a problem?
+          setCountryStateVariant(country.state_variant);
         }
       });
       return countryName;
     }
   });
+  //addresses array
   const [addresses, setAddresses] = useState(props.addresses);
+  //add new address form states
   const [newSelectedCityId, setNewSelectedCityId] = useState(null);
-  const [autocompleteNewCityValue, setAutocompleteNewCityValue] =
-    useState(null);
   const [newAddress, setNewAddress] = useState("");
   const [isNewAddressPrimary, setIsNewAddressPrimary] = useState(false);
-
-  console.log(props.addresses);
-
+  console.log(addresses);
   const handleNewAddressSubmit = async (e) => {
     e.preventDefault();
-    console.log("inside handle");
+
+    //insert into consultant_addresses
     await axios.post("/api/consultant/meeting-settings/new-address", {
       cityId: newSelectedCityId,
       address: newAddress,
       isPrimary: isNewAddressPrimary,
     });
 
+    //retrieve addresses again
     const addressesRes = await axios.get(
       "/api/consultant/meeting-settings/get-addresses"
     );
-
     setAddresses(addressesRes.data);
+
+    //set states back to default values
+    setNewSelectedCityId(null);
+    setNewAddress("");
+    setIsNewAddressPrimary(false);
   };
 
-  const handleNewAddressChange = (e) => {
-    setNewAddress(e.target.value);
-    console.log(newAddress);
-  };
-
+  //populate new selected city state
   const handleNewCityChange = (e, value, reason) => {
-    console.log("e: ", e.target, " value: ", value, " reason: ", reason);
-
     if (reason === "selectOption") setNewSelectedCityId(value.id);
     else if (reason === "removeOption") setNewSelectedCityId(null);
   };
@@ -74,29 +73,52 @@ export default function Addresses(props) {
     else return props.cities.sort((a, b) => a.city.localeCompare(b.city));
   };
 
+  //component to call for each address
   const Address = (props) => (
-    <Box display="flex">
-      <Typography>City: {props.city}</Typography>{" "}
-      {countryHasStates ? (
-        <Typography>
-          {countryStateVariant}: {props.state}
+    <Box>
+      <Box display="flex" margin="8px 2% 8px 2%">
+        <Typography marginRight="2%">
+          <strong>City:</strong> {props.city}
         </Typography>
-      ) : (
-        <></>
-      )}
-      <Typography>Address: {props.address}</Typography>
+        {countryHasStates ? (
+          <Typography>
+            <strong>{countryStateVariant}:</strong> {props.state}
+          </Typography>
+        ) : (
+          <></>
+        )}
+      </Box>
+      <Box margin="8px 2% 8px 2%">
+        <Typography marginBottom="8px">
+          <strong>Address:</strong> {props.address}
+        </Typography>
+        {props.isPrimary ? (
+          <Typography color="primary">Primary Address</Typography>
+        ) : (
+          <></>
+        )}
+      </Box>
+      <Box display="flex" margin="0 2% 16px 2%">
+        <Button variant="outlined" sx={{ marginRight: "1%" }}>
+          Edit
+        </Button>
+        <Button variant="outlined" color="error">
+          Remove
+        </Button>
+      </Box>
+      <Divider />
     </Box>
   );
 
   //render when Add New Address button is clicked
   const renderNewAddress = (
-    <Box component="form" margin="0 2% 15px 2%">
+    <Box component="form" margin="16px 2% 16px 2%">
       {countryHasStates ? (
         <Autocomplete
           options={getCityOptions()}
-          getOptionLabel={(option) => option.city}
+          getOptionLabel={(option) => option.city} //return null?
           groupBy={(option) => option.state}
-          sx={{ marginBottom: "15px" }}
+          sx={{ marginBottom: "16px" }}
           renderInput={(params) => {
             return (
               <TextField
@@ -112,7 +134,7 @@ export default function Addresses(props) {
           options={getCityOptions()}
           getOptionLabel={(option) => option.city}
           disableClearable
-          sx={{ marginBottom: "15px" }}
+          sx={{ marginBottom: "16px" }}
           renderInput={(params) => {
             return (
               <TextField
@@ -128,11 +150,10 @@ export default function Addresses(props) {
       <TextField
         label={t("settings.meeting-settings.addresses.address")}
         variant="outlined"
-        value={newAddress}
         multiline
         fullWidth
         sx={{ marginBottom: "15px" }}
-        onChange={handleNewAddressChange}
+        onChange={(e) => setNewAddress(e.target.value)}
       />
       <FormControlLabel
         control={
@@ -140,7 +161,7 @@ export default function Addresses(props) {
             onChange={(e) => setIsNewAddressPrimary(e.target.checked)}
           />
         }
-        label="Primary address."
+        label="Primary address: appears on profile."
       />
       <Button
         variant="outlined"
@@ -152,6 +173,16 @@ export default function Addresses(props) {
       >
         {t("settings.meeting-settings.addresses.add")}
       </Button>
+      <Button
+        variant="outlined"
+        type="submit"
+        color="warning"
+        onClick={(e) => {
+          setIsNewAddressOpen(false);
+        }}
+      >
+        Cancel
+      </Button>
     </Box>
   );
 
@@ -162,7 +193,7 @@ export default function Addresses(props) {
     />
   ) : (
     <Box border="2px solid #f0f0f4" borderRadius="5px">
-      <Box margin="15px 2% 15px 2%" display="flex">
+      <Box margin="16px 2% 16px 2%" display="flex">
         <Typography alignSelf="center">
           {t("settings.meeting-settings.addresses.country")}{" "}
           {t(`countries.${countrySelected}`)}
@@ -174,14 +205,18 @@ export default function Addresses(props) {
           {t("settings.meeting-settings.addresses.change")}
         </Button>
       </Box>
-      <Typography sx={{ margin: "0 2% 15px 2%" }}>
+      <Divider />
+      <Typography sx={{ margin: "8px 2% 8px 2%" }}>
         {t("settings.meeting-settings.addresses.addresses")}
       </Typography>
       {addresses.map((address) => (
         <Address
+          key={address.id}
+          addressId={address.id}
           city={address.city}
           state={address.state}
           address={address.address}
+          isPrimary={address.is_primary}
         />
       ))}
       {isNewAddressOpen ? (
@@ -189,7 +224,7 @@ export default function Addresses(props) {
       ) : (
         <Button
           variant="contained"
-          sx={{ margin: "0 0 15px 2%" }}
+          sx={{ margin: "16px 0 16px 2%" }}
           onClick={() => setIsNewAddressOpen(true)}
         >
           {t("settings.meeting-settings.addresses.new-address")}
