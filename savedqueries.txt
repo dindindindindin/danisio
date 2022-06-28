@@ -1,10 +1,13 @@
 DROP TABLE IF EXISTS consultant_services;
+DROP TABLE IF EXISTS services;
 DROP TABLE IF EXISTS consultant_addresses;
 DROP TABLE IF EXISTS consultant_countries;
 DROP TABLE IF EXISTS consultants;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS cities;
+DROP TABLE IF EXISTS states;
 DROP TABLE IF EXISTS countries;
-DROP TABLE IF EXISTS services;
+DROP TABLE IF EXISTS regions;
 
 
 CREATE TABLE users (
@@ -12,10 +15,17 @@ CREATE TABLE users (
     email VARCHAR(60) NOT NULL,
     role VARCHAR (50) NOT NULL DEFAULT 'member');
 
+CREATE TABLE regions (
+    id INT(2) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    region VARCHAR(20) NOT NULL);
+
 CREATE TABLE countries(
     id INT(3) NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(20),
-    region VARCHAR(20));
+    country VARCHAR(30) NOT NULL,
+    region_id INT(2) NOT NULL,
+    is_consultant_country BOOLEAN NOT NULL,
+    hasStates BOOLEAN DEFAULT 0,
+    FOREIGN KEY(region_id) REFERENCES regions(id));
 
 CREATE TABLE consultants(
     id INT(6) NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -47,13 +57,28 @@ CREATE TABLE consultant_services(
     FOREIGN KEY(user_id) REFERENCES consultants(user_id),
     FOREIGN KEY(service_id) REFERENCES services(id));
 
+CREATE TABLE states(
+    id INT(5) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    state VARCHAR(30) NOT NULL,
+    country_id INT(3) NOT NULL,
+    FOREIGN KEY(country_id) REFERENCES countries(id));
+
+CREATE TABLE cities(
+    id INT(6) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    city VARCHAR(30) NOT NULL,
+    state_id INT(5),
+    country_id INT(3) NOT NULL,
+    FOREIGN KEY(state_id) REFERENCES states(id),
+    FOREIGN KEY(country_id) REFERENCES countries(id));
+
 CREATE TABLE consultant_addresses(
     id INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id INT(6) NOT NULL,
-    city VARCHAR(20),
-    address VARCHAR(200),
+    city_id INT(6) NOT NULL,
+    address VARCHAR(200) NOT NULL,
     is_primary BOOLEAN DEFAULT 0,
-    FOREIGN KEY(user_id) REFERENCES consultants(user_id));
+    FOREIGN KEY(user_id) REFERENCES consultants(user_id),
+    FOREIGN KEY(city_id) REFERENCES cities(id));
 
 DELIMITER $$
 CREATE TRIGGER consultant_creator_trigger
@@ -68,13 +93,29 @@ DELIMITER ;
 
 INSERT INTO users (email, role) VALUES ('dincercetiner@hotmail.com', 'consultant');
 
-INSERT INTO countries (name, region) VALUES ('United States', 'North America');
-INSERT INTO countries (name, region) VALUES ('United Kingdom', 'Europe');
-INSERT INTO countries (name, region) VALUES ('Germany', 'Europe');
-INSERT INTO countries (name, region) VALUES ('Canada', 'North America');
-INSERT INTO countries (name, region) VALUES ('China', 'Asia');
-INSERT INTO countries (name, region) VALUES ('Japan', 'Asia');
+INSERT INTO regions (region) VALUES ('North America');
+INSERT INTO regions (region) VALUES ('Europe');
+INSERT INTO regions (region) VALUES ('Asia');
 
-INSERT INTO services (service) VALUES ('High School');
-INSERT INTO services (service) VALUES ('University');
+INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('United States', 1, true, true);
+INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('United Kingdom', 2, true, false);
+INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('Germany', 2, true, true);
+INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('Canada', 1, true, true);
+INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('China', 3, true, true);
+INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('Japan', 3, true, true);
+INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('Turkey', 2, true, false);
+
+INSERT INTO states (state, country_id) VALUES ('New York', 1);
+INSERT INTO states (state, country_id) VALUES ('California', 1);
+INSERT INTO states (state, country_id) VALUES ('Massachusetts', 1);
+
+INSERT INTO cities (city, state_id, country_id) VALUES ('New York', 1, 1);
+INSERT INTO cities (city, state_id, country_id) VALUES ('Los Angeles', 2, 1);
+INSERT INTO cities (city, state_id, country_id) VALUES ('Boston', 3, 1);
+INSERT INTO cities (city, country_id) VALUES ('İstanbul', 7);
+INSERT INTO cities (city, country_id) VALUES ('Ankara', 7);
+INSERT INTO cities (city, country_id) VALUES ('Adana', 7);
+
+INSERT INTO services (service) VALUES ('High School Education');
+INSERT INTO services (service) VALUES ('University Education');
 INSERT INTO services (service) VALUES ('Language School');

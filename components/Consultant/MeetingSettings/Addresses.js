@@ -23,6 +23,7 @@ export default function Addresses(props) {
     }
   });
 
+  //render when Add New Address button is clicked
   const NewAddress = () => {
     return (
       <Box component="form" margin="0 2% 15px 2%">
@@ -53,7 +54,6 @@ export default function Addresses(props) {
   return countrySelected === "" ? (
     <SelectCountry
       countries={props.countries}
-      countrySelected={countrySelected}
       setCountrySelected={setCountrySelected}
     />
   ) : (

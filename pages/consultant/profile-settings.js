@@ -24,7 +24,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 
   //retrieve id and profilePicUrl from db
   const dbUserRes = await query(
-    `SELECT users.id, profile_picture_url, first_name, last_name, about FROM consultants INNER JOIN users ON users.id = consultants.user_id WHERE email = '${user.email}'`
+    `SELECT users.id, profile_picture_url, first_name, last_name, about FROM consultants INNER JOIN users ON users.id = consultants.user_id WHERE email = '${user.email}';`
   );
   const profilePicUrl = dbUserRes[0].profile_picture_url;
   const userId = dbUserRes[0].id;
@@ -38,12 +38,14 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   else var aboutMe = dbUserRes[0].about;
 
   //retrieve countries
-  const countriesRes = await query("SELECT id, name, region FROM countries");
+  const countriesRes = await query(
+    "SELECT country.id, country, region FROM countries INNER JOIN regions ON regions.id = countries.region_id WHERE is_consultant_country = true;"
+  );
   const countries = JSON.stringify(countriesRes);
 
   //retrieve consultant countries
   const consultantCountriesRes = await query(
-    `SELECT country_id FROM consultant_countries WHERE user_id = ${userId}`
+    `SELECT country_id FROM consultant_countries WHERE user_id = ${userId};`
   );
   const consultantCountriesObj = JSON.parse(
     JSON.stringify(consultantCountriesRes)
@@ -56,12 +58,12 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   });
 
   //retrieve services
-  const servicesRes = await query("SELECT id, service FROM services");
+  const servicesRes = await query("SELECT id, service FROM services;");
   const services = JSON.parse(JSON.stringify(servicesRes));
 
   //retrieve consultant services
   const consultantServicesRes = await query(
-    `SELECT service_id FROM consultant_services WHERE user_id = ${userId}`
+    `SELECT service_id FROM consultant_services WHERE user_id = ${userId};`
   );
   const consultantServicesObj = JSON.parse(
     JSON.stringify(consultantServicesRes)

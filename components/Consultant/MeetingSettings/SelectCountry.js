@@ -13,7 +13,7 @@ export default function SelectCountry(props) {
   props.countries.map((country) => {
     countries.push({
       id: country.id,
-      name: t(`countries.${country.name}`),
+      country: t(`countries.${country.country}`),
       region: t(`regions.${country.region}`),
     });
   });
@@ -35,7 +35,7 @@ export default function SelectCountry(props) {
       props.setCountrySelected(() => {
         let countrySelected;
         props.countries.map((country) => {
-          if (country.id === value.id) countrySelected = country.name;
+          if (country.id === value.id) countrySelected = country.country;
         });
         return countrySelected;
       });
@@ -61,7 +61,7 @@ export default function SelectCountry(props) {
       </Typography>
       <Autocomplete
         options={getOptions()}
-        getOptionLabel={(option) => option.name}
+        getOptionLabel={(option) => option.country}
         groupBy={(option) => option.region}
         disableClearable
         sx={{ margin: "0 2% 15px 2%" }}

@@ -19,12 +19,14 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   }
 
   //retrieve countries
-  const countriesRes = await query("SELECT id, name, region FROM countries");
+  const countriesRes = await query(
+    "SELECT country.id, country, region FROM countries INNER JOIN regions ON regions.id = countries.region_id;"
+  );
   const countries = JSON.parse(JSON.stringify(countriesRes));
 
   //retrieve id and meeting country from db
   const dbUserRes = await query(
-    `SELECT users.id, country_id FROM consultants INNER JOIN users ON users.id = consultants.user_id WHERE email = '${user.email}'`
+    `SELECT users.id, country_id FROM consultants INNER JOIN users ON users.id = consultants.user_id WHERE email = '${user.email}';`
   );
   const meetingCountryId = dbUserRes[0].country_id;
   const userId = dbUserRes[0].id; //is it needed?

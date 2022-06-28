@@ -3,3 +3,4 @@ settings side nav marginTop bug
 cookies must persist
 profile pic in settings is not stable
 'none of the options match with' error autocomplete
+SelectCountry array populate inside a function?

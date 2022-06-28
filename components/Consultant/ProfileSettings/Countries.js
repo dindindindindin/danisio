@@ -14,7 +14,7 @@ export default function Countries(props) {
   rawCountries.map((country) => {
     countries.push({
       id: country.id,
-      name: t(`countries.${country.name}`),
+      country: t(`countries.${country.country}`),
       region: t(`regions.${country.region}`),
     });
   });
@@ -28,7 +28,7 @@ export default function Countries(props) {
     //add consultant country to db
     if (reason === "selectOption") {
       values.map(async (value) => {
-        if (value.name === e.target.innerText) {
+        if (value.country === e.target.innerText) {
           //populate for comparison in removeOption
           currentCountryIds.push(value.id);
 
@@ -92,7 +92,7 @@ export default function Countries(props) {
       <Autocomplete
         multiple
         options={getOptions()}
-        getOptionLabel={(option) => option.name}
+        getOptionLabel={(option) => option.country}
         groupBy={(option) => option.region}
         filterSelectedOptions
         disableClearable
