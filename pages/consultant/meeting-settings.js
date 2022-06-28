@@ -20,7 +20,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 
   //retrieve countries
   const countriesRes = await query(
-    "SELECT country.id, country, region FROM countries INNER JOIN regions ON regions.id = countries.region_id;"
+    "SELECT countries.id, country, region, has_states, state_variant FROM countries INNER JOIN regions ON regions.id = countries.region_id;"
   );
   const countries = JSON.parse(JSON.stringify(countriesRes));
 
@@ -31,12 +31,26 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const meetingCountryId = dbUserRes[0].country_id;
   const userId = dbUserRes[0].id; //is it needed?
 
+  //retrieve cities
+  const citiesRes = await query(
+    `SELECT cities.id, city, state FROM cities INNER JOIN states ON states.id = cities.state_id WHERE cities.country_id = ${meetingCountryId};`
+  );
+  const cities = JSON.parse(JSON.stringify(citiesRes));
+
+  //retrieve consultant_addresses
+  const addressesRes = await query(
+    `SELECT consultant_addresses.id, city_id, address, is_primary, city, state FROM consultant_addresses INNER JOIN cities ON cities.id = consultant_addresses.city_id INNER JOIN states ON states.id = cities.state_id WHERE user_id = ${userId};`
+  );
+  const addresses = JSON.parse(JSON.stringify(addressesRes));
+
   return {
     props: {
       ...(await serverSideTranslations(context.locale, ["common"])),
       user,
       countries,
       meetingCountryId,
+      cities,
+      addresses,
       // Will be passed to the page component as props
     },
   };
@@ -54,6 +68,8 @@ export default function MeetingSettings(props) {
           <Addresses
             countries={props.countries}
             meetingCountryId={props.meetingCountryId}
+            cities={props.cities}
+            addresses={props.addresses}
             {...props}
           />
         </Container>

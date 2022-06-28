@@ -24,7 +24,8 @@ CREATE TABLE countries(
     country VARCHAR(30) NOT NULL,
     region_id INT(2) NOT NULL,
     is_consultant_country BOOLEAN NOT NULL,
-    hasStates BOOLEAN DEFAULT 0,
+    has_states BOOLEAN DEFAULT 0,
+    state_variant VARCHAR(30),
     FOREIGN KEY(region_id) REFERENCES regions(id));
 
 CREATE TABLE consultants(
@@ -97,13 +98,13 @@ INSERT INTO regions (region) VALUES ('North America');
 INSERT INTO regions (region) VALUES ('Europe');
 INSERT INTO regions (region) VALUES ('Asia');
 
-INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('United States', 1, true, true);
-INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('United Kingdom', 2, true, false);
-INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('Germany', 2, true, true);
-INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('Canada', 1, true, true);
-INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('China', 3, true, true);
-INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('Japan', 3, true, true);
-INSERT INTO countries (country, region_id, is_consultant_country, hasStates) VALUES ('Turkey', 2, true, false);
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant) VALUES ('United States', 1, true, true, 'State');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states) VALUES ('United Kingdom', 2, true, false);
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant) VALUES ('Germany', 2, true, true, 'State');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant) VALUES ('Canada', 1, true, true, 'Province');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant) VALUES ('China', 3, true, true, 'Province');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant) VALUES ('Japan', 3, true, true, 'Prefecture');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states) VALUES ('Turkey', 2, true, false);
 
 INSERT INTO states (state, country_id) VALUES ('New York', 1);
 INSERT INTO states (state, country_id) VALUES ('California', 1);

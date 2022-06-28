@@ -7,7 +7,7 @@ import { useTranslation } from "next-i18next";
 
 export default function SelectCountry(props) {
   const { t } = useTranslation();
-
+  console.log(props.countries);
   //inside a function?
   const countries = [];
   props.countries.map((country) => {

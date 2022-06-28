@@ -1,7 +1,7 @@
 import query from "../../../../db";
 const admin = require("../../../../fbAdmin.config");
 
-export default async function meetingCountryUpdate(req, res) {
+export default async function newAddress(req, res) {
   //check token
   try {
     const firebaseUser = await admin.auth().verifyIdToken(req.cookies.idToken);
@@ -22,13 +22,13 @@ export default async function meetingCountryUpdate(req, res) {
     return;
   }
 
-  //update the country_id in consultants
+  //insert new address
   try {
     await query(
-      `UPDATE consultants SET country_id = ${req.body.countryId} WHERE user_id = ${userId[0].id};`
+      `INSERT INTO consultant_addresses (user_id, city_id, address, is_primary) VALUES (${userId[0].id}, ${req.body.cityId}, '${req.body.address}', ${req.body.isPrimary});`
     );
   } catch (err) {
-    res.status(500).json({ error: "update meeting country error" });
+    res.status(500).json({ error: "add new address error" });
     return;
   }
 
