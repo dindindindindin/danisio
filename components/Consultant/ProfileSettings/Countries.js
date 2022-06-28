@@ -80,31 +80,34 @@ export default function Countries(props) {
   };
 
   return (
-    <Box border="2px solid #f0f0f4" borderRadius="5px" marginTop="30px">
-      <form>
-        <Typography sx={{ margin: "15px 2% 15px 2%" }}>
-          {t("settings.profile-settings.relevant-countries")}
-        </Typography>
-        <Autocomplete
-          multiple
-          options={getOptions()}
-          getOptionLabel={(option) => option.name}
-          groupBy={(option) => option.region}
-          filterSelectedOptions
-          disableClearable
-          sx={{ margin: "15px 2% 15px 2%" }}
-          defaultValue={defaultValues()}
-          renderInput={(params) => {
-            return (
-              <TextField
-                {...params}
-                label={t("settings.profile-settings.countries")}
-              />
-            );
-          }}
-          onChange={handleChange}
-        />
-      </form>
+    <Box
+      component="form"
+      border="2px solid #f0f0f4"
+      borderRadius="5px"
+      marginTop="30px"
+    >
+      <Typography sx={{ margin: "15px 2% 15px 2%" }}>
+        {t("settings.profile-settings.relevant-countries")}
+      </Typography>
+      <Autocomplete
+        multiple
+        options={getOptions()}
+        getOptionLabel={(option) => option.name}
+        groupBy={(option) => option.region}
+        filterSelectedOptions
+        disableClearable
+        sx={{ margin: "15px 2% 15px 2%" }}
+        defaultValue={defaultValues()}
+        renderInput={(params) => {
+          return (
+            <TextField
+              {...params}
+              label={t("settings.profile-settings.countries")}
+            />
+          );
+        }}
+        onChange={handleChange}
+      />
     </Box>
   );
 }

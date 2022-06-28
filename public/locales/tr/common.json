@@ -57,8 +57,14 @@
     "meeting-settings": {
       "meeting-settings-title": "Buluşma Ayarları",
       "addresses": {
+        "country-first": "Lütfen önce ülkenizi giriniz:",
+        "country": "Ülke:",
+        "change": "Değiştir",
         "addresses": "Adresler:",
-        "new-address": "Yeni Adres Ekle"
+        "new-address": "Yeni Adres Ekle",
+        "city": "Şehir",
+        "address": "Adres",
+        "add": "Ekle"
       }
     }
   },

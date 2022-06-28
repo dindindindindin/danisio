@@ -57,8 +57,14 @@
     "meeting-settings": {
       "meeting-settings-title": "Meeting Settings",
       "addresses": {
+        "country-first": "Please select your country first:",
+        "country": "Country:",
+        "change": "Change",
         "addresses": "Addresses:",
-        "new-address": "Add New Address"
+        "new-address": "Add New Address",
+        "city": "City",
+        "address": "Address",
+        "add": "Add"
       }
     }
   },
