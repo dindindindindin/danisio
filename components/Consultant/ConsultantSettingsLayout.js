@@ -10,6 +10,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import KeyIcon from "@mui/icons-material/Key";
+import HandshakeIcon from "@mui/icons-material/Handshake";
 import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
@@ -51,6 +52,26 @@ export default function MemberSettingsLayout(props) {
                 <ListItemText
                   primary={t(
                     "settings.profile-settings.profile-settings-title"
+                  )}
+                />
+              </ListItemButton>
+            </ListItem>
+          </MuiLink>
+        </NextLink>
+        <NextLink
+          key="meetingSettings"
+          href="/consultant/meeting-settings"
+          passHref
+        >
+          <MuiLink color="inherit" underline="none">
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <HandshakeIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={t(
+                    "settings.meeting-settings.meeting-settings-title"
                   )}
                 />
               </ListItemButton>

@@ -53,6 +53,13 @@
       "countries": "Countries",
       "offered-services": "Add services you offer:",
       "services": "Services"
+    },
+    "meeting-settings": {
+      "meeting-settings-title": "Meeting Settings",
+      "addresses": {
+        "addresses": "Addresses:",
+        "new-address": "Add New Address"
+      }
     }
   },
   "countries": {

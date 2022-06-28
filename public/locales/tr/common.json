@@ -53,6 +53,13 @@
       "countries": "Ülkeler",
       "offered-services": "Verdiğiniz hizmetleri ekleyiniz:",
       "services": "Hizmetler"
+    },
+    "meeting-settings": {
+      "meeting-settings-title": "Buluşma Ayarları",
+      "addresses": {
+        "addresses": "Adresler:",
+        "new-address": "Yeni Adres Ekle"
+      }
     }
   },
   "countries": {
