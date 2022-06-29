@@ -22,15 +22,37 @@ export default async function meetingCountryUpdate(req, res) {
     return;
   }
 
-  //update the country_id in consultants
+  //retrieve the current country_id
   try {
-    await query(
-      `UPDATE consultants SET country_id = ${req.body.countryId} WHERE user_id = ${userId[0].id};`
+    var countryId = await query(
+      `SELECT country_id FROM consultants WHERE user_id = ${userId[0].id};`
     );
   } catch (err) {
-    res.status(500).json({ error: "update meeting country error" });
+    res.status(500).json({ error: "retrieve current country error" });
     return;
   }
 
+  //if chosen country is not equal to current country
+  if (countryId[0].country_id !== req.body.countryId) {
+    //delete the addresses first
+    try {
+      await query(
+        `DELETE FROM consultant_addresses WHERE user_id = ${userId[0].id};`
+      );
+    } catch (err) {
+      res.status(500).json({ error: "delete consultant countries error" });
+      return;
+    }
+
+    //update the country_id in consultants
+    try {
+      await query(
+        `UPDATE consultants SET country_id = ${req.body.countryId} WHERE user_id = ${userId[0].id};`
+      );
+    } catch (err) {
+      res.status(500).json({ error: "update meeting country error" });
+      return;
+    }
+  }
   res.status(200).json({ success: "success" });
 }

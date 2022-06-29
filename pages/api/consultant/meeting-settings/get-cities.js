@@ -1,7 +1,7 @@
 import query from "../../../../db";
 const admin = require("../../../../fbAdmin.config");
 
-export default async function newAddress(req, res) {
+export default async function getAddresses(req, res) {
   //check token
   try {
     const firebaseUser = await admin.auth().verifyIdToken(req.cookies.idToken);
@@ -21,16 +21,17 @@ export default async function newAddress(req, res) {
     res.status(500).json({ error: "retrieve userId error" });
     return;
   }
-  console.log(req.body.cityId, req.body.address, req.body.isPrimary);
-  //insert new address
+
+  //retrieve cities
   try {
-    await query(
-      `INSERT INTO consultant_addresses (user_id, city_id, address, is_primary) VALUES (${userId[0].id}, ${req.body.cityId}, '${req.body.address}', ${req.body.isPrimary});`
+    console.log(req.body.countryId);
+    var cities = await query(
+      `SELECT cities.id, city, state FROM cities LEFT JOIN states ON states.id = cities.state_id WHERE cities.country_id = ${req.body.countryId};`
     );
   } catch (err) {
-    res.status(500).json({ error: "add new address error" });
+    res.status(500).json({ error: "retrieve cities error" });
     return;
   }
 
-  res.status(200).json({ success: "success" });
+  res.status(200).json(cities);
 }

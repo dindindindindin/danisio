@@ -25,10 +25,10 @@ export default async function getAddresses(req, res) {
   //retrieve addresses
   try {
     var addresses = await query(
-      `SELECT consultant_addresses.id, city_id, address, is_primary, city, state FROM consultant_addresses INNER JOIN cities ON cities.id = consultant_addresses.city_id INNER JOIN states ON states.id = cities.state_id WHERE user_id = ${userId[0].id};`
+      `SELECT consultant_addresses.id, city_id, address, is_primary, city, state FROM consultant_addresses INNER JOIN cities ON cities.id = consultant_addresses.city_id LEFT JOIN states ON states.id = cities.state_id WHERE user_id = ${userId[0].id};`
     );
   } catch (err) {
-    res.status(500).json({ error: "add new address error" });
+    res.status(500).json({ error: "retrieve address error" });
     return;
   }
 

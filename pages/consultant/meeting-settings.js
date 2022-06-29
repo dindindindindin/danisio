@@ -33,13 +33,14 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 
   //retrieve cities
   const citiesRes = await query(
-    `SELECT cities.id, city, state FROM cities INNER JOIN states ON states.id = cities.state_id WHERE cities.country_id = ${meetingCountryId};`
+    `SELECT cities.id, city, state FROM cities LEFT JOIN states ON states.id = cities.state_id WHERE cities.country_id = ${meetingCountryId};`
   );
+  console.log(citiesRes);
   const cities = JSON.parse(JSON.stringify(citiesRes));
 
   //retrieve consultant_addresses
   const addressesRes = await query(
-    `SELECT consultant_addresses.id, city_id, address, is_primary, city, state FROM consultant_addresses INNER JOIN cities ON cities.id = consultant_addresses.city_id INNER JOIN states ON states.id = cities.state_id WHERE user_id = ${userId};`
+    `SELECT consultant_addresses.id, city_id, address, is_primary, city, state FROM consultant_addresses INNER JOIN cities ON cities.id = consultant_addresses.city_id LEFT JOIN states ON states.id = cities.state_id WHERE user_id = ${userId};`
   );
   const addresses = JSON.parse(JSON.stringify(addressesRes));
 

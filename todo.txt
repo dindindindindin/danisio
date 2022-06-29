@@ -7,5 +7,4 @@ SelectCountry array populate inside a function?
 meeting-settings is userId needed?
 does translator call only the necessary ones?
 check for isPrimary to avoid duplicates
-check for consultants country_id to match correct countries?
-warning of address deletion when change country
+need a primary address to appear on your profile warning

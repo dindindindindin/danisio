@@ -34,18 +34,18 @@ export default function Addresses(props) {
   });
   //addresses array
   const [addresses, setAddresses] = useState(props.addresses);
+  const [cities, setCities] = useState(props.cities);
   //add new address form states
   const [newSelectedCityId, setNewSelectedCityId] = useState(null);
   const [newAddress, setNewAddress] = useState("");
   const [isNewAddressPrimary, setIsNewAddressPrimary] = useState(false);
 
+  //edit address form states
   const [editAddressId, setEditAddressId] = useState(null);
   const [editSelectedCity, setEditSelectedCity] = useState(null);
   const [editSelectedCityId, setEditSelectedCityId] = useState(null);
   const [editAddress, setEditAddress] = useState("");
   const [isEditAddressPrimary, setIsEditAddressPrimary] = useState(false);
-  const [isEditAddressDefaultPrimary, setIsEditAddressDefaultPrimary] =
-    useState(false);
 
   const handleNewAddressSubmit = async (e) => {
     e.preventDefault();
@@ -123,8 +123,8 @@ export default function Addresses(props) {
   const getCityOptions = () => {
     //if country has states then return sorted by states
     if (countryHasStates)
-      return props.cities.sort((a, b) => a.state.localeCompare(b.state));
-    else return props.cities.sort((a, b) => a.city.localeCompare(b.city));
+      return cities.sort((a, b) => a.state.localeCompare(b.state));
+    else return cities.sort((a, b) => a.city.localeCompare(b.city));
   };
 
   //render when Add New Address button is clicked
@@ -169,7 +169,7 @@ export default function Addresses(props) {
         variant="outlined"
         multiline
         fullWidth
-        sx={{ marginBottom: "15px" }}
+        sx={{ marginBottom: "8px" }}
         onChange={(e) => setNewAddress(e.target.value)}
       />
       <FormControlLabel
@@ -180,32 +180,34 @@ export default function Addresses(props) {
         }
         label="Primary address: appears on profile."
       />
-      <Button
-        variant="outlined"
-        type="submit"
-        onClick={(e) => {
-          handleNewAddressSubmit(e);
-          setIsNewAddressOpen(false);
-        }}
-      >
-        {t("settings.meeting-settings.addresses.add")}
-      </Button>
-      <Button
-        variant="outlined"
-        type="submit"
-        color="warning"
-        onClick={(e) => {
-          setIsNewAddressOpen(false);
-        }}
-      >
-        Cancel
-      </Button>
+      <Box display="flex" marginBottom="8px" marginTop="8px">
+        <Button
+          variant="outlined"
+          type="submit"
+          sx={{ mr: "1%" }}
+          onClick={(e) => {
+            handleNewAddressSubmit(e);
+            setIsNewAddressOpen(false);
+          }}
+        >
+          {t("settings.meeting-settings.addresses.add")}
+        </Button>
+        <Button
+          variant="outlined"
+          type="submit"
+          color="warning"
+          onClick={(e) => {
+            setIsNewAddressOpen(false);
+          }}
+        >
+          Cancel
+        </Button>
+      </Box>
     </Box>
   );
 
+  //render when clicked edit
   const renderEditAddress = () => {
-    //get default value of city
-
     return (
       <Box component="form" margin="16px 2% 16px 2%">
         {countryHasStates ? (
@@ -250,7 +252,7 @@ export default function Addresses(props) {
           multiline
           fullWidth
           value={editAddress}
-          sx={{ marginBottom: "15px" }}
+          sx={{ marginBottom: "8px" }}
           onChange={(e) => setEditAddress(e.target.value)}
         />
         <FormControlLabel
@@ -262,26 +264,29 @@ export default function Addresses(props) {
           }
           label="Primary address: appears on profile."
         />
-        <Button
-          variant="outlined"
-          type="submit"
-          onClick={(e) => {
-            handleEditAddressSubmit(e);
-            setIsEditAddressOpen(false);
-          }}
-        >
-          Update
-        </Button>
-        <Button
-          variant="outlined"
-          type="submit"
-          color="warning"
-          onClick={(e) => {
-            setIsEditAddressOpen(false);
-          }}
-        >
-          Cancel
-        </Button>
+        <Box display="flex" marginBottom="8px" marginTop="8px">
+          <Button
+            variant="outlined"
+            type="submit"
+            sx={{ mr: "1%" }}
+            onClick={(e) => {
+              handleEditAddressSubmit(e);
+              setIsEditAddressOpen(false);
+            }}
+          >
+            Update
+          </Button>
+          <Button
+            variant="outlined"
+            type="submit"
+            color="warning"
+            onClick={(e) => {
+              setIsEditAddressOpen(false);
+            }}
+          >
+            Cancel
+          </Button>
+        </Box>
         <Divider />
       </Box>
     );
@@ -318,6 +323,7 @@ export default function Addresses(props) {
             variant="outlined"
             sx={{ marginRight: "1%" }}
             onClick={() => {
+              //get the default value of edit city
               const cities = getCityOptions();
               for (let i = 0; i < cities.length; i++) {
                 if (cities[i].id === props.cityId) {
@@ -328,9 +334,8 @@ export default function Addresses(props) {
               setIsNewAddressOpen(false);
               setEditAddressId(props.addressId);
               setEditSelectedCityId(props.cityId);
-
               setEditAddress(props.address);
-              setIsEditAddressDefaultPrimary(Boolean(props.isPrimary));
+              setIsEditAddressPrimary(Boolean(props.isPrimary));
               setIsEditAddressOpen(true);
             }}
           >
@@ -353,6 +358,10 @@ export default function Addresses(props) {
     <SelectCountry
       countries={props.countries}
       setCountrySelected={setCountrySelected}
+      setAddresses={setAddresses}
+      setCities={setCities}
+      setCountryHasStates={setCountryHasStates}
+      setCountryStateVariant={setCountryStateVariant}
     />
   ) : (
     <Box border="2px solid #f0f0f4" borderRadius="5px">
@@ -363,7 +372,10 @@ export default function Addresses(props) {
         </Typography>
         <Button
           sx={{ marginLeft: "1%" }}
-          onClick={() => setCountrySelected(() => "")}
+          onClick={() => {
+            alert("WARNING: If country is changed the addresses are removed.");
+            setCountrySelected(() => "");
+          }}
         >
           {t("settings.meeting-settings.addresses.change")}
         </Button>

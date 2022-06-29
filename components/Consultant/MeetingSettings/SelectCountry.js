@@ -19,8 +19,6 @@ export default function SelectCountry(props) {
   });
 
   const handleCountryChange = async (e, value, reason) => {
-    console.log("e: ", e.target, " value: ", value, " reason: ", reason);
-
     //update meeting country in db
     if (reason === "selectOption") {
       //api call
@@ -35,10 +33,33 @@ export default function SelectCountry(props) {
       props.setCountrySelected(() => {
         let countrySelected;
         props.countries.map((country) => {
-          if (country.id === value.id) countrySelected = country.country;
+          if (country.id === value.id) {
+            countrySelected = country.country;
+          }
         });
         return countrySelected;
       });
+
+      //retrieve cities again
+      const citiesRes = await axios.post(
+        "/api/consultant/meeting-settings/get-cities",
+        { countryId: value.id }
+      );
+      props.setCities(citiesRes.data);
+
+      //update parent states
+      props.countries.map((country) => {
+        if (country.id === value.id) {
+          props.setCountryHasStates(Boolean(country.has_states));
+          props.setCountryStateVariant(country.state_variant);
+        }
+      });
+
+      //retrieve addresses again
+      const addressesRes = await axios.get(
+        "/api/consultant/meeting-settings/get-addresses"
+      );
+      props.setAddresses(addressesRes.data);
 
       //currently useless
     } else if (reason === "removeOption") {
