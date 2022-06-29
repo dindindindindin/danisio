@@ -14,6 +14,7 @@ import Divider from "@mui/material/Divider";
 export default function Addresses(props) {
   const { t } = useTranslation();
   const [isNewAddressOpen, setIsNewAddressOpen] = useState(false);
+  const [isEditAddressOpen, setIsEditAddressOpen] = useState(false);
   //selected country states
   const [countryHasStates, setCountryHasStates] = useState(false);
   const [countryStateVariant, setCountryStateVariant] = useState(null);
@@ -37,7 +38,15 @@ export default function Addresses(props) {
   const [newSelectedCityId, setNewSelectedCityId] = useState(null);
   const [newAddress, setNewAddress] = useState("");
   const [isNewAddressPrimary, setIsNewAddressPrimary] = useState(false);
-  console.log(addresses);
+
+  const [editAddressId, setEditAddressId] = useState(null);
+  const [editSelectedCity, setEditSelectedCity] = useState(null);
+  const [editSelectedCityId, setEditSelectedCityId] = useState(null);
+  const [editAddress, setEditAddress] = useState("");
+  const [isEditAddressPrimary, setIsEditAddressPrimary] = useState(false);
+  const [isEditAddressDefaultPrimary, setIsEditAddressDefaultPrimary] =
+    useState(false);
+
   const handleNewAddressSubmit = async (e) => {
     e.preventDefault();
 
@@ -60,10 +69,55 @@ export default function Addresses(props) {
     setIsNewAddressPrimary(false);
   };
 
+  //remove address by id
+  const handleAddressRemove = async (addressId) => {
+    //api call
+    await axios.post("/api/consultant/meeting-settings/address-remove", {
+      addressId: addressId,
+    });
+
+    //retrieve addresses again
+    const addressesRes = await axios.get(
+      "/api/consultant/meeting-settings/get-addresses"
+    );
+    setAddresses(addressesRes.data);
+  };
+
   //populate new selected city state
   const handleNewCityChange = (e, value, reason) => {
     if (reason === "selectOption") setNewSelectedCityId(value.id);
     else if (reason === "removeOption") setNewSelectedCityId(null);
+  };
+
+  const handleEditAddressSubmit = async (e) => {
+    e.preventDefault();
+
+    //insert into consultant_addresses
+    await axios.put("/api/consultant/meeting-settings/address-update", {
+      cityId: editSelectedCityId,
+      address: editAddress,
+      isPrimary: isEditAddressPrimary,
+      addressId: editAddressId,
+    });
+
+    //retrieve addresses again
+    const addressesRes = await axios.get(
+      "/api/consultant/meeting-settings/get-addresses"
+    );
+    setAddresses(addressesRes.data);
+
+    //set states back to default values
+    setEditSelectedCityId(null);
+    setEditAddress("");
+    setIsEditAddressPrimary(false);
+  };
+
+  //populate edit selected city state
+  const handleEditCityChange = (e, value, reason) => {
+    if (reason === "selectOption") {
+      setEditSelectedCityId(value.id);
+      setEditSelectedCity(value);
+    } else if (reason === "removeOption") setEditSelectedCityId(null);
   };
 
   const getCityOptions = () => {
@@ -72,43 +126,6 @@ export default function Addresses(props) {
       return props.cities.sort((a, b) => a.state.localeCompare(b.state));
     else return props.cities.sort((a, b) => a.city.localeCompare(b.city));
   };
-
-  //component to call for each address
-  const Address = (props) => (
-    <Box>
-      <Box display="flex" margin="8px 2% 8px 2%">
-        <Typography marginRight="2%">
-          <strong>City:</strong> {props.city}
-        </Typography>
-        {countryHasStates ? (
-          <Typography>
-            <strong>{countryStateVariant}:</strong> {props.state}
-          </Typography>
-        ) : (
-          <></>
-        )}
-      </Box>
-      <Box margin="8px 2% 8px 2%">
-        <Typography marginBottom="8px">
-          <strong>Address:</strong> {props.address}
-        </Typography>
-        {props.isPrimary ? (
-          <Typography color="primary">Primary Address</Typography>
-        ) : (
-          <></>
-        )}
-      </Box>
-      <Box display="flex" margin="0 2% 16px 2%">
-        <Button variant="outlined" sx={{ marginRight: "1%" }}>
-          Edit
-        </Button>
-        <Button variant="outlined" color="error">
-          Remove
-        </Button>
-      </Box>
-      <Divider />
-    </Box>
-  );
 
   //render when Add New Address button is clicked
   const renderNewAddress = (
@@ -186,6 +203,152 @@ export default function Addresses(props) {
     </Box>
   );
 
+  const renderEditAddress = () => {
+    //get default value of city
+
+    return (
+      <Box component="form" margin="16px 2% 16px 2%">
+        {countryHasStates ? (
+          <Autocomplete
+            options={getCityOptions()}
+            getOptionLabel={(option) => option.city} //return null?
+            groupBy={(option) => option.state}
+            value={editSelectedCity}
+            sx={{ marginBottom: "16px" }}
+            renderInput={(params) => {
+              return (
+                <TextField
+                  {...params}
+                  label={t("settings.meeting-settings.addresses.city")}
+                />
+              );
+            }}
+            onChange={handleEditCityChange}
+          />
+        ) : (
+          <Autocomplete
+            options={getCityOptions()}
+            getOptionLabel={(option) => option.city}
+            disableClearable
+            value={editSelectedCity}
+            sx={{ marginBottom: "16px" }}
+            renderInput={(params) => {
+              return (
+                <TextField
+                  {...params}
+                  label={t("settings.meeting-settings.addresses.city")}
+                />
+              );
+            }}
+            onChange={handleEditCityChange}
+          />
+        )}
+
+        <TextField
+          label={t("settings.meeting-settings.addresses.address")}
+          variant="outlined"
+          multiline
+          fullWidth
+          value={editAddress}
+          sx={{ marginBottom: "15px" }}
+          onChange={(e) => setEditAddress(e.target.value)}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={isEditAddressPrimary}
+              onChange={(e) => setIsEditAddressPrimary(e.target.checked)}
+            />
+          }
+          label="Primary address: appears on profile."
+        />
+        <Button
+          variant="outlined"
+          type="submit"
+          onClick={(e) => {
+            handleEditAddressSubmit(e);
+            setIsEditAddressOpen(false);
+          }}
+        >
+          Update
+        </Button>
+        <Button
+          variant="outlined"
+          type="submit"
+          color="warning"
+          onClick={(e) => {
+            setIsEditAddressOpen(false);
+          }}
+        >
+          Cancel
+        </Button>
+        <Divider />
+      </Box>
+    );
+  };
+
+  //component to call for each address
+  const Address = (props) => {
+    return (
+      <Box>
+        <Box display="flex" margin="8px 2% 8px 2%">
+          <Typography marginRight="2%">
+            <strong>City:</strong> {props.city}
+          </Typography>
+          {countryHasStates ? (
+            <Typography>
+              <strong>{countryStateVariant}:</strong> {props.state}
+            </Typography>
+          ) : (
+            <></>
+          )}
+        </Box>
+        <Box margin="8px 2% 8px 2%">
+          <Typography marginBottom="8px">
+            <strong>Address:</strong> {props.address}
+          </Typography>
+          {props.isPrimary ? (
+            <Typography color="primary">Primary Address</Typography>
+          ) : (
+            <></>
+          )}
+        </Box>
+        <Box display="flex" margin="0 2% 16px 2%">
+          <Button
+            variant="outlined"
+            sx={{ marginRight: "1%" }}
+            onClick={() => {
+              const cities = getCityOptions();
+              for (let i = 0; i < cities.length; i++) {
+                if (cities[i].id === props.cityId) {
+                  console.log[cities[i]];
+                  setEditSelectedCity(cities[i]);
+                }
+              }
+              setIsNewAddressOpen(false);
+              setEditAddressId(props.addressId);
+              setEditSelectedCityId(props.cityId);
+
+              setEditAddress(props.address);
+              setIsEditAddressDefaultPrimary(Boolean(props.isPrimary));
+              setIsEditAddressOpen(true);
+            }}
+          >
+            Edit
+          </Button>
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={() => handleAddressRemove(props.addressId)}
+          >
+            Remove
+          </Button>
+        </Box>
+        <Divider />
+      </Box>
+    );
+  };
+
   return countrySelected === "" ? (
     <SelectCountry
       countries={props.countries}
@@ -206,26 +369,37 @@ export default function Addresses(props) {
         </Button>
       </Box>
       <Divider />
-      <Typography sx={{ margin: "8px 2% 8px 2%" }}>
-        {t("settings.meeting-settings.addresses.addresses")}
-      </Typography>
-      {addresses.map((address) => (
-        <Address
-          key={address.id}
-          addressId={address.id}
-          city={address.city}
-          state={address.state}
-          address={address.address}
-          isPrimary={address.is_primary}
-        />
-      ))}
+
+      {isEditAddressOpen ? (
+        renderEditAddress()
+      ) : (
+        <Box>
+          <Typography sx={{ margin: "8px 2% 8px 2%" }}>
+            {t("settings.meeting-settings.addresses.addresses")}
+          </Typography>
+          {addresses.map((address) => (
+            <Address
+              key={address.id}
+              addressId={address.id}
+              city={address.city}
+              state={address.state}
+              address={address.address}
+              isPrimary={address.is_primary}
+              cityId={address.city_id}
+            />
+          ))}
+        </Box>
+      )}
       {isNewAddressOpen ? (
         renderNewAddress
       ) : (
         <Button
           variant="contained"
           sx={{ margin: "16px 0 16px 2%" }}
-          onClick={() => setIsNewAddressOpen(true)}
+          onClick={() => {
+            setIsEditAddressOpen(false);
+            setIsNewAddressOpen(true);
+          }}
         >
           {t("settings.meeting-settings.addresses.new-address")}
         </Button>

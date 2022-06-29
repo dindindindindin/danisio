@@ -39,7 +39,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 
   //retrieve countries
   const countriesRes = await query(
-    "SELECT country.id, country, region FROM countries INNER JOIN regions ON regions.id = countries.region_id WHERE is_consultant_country = true;"
+    "SELECT countries.id, country, region FROM countries INNER JOIN regions ON regions.id = countries.region_id WHERE is_consultant_country = true;"
   );
   const countries = JSON.stringify(countriesRes);
 
