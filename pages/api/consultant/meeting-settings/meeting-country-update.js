@@ -39,8 +39,13 @@ export default async function meetingCountryUpdate(req, res) {
       await query(
         `DELETE FROM consultant_addresses WHERE user_id = ${userId[0].id};`
       );
+      await query(
+        `DELETE FROM consultant_locations WHERE user_id = ${userId[0].id};`
+      );
     } catch (err) {
-      res.status(500).json({ error: "delete consultant countries error" });
+      res
+        .status(500)
+        .json({ error: "delete consultant addresses and locations error" });
       return;
     }
 

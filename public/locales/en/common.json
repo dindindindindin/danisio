@@ -57,14 +57,27 @@
     "meeting-settings": {
       "meeting-settings-title": "Meeting Settings",
       "addresses": {
-        "country-first": "Please select your country first:",
-        "country": "Country:",
+        "country-first": "Please select your country first",
+        "country": "Country",
         "change": "Change",
-        "addresses": "Addresses:",
+        "addresses": "Meeting Addresses",
         "new-address": "Add New Address",
         "city": "City",
         "address": "Address",
-        "add": "Add"
+        "add": "Add",
+        "primary-checkbox": "Primary address: appears on profile.",
+        "cancel": "Cancel",
+        "primary-address": "Primary Address",
+        "edit": "Edit",
+        "remove": "Remove",
+        "location": "Location",
+        "update": "Update",
+        "country-change-alert": "WARNING: If country is changed, addresses and locations are removed.",
+        "locations": "Meeting Locations",
+        "new-location": "Add New Location",
+        "locations-example": "(ie. Coffee Shop)",
+        "addresses-example": "(ie. Your Company Address)",
+        "location-default-value": "Starbucks on Elm Street"
       }
     }
   },
@@ -75,7 +88,12 @@
     "United States": "United States",
     "Germany": "Germany",
     "Canada": "Canada",
-    "Turkey": "Turkey"
+    "Turkey": "Turkey",
+    "state-variant": {
+      "Province": "Province",
+      "State": "State",
+      "Prefecture": "Prefecture"
+    }
   },
   "regions": {
     "North America": "North America",

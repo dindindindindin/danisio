@@ -22,7 +22,7 @@ export default async function newAddress(req, res) {
     return;
   }
 
-  //insert new address
+  //insert new location
   try {
     await query(
       `INSERT INTO consultant_locations (user_id, city_id, location) VALUES (${userId[0].id}, ${req.body.cityId}, '${req.body.location}');`

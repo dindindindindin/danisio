@@ -14,6 +14,8 @@ export default function Addresses(props) {
   const { t } = useTranslation();
   const [isNewAddressOpen, setIsNewAddressOpen] = useState(false);
   const [isEditAddressOpen, setIsEditAddressOpen] = useState(false);
+  const [isNewLocationOpen, setIsNewLocationOpen] = useState(false);
+  const [isEditLocationOpen, setIsEditLocationOpen] = useState(false);
   //selected country states
   const [countryHasStates, setCountryHasStates] = useState(false);
   const [countryStateVariant, setCountryStateVariant] = useState(null);
@@ -33,6 +35,7 @@ export default function Addresses(props) {
   });
   //fetched arrays
   const [addresses, setAddresses] = useState(props.addresses);
+  const [locations, setLocations] = useState(props.locations);
   const [cities, setCities] = useState(props.cities);
   //add new address form states
   const [newSelectedCityId, setNewSelectedCityId] = useState(null);
@@ -108,6 +111,12 @@ export default function Addresses(props) {
         "/api/consultant/meeting-settings/get-addresses"
       );
       setAddresses(addressesRes.data);
+
+      //retrieve locations again
+      const locationsRes = await axios.get(
+        "/api/consultant/meeting-settings/get-locations"
+      );
+      setLocations(locationsRes.data);
 
       //currently useless
     } else if (reason === "removeOption") {
@@ -195,7 +204,7 @@ export default function Addresses(props) {
     e.preventDefault();
 
     //insert into consultant_locations
-    await axios.post("/api/consultant/meeting-settings/new-address", {
+    await axios.post("/api/consultant/meeting-settings/new-location", {
       cityId: newLocationSelectedCityId,
       location: newLocation,
     });
@@ -212,7 +221,7 @@ export default function Addresses(props) {
   };
 
   //remove address by id
-  const handleLocationRemove = async (addressId) => {
+  const handleLocationRemove = async (locationId) => {
     //api call
     await axios.post("/api/consultant/meeting-settings/location-remove", {
       locationId: locationId,
@@ -323,7 +332,7 @@ export default function Addresses(props) {
             onChange={(e) => setIsNewAddressPrimary(e.target.checked)}
           />
         }
-        label="Primary address: appears on profile."
+        label={t("settings.meeting-settings.addresses.primary-checkbox")}
       />
       <Box display="flex" marginBottom="8px" marginTop="8px">
         <Button
@@ -345,7 +354,7 @@ export default function Addresses(props) {
             setIsNewAddressOpen(false);
           }}
         >
-          Cancel
+          {t("settings.meeting-settings.addresses.cancel")}
         </Button>
       </Box>
     </Box>
@@ -407,7 +416,7 @@ export default function Addresses(props) {
               onChange={(e) => setIsEditAddressPrimary(e.target.checked)}
             />
           }
-          label="Primary address: appears on profile."
+          label={t("settings.meeting-settings.addresses.primary-checkbox")}
         />
         <Box display="flex" marginBottom="8px" marginTop="8px">
           <Button
@@ -419,7 +428,7 @@ export default function Addresses(props) {
               setIsEditAddressOpen(false);
             }}
           >
-            Update
+            {t("settings.meeting-settings.addresses.update")}
           </Button>
           <Button
             variant="outlined"
@@ -429,7 +438,7 @@ export default function Addresses(props) {
               setIsEditAddressOpen(false);
             }}
           >
-            Cancel
+            {t("settings.meeting-settings.addresses.cancel")}
           </Button>
         </Box>
         <Divider />
@@ -443,11 +452,15 @@ export default function Addresses(props) {
       <Box>
         <Box display="flex" margin="8px 2% 8px 2%">
           <Typography marginRight="2%">
-            <strong>City:</strong> {props.city}
+            <strong>{t("settings.meeting-settings.addresses.city")}:</strong>{" "}
+            {props.city}
           </Typography>
           {countryHasStates ? (
             <Typography>
-              <strong>{countryStateVariant}:</strong> {props.state}
+              <strong>
+                {t(`countries.state-variant.${countryStateVariant}`)}:
+              </strong>{" "}
+              {props.state}
             </Typography>
           ) : (
             <></>
@@ -455,10 +468,13 @@ export default function Addresses(props) {
         </Box>
         <Box margin="8px 2% 8px 2%">
           <Typography marginBottom="8px">
-            <strong>Address:</strong> {props.address}
+            <strong>{t("settings.meeting-settings.addresses.address")}:</strong>{" "}
+            {props.address}
           </Typography>
           {props.isPrimary ? (
-            <Typography color="primary">Primary Address</Typography>
+            <Typography color="primary">
+              {t("settings.meeting-settings.addresses.primary-address")}
+            </Typography>
           ) : (
             <></>
           )}
@@ -484,14 +500,14 @@ export default function Addresses(props) {
               setIsEditAddressOpen(true);
             }}
           >
-            Edit
+            {t("settings.meeting-settings.addresses.edit")}
           </Button>
           <Button
             variant="outlined"
             color="error"
             onClick={() => handleAddressRemove(props.addressId)}
           >
-            Remove
+            {t("settings.meeting-settings.addresses.remove")}
           </Button>
         </Box>
         <Divider />
@@ -537,10 +553,13 @@ export default function Addresses(props) {
       )}
 
       <TextField
-        label={t("settings.meeting-settings.addresses.address")}
+        label={t("settings.meeting-settings.addresses.location")}
         variant="outlined"
         multiline
         fullWidth
+        placeholder={t(
+          "settings.meeting-settings.addresses.location-default-value"
+        )}
         sx={{ marginBottom: "8px" }}
         onChange={(e) => setNewLocation(e.target.value)}
       />
@@ -565,7 +584,7 @@ export default function Addresses(props) {
             setIsNewLocationOpen(false);
           }}
         >
-          Cancel
+          {t("settings.meeting-settings.addresses.cancel")}
         </Button>
       </Box>
     </Box>
@@ -580,7 +599,7 @@ export default function Addresses(props) {
             options={getCityOptions()}
             getOptionLabel={(option) => option.city} //return null?
             groupBy={(option) => option.state}
-            value={editSelectedCity}
+            value={editLocationSelectedCity}
             sx={{ marginBottom: "16px" }}
             renderInput={(params) => {
               return (
@@ -597,7 +616,7 @@ export default function Addresses(props) {
             options={getCityOptions()}
             getOptionLabel={(option) => option.city}
             disableClearable
-            value={editSelectedCity}
+            value={editLocationSelectedCity}
             sx={{ marginBottom: "16px" }}
             renderInput={(params) => {
               return (
@@ -612,10 +631,13 @@ export default function Addresses(props) {
         )}
 
         <TextField
-          label={t("settings.meeting-settings.addresses.address")}
+          label={t("settings.meeting-settings.addresses.location")}
           variant="outlined"
           multiline
           fullWidth
+          placeholder={t(
+            "settings.meeting-settings.addresses.location-default-value"
+          )}
           value={editLocation}
           sx={{ marginBottom: "8px" }}
           onChange={(e) => setEditLocation(e.target.value)}
@@ -631,7 +653,7 @@ export default function Addresses(props) {
               setIsEditLocationOpen(false);
             }}
           >
-            Update
+            {t("settings.meeting-settings.addresses.update")}
           </Button>
           <Button
             variant="outlined"
@@ -641,7 +663,7 @@ export default function Addresses(props) {
               setIsEditLocationOpen(false);
             }}
           >
-            Cancel
+            {t("settings.meeting-settings.addresses.cancel")}
           </Button>
         </Box>
         <Divider />
@@ -655,11 +677,15 @@ export default function Addresses(props) {
       <Box>
         <Box display="flex" margin="8px 2% 8px 2%">
           <Typography marginRight="2%">
-            <strong>City:</strong> {props.city}
+            <strong>{t("settings.meeting-settings.addresses.city")}:</strong>{" "}
+            {props.city}
           </Typography>
           {countryHasStates ? (
             <Typography>
-              <strong>{countryStateVariant}:</strong> {props.state}
+              <strong>
+                {t(`countries.state-variant.${countryStateVariant}`)}:
+              </strong>{" "}
+              {props.state}
             </Typography>
           ) : (
             <></>
@@ -667,7 +693,10 @@ export default function Addresses(props) {
         </Box>
         <Box margin="8px 2% 8px 2%">
           <Typography marginBottom="8px">
-            <strong>Location:</strong> {props.location}
+            <strong>
+              {t("settings.meeting-settings.addresses.location")}:
+            </strong>{" "}
+            {props.location}
           </Typography>
         </Box>
         <Box display="flex" margin="0 2% 16px 2%">
@@ -686,18 +715,18 @@ export default function Addresses(props) {
               setIsNewLocationOpen(false);
               setEditLocationId(props.locationId);
               setEditLocationSelectedCityId(props.cityId);
-              setEditLocation(props.address);
+              setEditLocation(props.location);
               setIsEditLocationOpen(true);
             }}
           >
-            Edit
+            {t("settings.meeting-settings.addresses.edit")}
           </Button>
           <Button
             variant="outlined"
             color="error"
             onClick={() => handleLocationRemove(props.locationId)}
           >
-            Remove
+            {t("settings.meeting-settings.addresses.remove")}
           </Button>
         </Box>
         <Divider />
@@ -708,7 +737,7 @@ export default function Addresses(props) {
   return countrySelected === "" ? (
     <Box component="form" border="2px solid #f0f0f4" borderRadius="5px">
       <Typography sx={{ margin: "15px 2% 15px 2%" }}>
-        {t("settings.meeting-settings.addresses.country-first")}
+        {t("settings.meeting-settings.addresses.country-first")}:
       </Typography>
       <Autocomplete
         options={getCountryOptions()}
@@ -731,13 +760,15 @@ export default function Addresses(props) {
     <Box border="2px solid #f0f0f4" borderRadius="5px">
       <Box margin="16px 2% 16px 2%" display="flex">
         <Typography alignSelf="center">
-          {t("settings.meeting-settings.addresses.country")}{" "}
+          {t("settings.meeting-settings.addresses.country")}:{" "}
           {t(`countries.${countrySelected}`)}
         </Typography>
         <Button
           sx={{ marginLeft: "1%" }}
           onClick={() => {
-            alert("WARNING: If country is changed the addresses are removed.");
+            alert(
+              t("settings.meeting-settings.addresses.country-change-alert")
+            );
             setCountrySelected(() => "");
           }}
         >
@@ -750,9 +781,14 @@ export default function Addresses(props) {
         renderEditAddress()
       ) : (
         <Box>
-          <Typography sx={{ margin: "8px 2% 8px 2%" }}>
-            {t("settings.meeting-settings.addresses.addresses")}
-          </Typography>
+          <Box margin="8px 2% 8px 2%" display="flex" alignItems="center">
+            <Typography sx={{ marginRight: "2%" }}>
+              {t("settings.meeting-settings.addresses.addresses")}:
+            </Typography>
+            <Typography variant="body2" color="GrayText">
+              {t("settings.meeting-settings.addresses.addresses-example")}
+            </Typography>
+          </Box>
           {addresses.map((address) => (
             <Address
               key={address.id}
@@ -780,13 +816,19 @@ export default function Addresses(props) {
           {t("settings.meeting-settings.addresses.new-address")}
         </Button>
       )}
+      <Divider />
       {isEditLocationOpen ? (
         renderEditLocation()
       ) : (
         <Box>
-          <Typography sx={{ margin: "8px 2% 8px 2%" }}>
-            {t("settings.meeting-settings.addresses.addresses")}
-          </Typography>
+          <Box margin="8px 2% 8px 2%" display="flex" alignItems="center">
+            <Typography sx={{ marginRight: "2%" }}>
+              {t("settings.meeting-settings.addresses.locations")}:
+            </Typography>
+            <Typography variant="body2" color="GrayText">
+              {t("settings.meeting-settings.addresses.locations-example")}
+            </Typography>
+          </Box>
           {locations.map((location) => (
             <Location
               key={location.id}
@@ -810,7 +852,7 @@ export default function Addresses(props) {
             setIsNewLocationOpen(true);
           }}
         >
-          {t("settings.meeting-settings.addresses.new-address")}
+          {t("settings.meeting-settings.addresses.new-location")}
         </Button>
       )}
     </Box>

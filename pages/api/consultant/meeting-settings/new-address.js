@@ -22,6 +22,26 @@ export default async function newAddress(req, res) {
     return;
   }
 
+  if (req.body.isPrimary) {
+    //retrieve addresses to check for primary
+    try {
+      var addresses = await query(
+        `SELECT id, is_primary FROM consultant_addresses WHERE user_id = ${userId[0].id}`
+      );
+    } catch (err) {
+      res.status(500).json({ error: "retrieve addresses error" });
+      return;
+    }
+
+    //change the primary addresses to false
+    for (let i = 0; i < addresses.length; i++) {
+      if (addresses[i].is_primary)
+        await query(
+          `UPDATE consultant_addresses SET is_primary = false WHERE user_id = ${userId[0].id} AND id = ${addresses[i].id};`
+        );
+    }
+  }
+
   //insert new address
   try {
     await query(

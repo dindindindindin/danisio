@@ -57,14 +57,27 @@
     "meeting-settings": {
       "meeting-settings-title": "Buluşma Ayarları",
       "addresses": {
-        "country-first": "Lütfen önce ülkenizi giriniz:",
-        "country": "Ülke:",
+        "country-first": "Lütfen önce ülkenizi giriniz",
+        "country": "Ülke",
         "change": "Değiştir",
-        "addresses": "Adresler:",
+        "addresses": "Buluşma Adresleri",
         "new-address": "Yeni Adres Ekle",
         "city": "Şehir",
         "address": "Adres",
-        "add": "Ekle"
+        "add": "Ekle",
+        "primary-checkbox": "Birincil adres: profilde görünür.",
+        "cancel": "Vazgeç",
+        "primary-address": "Birincil Adres",
+        "edit": "Düzenle",
+        "remove": "Sil",
+        "location": "Mekan",
+        "update": "Güncelle",
+        "country-change-alert": "DİKKAT: Ülke değişirse, adresler ve yerler silinir.",
+        "locations": "Buluşma Mekanları",
+        "new-location": "Yeni Mekan Ekle",
+        "locations-example": "(Örneğin Kahve Dükkanı)",
+        "addresses-example": "(Örneğin Şirket Adresi)",
+        "location-default-value": "Yurt Caddesi Starbucks"
       }
     }
   },
