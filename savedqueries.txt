@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS consultant_services;
 DROP TABLE IF EXISTS services;
 DROP TABLE IF EXISTS consultant_addresses;
+DROP TABLE IF EXISTS consultant_locations;
 DROP TABLE IF EXISTS consultant_countries;
 DROP TABLE IF EXISTS consultants;
 DROP TABLE IF EXISTS users;
@@ -78,6 +79,14 @@ CREATE TABLE consultant_addresses(
     city_id INT(6) NOT NULL,
     address VARCHAR(200) NOT NULL,
     is_primary BOOLEAN DEFAULT 0,
+    FOREIGN KEY(user_id) REFERENCES consultants(user_id),
+    FOREIGN KEY(city_id) REFERENCES cities(id));
+
+CREATE TABLE consultant_locations(
+    id INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(6) NOT NULL,
+    city_id INT(6) NOT NULL,
+    location VARCHAR(200) NOT NULL,
     FOREIGN KEY(user_id) REFERENCES consultants(user_id),
     FOREIGN KEY(city_id) REFERENCES cities(id));
 

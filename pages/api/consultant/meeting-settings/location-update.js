@@ -1,7 +1,7 @@
 import query from "../../../../db";
 const admin = require("../../../../fbAdmin.config");
 
-export default async function newAddress(req, res) {
+export default async function getAddresses(req, res) {
   //check token
   try {
     const firebaseUser = await admin.auth().verifyIdToken(req.cookies.idToken);
@@ -22,13 +22,13 @@ export default async function newAddress(req, res) {
     return;
   }
 
-  //insert new address
+  //update location
   try {
     await query(
-      `INSERT INTO consultant_addresses (user_id, city_id, address, is_primary) VALUES (${userId[0].id}, ${req.body.cityId}, '${req.body.address}', ${req.body.isPrimary});`
+      `UPDATE consultant_locations SET city_id = ${req.body.cityId}, location = '${req.body.location}' WHERE user_id = ${userId[0].id} AND id = ${req.body.locationId};`
     );
   } catch (err) {
-    res.status(500).json({ error: "add new address error" });
+    res.status(500).json({ error: "update location error" });
     return;
   }
 

@@ -25,10 +25,10 @@ export default async function newAddress(req, res) {
   //insert new address
   try {
     await query(
-      `INSERT INTO consultant_addresses (user_id, city_id, address, is_primary) VALUES (${userId[0].id}, ${req.body.cityId}, '${req.body.address}', ${req.body.isPrimary});`
+      `INSERT INTO consultant_locations (user_id, city_id, location) VALUES (${userId[0].id}, ${req.body.cityId}, '${req.body.location}');`
     );
   } catch (err) {
-    res.status(500).json({ error: "add new address error" });
+    res.status(500).json({ error: "add new location error" });
     return;
   }
 
