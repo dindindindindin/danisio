@@ -7,4 +7,4 @@ SelectCountry array populate inside a function?
 meeting-settings is userId needed?
 does translator call only the necessary ones?
 check for isPrimary to avoid duplicates
-need a primary address to appear on your profile warning
+only the primary address appears on your profile.

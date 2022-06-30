@@ -12,19 +12,8 @@ export default async function getAddresses(req, res) {
     return;
   }
 
-  //retrieve userId
-  try {
-    var userId = await query(
-      `SELECT id FROM users WHERE email = '${req.user.email}';`
-    );
-  } catch (err) {
-    res.status(500).json({ error: "retrieve userId error" });
-    return;
-  }
-
   //retrieve cities
   try {
-    console.log(req.body.countryId);
     var cities = await query(
       `SELECT cities.id, city, state FROM cities LEFT JOIN states ON states.id = cities.state_id WHERE cities.country_id = ${req.body.countryId};`
     );

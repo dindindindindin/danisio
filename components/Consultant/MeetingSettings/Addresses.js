@@ -8,7 +8,6 @@ import Checkbox from "@mui/material/Checkbox";
 import axios from "axios";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
-import SelectCountry from "./SelectCountry";
 import Divider from "@mui/material/Divider";
 
 export default function Addresses(props) {
@@ -32,7 +31,7 @@ export default function Addresses(props) {
       return countryName;
     }
   });
-  //addresses array
+  //fetched arrays
   const [addresses, setAddresses] = useState(props.addresses);
   const [cities, setCities] = useState(props.cities);
   //add new address form states
@@ -46,6 +45,68 @@ export default function Addresses(props) {
   const [editSelectedCityId, setEditSelectedCityId] = useState(null);
   const [editAddress, setEditAddress] = useState("");
   const [isEditAddressPrimary, setIsEditAddressPrimary] = useState(false);
+
+  //inside a function?
+  const countries = [];
+  props.countries.map((country) => {
+    countries.push({
+      id: country.id,
+      country: t(`countries.${country.country}`),
+      region: t(`regions.${country.region}`),
+    });
+  });
+
+  const handleCountryChange = async (e, value, reason) => {
+    //update meeting country in db
+    if (reason === "selectOption") {
+      //api call
+      await axios.put(
+        "/api/consultant/meeting-settings/meeting-country-update",
+        {
+          countryId: value.id,
+        }
+      );
+
+      //retrieve cities again
+      const citiesRes = await axios.post(
+        "/api/consultant/meeting-settings/get-cities",
+        { countryId: value.id }
+      );
+      setCities(citiesRes.data);
+
+      //update the parent state
+      setCountrySelected(() => {
+        let countrySelected;
+        props.countries.map((country) => {
+          if (country.id === value.id) {
+            countrySelected = country.country;
+          }
+        });
+        return countrySelected;
+      });
+
+      //update parent states
+      props.countries.map((country) => {
+        if (country.id === value.id) {
+          setCountryHasStates(Boolean(country.has_states));
+          setCountryStateVariant(country.state_variant);
+        }
+      });
+
+      //retrieve addresses again
+      const addressesRes = await axios.get(
+        "/api/consultant/meeting-settings/get-addresses"
+      );
+      setAddresses(addressesRes.data);
+
+      //currently useless
+    } else if (reason === "removeOption") {
+      //update as null in db
+      await axios.put(
+        "/api/consultant/meeting-settings/meeting-country-remove"
+      );
+    }
+  };
 
   const handleNewAddressSubmit = async (e) => {
     e.preventDefault();
@@ -125,6 +186,11 @@ export default function Addresses(props) {
     if (countryHasStates)
       return cities.sort((a, b) => a.state.localeCompare(b.state));
     else return cities.sort((a, b) => a.city.localeCompare(b.city));
+  };
+
+  //get sorted list (by region) of countries
+  const getCountryOptions = () => {
+    return countries.sort((a, b) => a.region.localeCompare(b.region));
   };
 
   //render when Add New Address button is clicked
@@ -355,14 +421,27 @@ export default function Addresses(props) {
   };
 
   return countrySelected === "" ? (
-    <SelectCountry
-      countries={props.countries}
-      setCountrySelected={setCountrySelected}
-      setAddresses={setAddresses}
-      setCities={setCities}
-      setCountryHasStates={setCountryHasStates}
-      setCountryStateVariant={setCountryStateVariant}
-    />
+    <Box component="form" border="2px solid #f0f0f4" borderRadius="5px">
+      <Typography sx={{ margin: "15px 2% 15px 2%" }}>
+        {t("settings.meeting-settings.addresses.country-first")}
+      </Typography>
+      <Autocomplete
+        options={getCountryOptions()}
+        getOptionLabel={(option) => option.country}
+        groupBy={(option) => option.region}
+        disableClearable
+        sx={{ margin: "0 2% 15px 2%" }}
+        renderInput={(params) => {
+          return (
+            <TextField
+              {...params}
+              label={t("settings.profile-settings.countries")}
+            />
+          );
+        }}
+        onChange={handleCountryChange}
+      />
+    </Box>
   ) : (
     <Box border="2px solid #f0f0f4" borderRadius="5px">
       <Box margin="16px 2% 16px 2%" display="flex">

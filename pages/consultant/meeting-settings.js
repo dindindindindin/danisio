@@ -5,7 +5,9 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import Container from "@mui/material/Container";
 import Addresses from "../../components/Consultant/MeetingSettings/Addresses";
+import SelectCountry from "../../components/Consultant/MeetingSettings/SelectCountry";
 import query from "../../db";
+import { useState } from "react";
 
 export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const user = context.req.user;
@@ -35,7 +37,6 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const citiesRes = await query(
     `SELECT cities.id, city, state FROM cities LEFT JOIN states ON states.id = cities.state_id WHERE cities.country_id = ${meetingCountryId};`
   );
-  console.log(citiesRes);
   const cities = JSON.parse(JSON.stringify(citiesRes));
 
   //retrieve consultant_addresses
@@ -69,8 +70,6 @@ export default function MeetingSettings(props) {
           <Addresses
             countries={props.countries}
             meetingCountryId={props.meetingCountryId}
-            cities={props.cities}
-            addresses={props.addresses}
             {...props}
           />
         </Container>
