@@ -36,9 +36,14 @@ export default async function getAddresses(req, res) {
     //change the primary addresses to false
     for (let i = 0; i < addresses.length; i++) {
       if (addresses[i].is_primary)
-        await query(
-          `UPDATE consultant_addresses SET is_primary = false WHERE user_id = ${userId[0].id} AND id = ${addresses[i].id};`
-        );
+        try {
+          await query(
+            `UPDATE consultant_addresses SET is_primary = false WHERE user_id = ${userId[0].id} AND id = ${addresses[i].id};`
+          );
+        } catch (err) {
+          res.status(500).json({ error: "update isPrimary error" });
+          return;
+        }
     }
   }
 

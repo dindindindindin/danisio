@@ -782,7 +782,7 @@ export default function Addresses(props) {
       ) : (
         <Box>
           <Box margin="8px 2% 8px 2%" display="flex" alignItems="center">
-            <Typography sx={{ marginRight: "2%" }}>
+            <Typography sx={{ marginRight: "1%" }}>
               {t("settings.meeting-settings.addresses.addresses")}:
             </Typography>
             <Typography variant="body2" color="GrayText">
@@ -822,7 +822,7 @@ export default function Addresses(props) {
       ) : (
         <Box>
           <Box margin="8px 2% 8px 2%" display="flex" alignItems="center">
-            <Typography sx={{ marginRight: "2%" }}>
+            <Typography sx={{ marginRight: "1%" }}>
               {t("settings.meeting-settings.addresses.locations")}:
             </Typography>
             <Typography variant="body2" color="GrayText">

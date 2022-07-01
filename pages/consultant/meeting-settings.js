@@ -6,6 +6,8 @@ import { useTranslation } from "next-i18next";
 import Container from "@mui/material/Container";
 import Addresses from "../../components/Consultant/MeetingSettings/Addresses";
 import query from "../../db";
+import TimesAvailable from "../../components/Consultant/MeetingSettings/TimesAvailable";
+//import { styled } from "@mui/material/styles";
 
 export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const user = context.req.user;
@@ -29,7 +31,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
     `SELECT users.id, country_id FROM consultants INNER JOIN users ON users.id = consultants.user_id WHERE email = '${user.email}';`
   );
   const meetingCountryId = dbUserRes[0].country_id;
-  const userId = dbUserRes[0].id; //is it needed?
+  const userId = dbUserRes[0].id;
 
   //retrieve cities
   const citiesRes = await query(
@@ -63,6 +65,10 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   };
 });
 
+// const ContainerWrapper = styled(Container)(({ theme }) => ({
+//   [theme.breakpoints.down("md")]: { disableGutters: true },
+// }));
+
 export default function MeetingSettings(props) {
   const { t } = useTranslation();
   return (
@@ -71,14 +77,16 @@ export default function MeetingSettings(props) {
         heading={t("settings.meeting-settings.meeting-settings-title")}
         {...props}
       >
-        <Container>
+        <Container disableGutters="true">
           <Addresses
             countries={props.countries}
             meetingCountryId={props.meetingCountryId}
+            cities={props.cities}
             addresses={props.addresses}
             locations={props.locations}
             {...props}
           />
+          <TimesAvailable />
         </Container>
       </ConsultantSettingsLayout>
     </Layout>

@@ -12,10 +12,12 @@ import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 import { updatePassword } from "firebase/auth";
 import { styled } from "@mui/material/styles";
+import Container from "@mui/material/Container";
 
-const Wrapper = styled("div")(({ theme }) => ({
+const Wrapper = styled(Container)(({ theme }) => ({
   display: "flex",
   flexWrap: "wrap",
+  justifyContent: "center",
   [theme.breakpoints.down("xs")]: {
     flexDirection: "column",
     alignItems: "center",
@@ -116,7 +118,7 @@ export default function ChangePassword(props) {
   return (
     <Layout props>
       <ConsultantSettingsLayout heading={t("settings.changepw.changepwtitle")}>
-        <Wrapper>
+        <Wrapper disableGutters="true">
           <StyledPaper>
             <form noValidate>
               <StyledTextField

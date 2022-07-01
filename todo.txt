@@ -6,5 +6,8 @@ profile pic in settings is not stable
 SelectCountry array populate inside a function?
 meeting-settings is userId needed?
 does translator call only the necessary ones?
-check for isPrimary to avoid duplicates
 only the primary address appears on your profile.
+margin padding refactoring in addresses
+add textbox warnings to addresses
+enter available from first
+enter available times first for exclusion

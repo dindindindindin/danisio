@@ -61,7 +61,7 @@
         "country": "Country",
         "change": "Change",
         "addresses": "Meeting Addresses",
-        "new-address": "Add New Address",
+        "new-address": "Add Address",
         "city": "City",
         "address": "Address",
         "add": "Add",
@@ -74,8 +74,8 @@
         "update": "Update",
         "country-change-alert": "WARNING: If country is changed, addresses and locations are removed.",
         "locations": "Meeting Locations",
-        "new-location": "Add New Location",
-        "locations-example": "(ie. Coffee Shop)",
+        "new-location": "Add Location",
+        "locations-example": "(ie. A Coffee Shop)",
         "addresses-example": "(ie. Your Company Address)",
         "location-default-value": "Starbucks on Elm Street"
       }
