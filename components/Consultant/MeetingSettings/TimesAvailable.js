@@ -5,6 +5,9 @@ import TextField from "@mui/material/TextField";
 import Checkbox from "@mui/material/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormGroup from "@mui/material/FormGroup";
+import FormControl from "@mui/material/FormControl";
+import RadioGroup from "@mui/material/RadioGroup";
+import Radio from "@mui/material/Radio";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -17,10 +20,12 @@ export default function TimesAvailable(props) {
   const [isAddIntervalOpen, setIsAddIntervalOpen] = useState(false);
   const [isAddIntervalExcludeOpen, setIsAddIntervalExcludeOpen] =
     useState(false);
+  //states for adding interval
   const [addIntervalFrom, setAddIntervalFrom] = useState(null);
   const [addIntervalTo, setAddIntervalTo] = useState(null);
   const [addIntervalExcludeFrom, setAddIntervalExcludeFrom] = useState(null);
   const [addIntervalExcludeTo, setAddIntervalExcludeTo] = useState(null);
+  const [addIntervalExclusions, setAddIntervalExclusions] = useState([]);
 
   const renderAddInterval = () => {
     const daysOfWeek = [
@@ -80,6 +85,40 @@ export default function TimesAvailable(props) {
                 )}
               />
             </Box>
+            {addIntervalExclusions ? (
+              addIntervalExclusions.map((exclusion, index) => {
+                console.log(exclusion);
+                return (
+                  <Box
+                    key={index}
+                    display="flex"
+                    alignItems="center"
+                    marginBottom="8px"
+                  >
+                    <Typography marginRight="1%">
+                      Except from {("0" + exclusion.from.getHours()).slice(-2)}:
+                      {("0" + exclusion.from.getMinutes()).slice(-2)} to{" "}
+                      {("0" + exclusion.to.getHours()).slice(-2)}:
+                      {("0" + exclusion.to.getMinutes()).slice(-2)}
+                    </Typography>
+                    <Button
+                      onClick={() => {
+                        setAddIntervalExclusions((prevState) =>
+                          prevState.filter(
+                            (filterExclusion, filterIndex) =>
+                              filterIndex !== index
+                          )
+                        );
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </Box>
+                );
+              })
+            ) : (
+              <></>
+            )}
             {isAddIntervalExcludeOpen ? (
               <Box marginBottom="8px">
                 <Box
@@ -118,7 +157,18 @@ export default function TimesAvailable(props) {
                   <Button
                     variant="outlined"
                     sx={{ mr: "1%" }}
-                    onClick={() => setIsAddIntervalExcludeOpen(false)}
+                    onClick={() => {
+                      setAddIntervalExclusions((state) => [
+                        ...state,
+                        {
+                          from: addIntervalExcludeFrom,
+                          to: addIntervalExcludeTo,
+                        },
+                      ]);
+                      setAddIntervalExcludeFrom(null);
+                      setAddIntervalExcludeTo(null);
+                      setIsAddIntervalExcludeOpen(false);
+                    }}
                   >
                     Complete Exclusion
                   </Button>
@@ -146,6 +196,22 @@ export default function TimesAvailable(props) {
               </Box>
             )}
           </LocalizationProvider>
+          <Box marginBottom="8px">
+            <FormControl>
+              <RadioGroup defaultValue="preferred" name="radio-buttons-group">
+                <FormControlLabel
+                  value="preferred"
+                  control={<Radio />}
+                  label="Meeting preferred at this time."
+                />
+                <FormControlLabel
+                  value="possible"
+                  control={<Radio />}
+                  label="Meeting possible at this time."
+                />
+              </RadioGroup>
+            </FormControl>
+          </Box>
           <Box display="flex">
             <Button variant="contained" sx={{ mr: "1%" }}>
               Complete

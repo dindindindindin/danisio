@@ -77,7 +77,7 @@ export default function MeetingSettings(props) {
         heading={t("settings.meeting-settings.meeting-settings-title")}
         {...props}
       >
-        <Container disableGutters="true">
+        <Container disableGutters={true}>
           <Addresses
             countries={props.countries}
             meetingCountryId={props.meetingCountryId}

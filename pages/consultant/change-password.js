@@ -118,7 +118,7 @@ export default function ChangePassword(props) {
   return (
     <Layout props>
       <ConsultantSettingsLayout heading={t("settings.changepw.changepwtitle")}>
-        <Wrapper disableGutters="true">
+        <Wrapper disableGutters={true}>
           <StyledPaper>
             <form noValidate>
               <StyledTextField

@@ -106,7 +106,7 @@ export default function ProfileSettings(props) {
           heading={t("settings.profile-settings.profile-settings-title")}
           {...props}
         >
-          <Container disableGutters="true">
+          <Container disableGutters={true}>
             <ProfilePicture
               profilePicUrl={props.profilePicUrl}
               userId={props.userId}
