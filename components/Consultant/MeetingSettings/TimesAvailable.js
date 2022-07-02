@@ -15,6 +15,7 @@ import axios from "axios";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import Divider from "@mui/material/Divider";
+import { set } from "date-fns";
 
 export default function TimesAvailable(props) {
   const [isAddIntervalOpen, setIsAddIntervalOpen] = useState(false);
@@ -25,7 +26,35 @@ export default function TimesAvailable(props) {
   const [addIntervalTo, setAddIntervalTo] = useState(null);
   const [addIntervalExcludeFrom, setAddIntervalExcludeFrom] = useState(null);
   const [addIntervalExcludeTo, setAddIntervalExcludeTo] = useState(null);
+
   const [addIntervalExclusions, setAddIntervalExclusions] = useState([]);
+
+  const [isAddIntervalFromToDisabled, setIsAddIntervalFromToDisabled] =
+    useState(false);
+
+  const [errors, setErrors] = useState({ availableFrom: "", availableTo: "" });
+
+  const isValueValid = (value) => {
+    if (value instanceof Date)
+      if (
+        value.getHours() <= 24 &&
+        value.getHours() >= 0 &&
+        value.getMinutes() <= 59 &&
+        value.getMinutes() >= 0
+      )
+        return true;
+      else return false;
+  };
+
+  const isToLater = (from, to) => {
+    if (from instanceof Date && to instanceof Date) {
+      if (from.getHours() <= to.getHours()) {
+        if (from.getMinutes() <= to.getMinutes()) {
+          return true;
+        } else return false;
+      } else return false;
+    } else return false;
+  };
 
   const renderAddInterval = () => {
     const daysOfWeek = [
@@ -68,20 +97,39 @@ export default function TimesAvailable(props) {
                 onChange={(newValue) => {
                   setAddIntervalFrom(newValue);
                 }}
+                disabled={isAddIntervalFromToDisabled}
                 renderInput={(params) => (
-                  <TextField sx={{ width: "49%" }} {...params} />
+                  <TextField
+                    helperText={errors.availableFrom}
+                    sx={{ width: "49%" }}
+                    {...params}
+                  />
                 )}
               />
               <TimePicker
-                label="Available To"
+                label="Available Until"
                 value={addIntervalTo}
                 ampm={false}
                 minTime={addIntervalFrom}
                 onChange={(newValue) => {
                   setAddIntervalTo(newValue);
+                  if (!isToLater(addIntervalFrom, newValue)) {
+                    setErrors({
+                      availableTo: "Must be later than 'Available From'",
+                    });
+                  } else {
+                    setErrors({ availableTo: "" });
+                  }
                 }}
+                disabled={
+                  !isValueValid(addIntervalFrom) || isAddIntervalFromToDisabled
+                }
                 renderInput={(params) => (
-                  <TextField sx={{ width: "49%" }} {...params} />
+                  <TextField
+                    helperText={errors.availableTo}
+                    sx={{ width: "49%" }}
+                    {...params}
+                  />
                 )}
               />
             </Box>
@@ -103,12 +151,15 @@ export default function TimesAvailable(props) {
                     </Typography>
                     <Button
                       onClick={() => {
-                        setAddIntervalExclusions((prevState) =>
-                          prevState.filter(
+                        setAddIntervalExclusions((prevState) => {
+                          if (prevState.length === 1) {
+                            setIsAddIntervalFromToDisabled(false);
+                          }
+                          return prevState.filter(
                             (filterExclusion, filterIndex) =>
                               filterIndex !== index
-                          )
-                        );
+                          );
+                        });
                       }}
                     >
                       Remove
@@ -140,11 +191,12 @@ export default function TimesAvailable(props) {
                     )}
                   />
                   <TimePicker
-                    label="Exclude To"
+                    label="Exclude Until"
                     value={addIntervalExcludeTo}
                     ampm={false}
                     minTime={addIntervalExcludeFrom}
                     maxTime={addIntervalTo}
+                    disabled={!isValueValid(addIntervalExcludeFrom)}
                     onChange={(newValue) => {
                       setAddIntervalExcludeTo(newValue);
                     }}
@@ -175,7 +227,15 @@ export default function TimesAvailable(props) {
                   <Button
                     variant="outlined"
                     color="warning"
-                    onClick={() => setIsAddIntervalExcludeOpen(false)}
+                    onClick={() => {
+                      if (addIntervalExclusions.length === 0) {
+                        console.log("inside disabled false");
+                        setIsAddIntervalFromToDisabled(false);
+                      }
+                      setAddIntervalExcludeFrom(null);
+                      setAddIntervalExcludeTo(null);
+                      setIsAddIntervalExcludeOpen(false);
+                    }}
                   >
                     Cancel Exclusion
                   </Button>
@@ -186,7 +246,24 @@ export default function TimesAvailable(props) {
                 <Button
                   variant="outlined"
                   sx={{ marginRight: "1%" }}
-                  onClick={() => setIsAddIntervalExcludeOpen(true)}
+                  onClick={() => {
+                    if (
+                      isValueValid(addIntervalFrom) &&
+                      isValueValid(addIntervalTo)
+                    ) {
+                      if (isToLater(addIntervalFrom, addIntervalTo)) {
+                        setErrors({ availableFrom: "" });
+                        setIsAddIntervalExcludeOpen(true);
+                        setIsAddIntervalFromToDisabled(true);
+                      } else
+                        setErrors({
+                          availableFrom: "Times available are not valid.",
+                        });
+                    } else
+                      setErrors({
+                        availableFrom: "Please enter times available first.",
+                      });
+                  }}
                 >
                   Exclude Interval
                 </Button>
