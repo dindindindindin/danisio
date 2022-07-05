@@ -46,9 +46,26 @@ export default function TimesAvailable(props) {
       else return false;
   };
 
-  const isToLater = (from, to) => {
+  //is 'to' later than 'from'?
+  const isLater = (from, to) => {
     if (from instanceof Date && to instanceof Date) {
-      if (from.getHours() <= to.getHours()) {
+      if (from.getHours() < to.getHours()) {
+        return true;
+      } else if (from.getHours() == to.getHours()) {
+        if (from.getMinutes() < to.getMinutes()) {
+          return true;
+        } else return false;
+      } else return false;
+    } else return false;
+  };
+
+  //is 'to' later than or equal to 'from'?
+  const isLaterOrEqual = (from, to) => {
+    console.log("from: ", from, " to: ", to);
+    if (from instanceof Date && to instanceof Date) {
+      if (from.getHours() < to.getHours()) {
+        return true;
+      } else if (from.getHours() == to.getHours()) {
         if (from.getMinutes() <= to.getMinutes()) {
           return true;
         } else return false;
@@ -113,7 +130,7 @@ export default function TimesAvailable(props) {
                 minTime={addIntervalFrom}
                 onChange={(newValue) => {
                   setAddIntervalTo(newValue);
-                  if (!isToLater(addIntervalFrom, newValue)) {
+                  if (isLater(newValue, addIntervalFrom)) {
                     setErrors({
                       availableTo: "Must be later than 'Available From'",
                     });
@@ -135,7 +152,6 @@ export default function TimesAvailable(props) {
             </Box>
             {addIntervalExclusions ? (
               addIntervalExclusions.map((exclusion, index) => {
-                console.log(exclusion);
                 return (
                   <Box
                     key={index}
@@ -185,9 +201,27 @@ export default function TimesAvailable(props) {
                     maxTime={addIntervalTo}
                     onChange={(newValue) => {
                       setAddIntervalExcludeFrom(newValue);
+                      if (isLater(newValue, addIntervalFrom))
+                        setErrors({
+                          addIntervalExcludeFrom:
+                            "Must be later than 'Available From'",
+                        });
+                      else if (isLater(addIntervalTo, newValue))
+                        setErrors({
+                          addIntervalExcludeFrom:
+                            "Must be earlier than 'Available Until'",
+                        });
+                      else
+                        setErrors({
+                          addIntervalExcludeFrom: "",
+                        });
                     }}
                     renderInput={(params) => (
-                      <TextField sx={{ width: "49%" }} {...params} />
+                      <TextField
+                        helperText={errors.addIntervalExcludeFrom}
+                        sx={{ width: "49%" }}
+                        {...params}
+                      />
                     )}
                   />
                   <TimePicker
@@ -199,9 +233,24 @@ export default function TimesAvailable(props) {
                     disabled={!isValueValid(addIntervalExcludeFrom)}
                     onChange={(newValue) => {
                       setAddIntervalExcludeTo(newValue);
+                      if (isLater(newValue, addIntervalExcludeFrom))
+                        setErrors({
+                          addIntervalExcludeTo:
+                            "Must be later than 'Exclude From'",
+                        });
+                      else if (isLater(addIntervalTo, newValue))
+                        setErrors({
+                          addIntervalExcludeTo:
+                            "Must be earlier than 'Available Until'",
+                        });
+                      else setErrors({ addIntervalExcludeTo: "" });
                     }}
                     renderInput={(params) => (
-                      <TextField sx={{ width: "49%" }} {...params} />
+                      <TextField
+                        helperText={errors.addIntervalExcludeTo}
+                        sx={{ width: "49%" }}
+                        {...params}
+                      />
                     )}
                   />
                 </Box>
@@ -210,16 +259,67 @@ export default function TimesAvailable(props) {
                     variant="outlined"
                     sx={{ mr: "1%" }}
                     onClick={() => {
-                      setAddIntervalExclusions((state) => [
-                        ...state,
-                        {
-                          from: addIntervalExcludeFrom,
-                          to: addIntervalExcludeTo,
-                        },
-                      ]);
-                      setAddIntervalExcludeFrom(null);
-                      setAddIntervalExcludeTo(null);
-                      setIsAddIntervalExcludeOpen(false);
+                      if (addIntervalExclusions.length !== 0) {
+                        //compare with previous exclusions
+                        for (let i = 0; i < addIntervalExclusions.length; i++) {
+                          if (
+                            //if exclude from is between previous exclusions
+                            (isLaterOrEqual(
+                              addIntervalExclusions[i].from,
+                              addIntervalExcludeFrom
+                            ) &&
+                              isLaterOrEqual(
+                                addIntervalExcludeFrom,
+                                addIntervalExclusions[i].to
+                              )) || //if exclude to is between previous exclusions
+                            (isLaterOrEqual(
+                              addIntervalExclusions[i].from,
+                              addIntervalExcludeTo
+                            ) &&
+                              isLaterOrEqual(
+                                addIntervalExcludeTo,
+                                addIntervalExclusions[i].to
+                              )) || //if exclude from and to encompasses previous exclusions
+                            (isLaterOrEqual(
+                              addIntervalExcludeFrom,
+                              addIntervalExclusions[i].from
+                            ) &&
+                              isLaterOrEqual(
+                                addIntervalExclusions[i].to,
+                                addIntervalExcludeTo
+                              ))
+                          ) {
+                            setErrors({
+                              addIntervalExcludeFrom:
+                                "Previous exclusions must not collide.",
+                            });
+                            return;
+                          }
+                        }
+                        //if no collision found proceed
+                        setAddIntervalExclusions((state) => [
+                          ...state,
+                          {
+                            from: addIntervalExcludeFrom,
+                            to: addIntervalExcludeTo,
+                          },
+                        ]);
+                        setAddIntervalExcludeFrom(null);
+                        setAddIntervalExcludeTo(null);
+                        setIsAddIntervalExcludeOpen(false);
+                      } else {
+                        //if there's no previous exclusion proceed
+                        setAddIntervalExclusions((state) => [
+                          ...state,
+                          {
+                            from: addIntervalExcludeFrom,
+                            to: addIntervalExcludeTo,
+                          },
+                        ]);
+                        setAddIntervalExcludeFrom(null);
+                        setAddIntervalExcludeTo(null);
+                        setIsAddIntervalExcludeOpen(false);
+                      }
                     }}
                   >
                     Complete Exclusion
@@ -229,7 +329,6 @@ export default function TimesAvailable(props) {
                     color="warning"
                     onClick={() => {
                       if (addIntervalExclusions.length === 0) {
-                        console.log("inside disabled false");
                         setIsAddIntervalFromToDisabled(false);
                       }
                       setAddIntervalExcludeFrom(null);
@@ -251,7 +350,7 @@ export default function TimesAvailable(props) {
                       isValueValid(addIntervalFrom) &&
                       isValueValid(addIntervalTo)
                     ) {
-                      if (isToLater(addIntervalFrom, addIntervalTo)) {
+                      if (isLater(addIntervalFrom, addIntervalTo)) {
                         setErrors({ availableFrom: "" });
                         setIsAddIntervalExcludeOpen(true);
                         setIsAddIntervalFromToDisabled(true);
