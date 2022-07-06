@@ -201,12 +201,12 @@ export default function TimesAvailable(props) {
                     maxTime={addIntervalTo}
                     onChange={(newValue) => {
                       setAddIntervalExcludeFrom(newValue);
-                      if (isLater(newValue, addIntervalFrom))
+                      if (isLaterOrEqual(newValue, addIntervalFrom))
                         setErrors({
                           addIntervalExcludeFrom:
                             "Must be later than 'Available From'",
                         });
-                      else if (isLater(addIntervalTo, newValue))
+                      else if (isLaterOrEqual(addIntervalTo, newValue))
                         setErrors({
                           addIntervalExcludeFrom:
                             "Must be earlier than 'Available Until'",
@@ -238,7 +238,7 @@ export default function TimesAvailable(props) {
                           addIntervalExcludeTo:
                             "Must be later than 'Exclude From'",
                         });
-                      else if (isLater(addIntervalTo, newValue))
+                      else if (isLaterOrEqual(addIntervalTo, newValue))
                         setErrors({
                           addIntervalExcludeTo:
                             "Must be earlier than 'Available Until'",
@@ -259,66 +259,132 @@ export default function TimesAvailable(props) {
                     variant="outlined"
                     sx={{ mr: "1%" }}
                     onClick={() => {
-                      if (addIntervalExclusions.length !== 0) {
-                        //compare with previous exclusions
-                        for (let i = 0; i < addIntervalExclusions.length; i++) {
-                          if (
-                            //if exclude from is between previous exclusions
-                            (isLaterOrEqual(
-                              addIntervalExclusions[i].from,
-                              addIntervalExcludeFrom
-                            ) &&
-                              isLaterOrEqual(
-                                addIntervalExcludeFrom,
-                                addIntervalExclusions[i].to
-                              )) || //if exclude to is between previous exclusions
-                            (isLaterOrEqual(
-                              addIntervalExclusions[i].from,
-                              addIntervalExcludeTo
-                            ) &&
-                              isLaterOrEqual(
-                                addIntervalExcludeTo,
-                                addIntervalExclusions[i].to
-                              )) || //if exclude from and to encompasses previous exclusions
-                            (isLaterOrEqual(
-                              addIntervalExcludeFrom,
-                              addIntervalExclusions[i].from
-                            ) &&
-                              isLaterOrEqual(
-                                addIntervalExclusions[i].to,
+                      if (
+                        //if values entered are valid
+                        isValueValid(addIntervalExcludeFrom) &&
+                        isValueValid(addIntervalExcludeTo)
+                      ) {
+                        if (addIntervalExclusions.length !== 0) {
+                          //compare with previous exclusions
+                          for (
+                            let i = 0;
+                            i < addIntervalExclusions.length;
+                            i++
+                          ) {
+                            if (
+                              //if exclude from is between previous exclusions
+                              (isLaterOrEqual(
+                                addIntervalExclusions[i].from,
+                                addIntervalExcludeFrom
+                              ) &&
+                                isLaterOrEqual(
+                                  addIntervalExcludeFrom,
+                                  addIntervalExclusions[i].to
+                                )) || //if exclude to is between previous exclusions
+                              (isLaterOrEqual(
+                                addIntervalExclusions[i].from,
                                 addIntervalExcludeTo
-                              ))
+                              ) &&
+                                isLaterOrEqual(
+                                  addIntervalExcludeTo,
+                                  addIntervalExclusions[i].to
+                                )) || //if exclude from and to encompasses previous exclusions
+                              (isLaterOrEqual(
+                                addIntervalExcludeFrom,
+                                addIntervalExclusions[i].from
+                              ) &&
+                                isLaterOrEqual(
+                                  addIntervalExclusions[i].to,
+                                  addIntervalExcludeTo
+                                ))
+                            ) {
+                              setErrors({
+                                addIntervalExcludeFrom:
+                                  "Previous exclusions must not collide.",
+                              });
+                              return;
+                            }
+                          }
+                          //if no collision found check if not between available times
+                          if (
+                            isLaterOrEqual(
+                              addIntervalExcludeFrom,
+                              addIntervalFrom
+                            ) ||
+                            isLaterOrEqual(
+                              addIntervalTo,
+                              addIntervalExcludeFrom
+                            ) ||
+                            isLaterOrEqual(
+                              addIntervalExcludeTo,
+                              addIntervalFrom
+                            ) ||
+                            isLaterOrEqual(addIntervalTo, addIntervalExcludeTo)
                           ) {
                             setErrors({
                               addIntervalExcludeFrom:
-                                "Previous exclusions must not collide.",
+                                "Must be between available times.",
                             });
-                            return;
+                          } else {
+                            //if between then proceed
+                            setErrors({
+                              addIntervalExcludeFrom:
+                                "Must be between available times.",
+                            });
+                            setAddIntervalExclusions((state) => [
+                              ...state,
+                              {
+                                from: addIntervalExcludeFrom,
+                                to: addIntervalExcludeTo,
+                              },
+                            ]);
+                            setAddIntervalExcludeFrom(null);
+                            setAddIntervalExcludeTo(null);
+                            setIsAddIntervalExcludeOpen(false);
+                          }
+                        } else {
+                          //if there's no previous exclusion check if between available times
+                          if (
+                            isLaterOrEqual(
+                              addIntervalExcludeFrom,
+                              addIntervalFrom
+                            ) ||
+                            isLaterOrEqual(
+                              addIntervalTo,
+                              addIntervalExcludeFrom
+                            ) ||
+                            isLaterOrEqual(
+                              addIntervalExcludeTo,
+                              addIntervalFrom
+                            ) ||
+                            isLaterOrEqual(addIntervalTo, addIntervalExcludeTo)
+                          ) {
+                            setErrors({
+                              addIntervalExcludeFrom:
+                                "Must be between available times.",
+                            });
+                          } else {
+                            //if between available times proceed
+                            setErrors({
+                              addIntervalExcludeFrom: "",
+                            });
+                            setAddIntervalExclusions((state) => [
+                              ...state,
+                              {
+                                from: addIntervalExcludeFrom,
+                                to: addIntervalExcludeTo,
+                              },
+                            ]);
+                            setAddIntervalExcludeFrom(null);
+                            setAddIntervalExcludeTo(null);
+                            setIsAddIntervalExcludeOpen(false);
                           }
                         }
-                        //if no collision found proceed
-                        setAddIntervalExclusions((state) => [
-                          ...state,
-                          {
-                            from: addIntervalExcludeFrom,
-                            to: addIntervalExcludeTo,
-                          },
-                        ]);
-                        setAddIntervalExcludeFrom(null);
-                        setAddIntervalExcludeTo(null);
-                        setIsAddIntervalExcludeOpen(false);
                       } else {
-                        //if there's no previous exclusion proceed
-                        setAddIntervalExclusions((state) => [
-                          ...state,
-                          {
-                            from: addIntervalExcludeFrom,
-                            to: addIntervalExcludeTo,
-                          },
-                        ]);
-                        setAddIntervalExcludeFrom(null);
-                        setAddIntervalExcludeTo(null);
-                        setIsAddIntervalExcludeOpen(false);
+                        //if not valid
+                        setErrors({
+                          addIntervalExcludeFrom: "Please enter a valid time.",
+                        });
                       }
                     }}
                   >
