@@ -26,13 +26,23 @@ export default function TimesAvailable(props) {
   const [addIntervalTo, setAddIntervalTo] = useState(null);
   const [addIntervalExcludeFrom, setAddIntervalExcludeFrom] = useState(null);
   const [addIntervalExcludeTo, setAddIntervalExcludeTo] = useState(null);
-
   const [addIntervalExclusions, setAddIntervalExclusions] = useState([]);
-
   const [isAddIntervalFromToDisabled, setIsAddIntervalFromToDisabled] =
     useState(false);
 
+  const [checkedDays, setCheckedDays] = useState([]);
+
   const [errors, setErrors] = useState({ availableFrom: "", availableTo: "" });
+
+  const handleAddInterval = async (e) => {
+    await axios.post("/api/consultant/meeting-settings/new-interval", {
+      days: checkedDays,
+      from: addIntervalFrom,
+      to: addIntervalTo,
+      exclusions: addIntervalExclusions,
+      priority: e.target.priority.value,
+    });
+  };
 
   const isValueValid = (value) => {
     if (value instanceof Date)
@@ -44,6 +54,7 @@ export default function TimesAvailable(props) {
       )
         return true;
       else return false;
+    else return false;
   };
 
   //is 'to' later than 'from'?
@@ -85,7 +96,24 @@ export default function TimesAvailable(props) {
     ];
     return (
       <Box>
-        <form>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (
+              isValueValid(addIntervalFrom) &&
+              isValueValid(addIntervalTo) &&
+              isLater(addIntervalFrom, addIntervalTo)
+            ) {
+              if (checkedDays.length !== 0) {
+                setErrors({});
+                handleAddInterval(e);
+              } else setErrors({ availableFrom: "Please select the days." });
+            } else
+              setErrors({
+                availableFrom: "Please enter a valid interval.",
+              });
+          }}
+        >
           <FormGroup
             sx={{
               display: "flex",
@@ -96,7 +124,25 @@ export default function TimesAvailable(props) {
             }}
           >
             {daysOfWeek.map((day) => (
-              <FormControlLabel key={day} control={<Checkbox />} label={day} />
+              <FormControlLabel
+                key={day}
+                control={<Checkbox />}
+                label={day}
+                value={day}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setCheckedDays((prevState) => [
+                      ...prevState,
+                      e.target.value,
+                    ]);
+                  } else {
+                    setCheckedDays((prevState) =>
+                      prevState.filter((day) => day !== e.target.value)
+                    );
+                  }
+                  console.log(checkedDays);
+                }}
+              />
             ))}
           </FormGroup>
 
@@ -440,7 +486,7 @@ export default function TimesAvailable(props) {
           </LocalizationProvider>
           <Box marginBottom="8px">
             <FormControl>
-              <RadioGroup defaultValue="preferred" name="radio-buttons-group">
+              <RadioGroup defaultValue="preferred" name="priority">
                 <FormControlLabel
                   value="preferred"
                   control={<Radio />}
@@ -455,7 +501,7 @@ export default function TimesAvailable(props) {
             </FormControl>
           </Box>
           <Box display="flex">
-            <Button variant="contained" sx={{ mr: "1%" }}>
+            <Button variant="contained" sx={{ mr: "1%" }} type="submit">
               Complete
             </Button>
             <Button variant="outlined" color="warning">
