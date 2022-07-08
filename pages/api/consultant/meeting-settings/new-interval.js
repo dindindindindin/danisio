@@ -68,7 +68,7 @@ export default async function newInterval(req, res) {
     req.body.days.length === 0 ||
     !isValueValid(req.body.from) ||
     !isValueValid(req.body.to) ||
-    isLater(req.body.to, req.body.from)
+    isLater(req.body.to, req.body.from) //matches with ui function?
   ) {
     res.status(500).json({ error: "value check 1st gate error" });
     return;
@@ -131,7 +131,7 @@ export default async function newInterval(req, res) {
     }
   }
   try {
-    const intervals = await query(
+    var intervals = await query(
       `SELECT day, begins, ends FROM time_intervals INNER JOIN days ON days.id = time_intervals.day_id WHERE user_id = ${userId[0].id};`
     );
   } catch (err) {
@@ -140,4 +140,75 @@ export default async function newInterval(req, res) {
   }
 
   console.log(intervals);
+
+  for (let i = 0; i < intervals.length; i++) {
+    for (let j = 0; j < req.body.days.length; j++) {
+      //if there's a same day interval
+      if (intervals[i].day === req.body.days[j]) {
+        if (
+          //if from is between other intervals
+          (isLaterOrEqual(intervals[i].from, req.body.from) &&
+            isLaterOrEqual(req.body.from, intervals[i].to)) ||
+          //if to is between other intervals
+          (isLaterOrEqual(intervals[i].from, req.body.to) &&
+            isLaterOrEqual(req.body.to, intervals[i].to)) ||
+          //if from and to encompasses other intervals
+          (isLaterOrEqual(req.body.from, intervals[i].from) &&
+            isLaterOrEqual(intervalsp[i].to, req.body.to))
+        ) {
+          res
+            .status(500)
+            .json({ error: "collision error", errorCode: "collision" });
+          return;
+        }
+      }
+    }
+  }
+
+  let addedIntervalIds = [];
+
+  req.body.days.map(async (dayId) => {
+    try {
+      //insert the interval
+      await query(
+        `INSERT INTO time_intervals (user_id, day_id, hour_begins, min_begins, hour_ends, min_ends, priority) VALUES (${
+          userId[0].id
+        }, ${dayId}, '${req.body.from.getHours()}', '${req.body.from.getMinutes()}', '${req.body.to.getHours()}', '${req.body.to.getMinutes()}', '${
+          req.body.priority
+        }');`
+      );
+    } catch (err) {
+      res.status(500).json({ error: "insert interval error" });
+      return;
+    }
+
+    try {
+      //retrieve its id
+      var addedIntervalId = await query(
+        `SELECT id FROM time_intervals WHERE user_id = ${
+          userId[0].id
+        } AND day_id = ${dayId} AND hour_begins = '${req.body.from.getHours()}' AND min_begins = '${req.body.from.getMinutes()}' AND hour_ends = '${req.body.to.getHours()}' AND min_ends = '${req.body.to.getMinutes()}';`
+      );
+    } catch (err) {
+      res.status(500).json({ error: "retrieve interval id error" });
+      return;
+    }
+
+    //store the ids
+    addedIntervalIds.push(addedIntervalId[0].id);
+  });
+
+  try {
+    //for each interval insert exclusions
+    addedIntervalIds.map(async (intervalId) => {
+      req.body.exclusions.map(async (exclusion) => {
+        await query(
+          `INSERT INTO time_exclusions (time_interval_id, hour_begins, min_begins, hour_ends, min_ends) VALUES (${intervalId}, '${exclusion.from.getHours()}', '${exclusion.from.getMinutes()}' '${exclusion.to.getHours()}' '${exclusion.to.getMinutes()}');`
+        );
+      });
+    });
+  } catch (err) {
+    res.status(500).json({ error: "insert exclusion error" });
+    return;
+  }
 }

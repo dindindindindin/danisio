@@ -123,12 +123,12 @@ export default function TimesAvailable(props) {
               marginBottom: "8px",
             }}
           >
-            {daysOfWeek.map((day) => (
+            {daysOfWeek.map((day, index) => (
               <FormControlLabel
-                key={day}
+                key={index}
                 control={<Checkbox />}
                 label={day}
-                value={day}
+                value={index}
                 onChange={(e) => {
                   if (e.target.checked) {
                     setCheckedDays((prevState) => [
@@ -137,7 +137,9 @@ export default function TimesAvailable(props) {
                     ]);
                   } else {
                     setCheckedDays((prevState) =>
-                      prevState.filter((day) => day !== e.target.value)
+                      prevState.filter(
+                        (filterIndex) => filterIndex !== e.target.value
+                      )
                     );
                   }
                   console.log(checkedDays);
