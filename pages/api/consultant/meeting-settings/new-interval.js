@@ -42,6 +42,12 @@ const isLaterOrEqual = (from, to) => {
   } else return false;
 };
 
+const stringToTime = (hour, min) => {
+  let date = new Date();
+  date.setHours(parseInt(hour), parseInt(min));
+  return date;
+};
+
 export default async function newInterval(req, res) {
   //check token
   try {
@@ -131,30 +137,47 @@ export default async function newInterval(req, res) {
     }
   }
   try {
+    //retrieve previous intervals for comparison
     var intervals = await query(
-      `SELECT day, begins, ends FROM time_intervals INNER JOIN days ON days.id = time_intervals.day_id WHERE user_id = ${userId[0].id};`
+      `SELECT days.id AS 'day_id', hour_begins, min_begins, hour_ends, min_ends FROM time_intervals INNER JOIN time_interval_days ON time_interval_days.time_interval_id = time_intervals.id INNER JOIN days ON days.id = time_interval_days.day_id WHERE user_id = ${userId[0].id};`
     );
   } catch (err) {
-    res.status(500).json({ error: "retrieve intervals error" });
+    res.status(500).json({ error: "retrieve previous intervals error" });
     return;
   }
-
-  console.log(intervals);
 
   for (let i = 0; i < intervals.length; i++) {
     for (let j = 0; j < req.body.days.length; j++) {
       //if there's a same day interval
-      if (intervals[i].day === req.body.days[j]) {
+      if (intervals[i].day_id === req.body.days[j]) {
         if (
           //if from is between other intervals
-          (isLaterOrEqual(intervals[i].from, req.body.from) &&
-            isLaterOrEqual(req.body.from, intervals[i].to)) ||
+          (isLaterOrEqual(
+            stringToTime(intervals[i].hour_begins, intervals[i].min_begins),
+            req.body.from
+          ) &&
+            isLaterOrEqual(
+              req.body.from,
+              stringToTime(intervals[i].hour_ends, intervals[i].min_ends)
+            )) ||
           //if to is between other intervals
-          (isLaterOrEqual(intervals[i].from, req.body.to) &&
-            isLaterOrEqual(req.body.to, intervals[i].to)) ||
+          (isLaterOrEqual(
+            stringToTime(intervals[i].hour_begins, intervals[i].min_begins),
+            req.body.to
+          ) &&
+            isLaterOrEqual(
+              req.body.to,
+              stringToTime(intervals[i].hour_ends, intervals[i].min_ends)
+            )) ||
           //if from and to encompasses other intervals
-          (isLaterOrEqual(req.body.from, intervals[i].from) &&
-            isLaterOrEqual(intervalsp[i].to, req.body.to))
+          (isLaterOrEqual(
+            req.body.from,
+            stringToTime(intervals[i].hour_begins, intervals[i].min_begins)
+          ) &&
+            isLaterOrEqual(
+              stringToTime(intervals[i].hour_ends, intervals[i].min_ends),
+              req.body.to
+            ))
         ) {
           res
             .status(500)
@@ -165,50 +188,55 @@ export default async function newInterval(req, res) {
     }
   }
 
-  let addedIntervalIds = [];
+  try {
+    //insert interval
+    await query(
+      `INSERT INTO time_intervals (user_id, hour_begins, min_begins, hour_ends, min_ends, priority_id) VALUES (${
+        userId[0].id
+      }, '${req.body.from.getHours()}', '${req.body.from.getMinutes()}', '${req.body.to.getHours()}', '${req.body.to.getMinutes()}', ${
+        req.body.priority === "primary" ? 0 : 1
+      });`
+    );
+  } catch (err) {
+    res.status(500).json({ error: "insert interval error" });
+    return;
+  }
+
+  try {
+    //retrieve its id
+    var intervalId = await query(
+      `SELECT id FROM time_intervals WHERE user_id = ${
+        userId[0].id
+      } AND hour_begins = '${req.body.from.getHours()}' AND min_begins = '${req.body.from.getMinutes()}' AND hour_ends = '${req.body.to.getHours()}' AND min_ends = '${req.body.to.getMinutes()}';`
+    );
+  } catch (err) {
+    res.status(500).json({ error: "retrieve intervalId error" });
+    return;
+  }
 
   req.body.days.map(async (dayId) => {
     try {
-      //insert the interval
+      //insert the interval_days
       await query(
-        `INSERT INTO time_intervals (user_id, day_id, hour_begins, min_begins, hour_ends, min_ends, priority) VALUES (${
-          userId[0].id
-        }, ${dayId}, '${req.body.from.getHours()}', '${req.body.from.getMinutes()}', '${req.body.to.getHours()}', '${req.body.to.getMinutes()}', '${
-          req.body.priority
-        }');`
+        `INSERT INTO time_interval_days (time_interval_id, day_id) VALUES (${intervalId[0].id}, ${dayId});`
       );
     } catch (err) {
-      res.status(500).json({ error: "insert interval error" });
+      res.status(500).json({ error: "insert interval days error" });
       return;
     }
-
-    try {
-      //retrieve its id
-      var addedIntervalId = await query(
-        `SELECT id FROM time_intervals WHERE user_id = ${
-          userId[0].id
-        } AND day_id = ${dayId} AND hour_begins = '${req.body.from.getHours()}' AND min_begins = '${req.body.from.getMinutes()}' AND hour_ends = '${req.body.to.getHours()}' AND min_ends = '${req.body.to.getMinutes()}';`
-      );
-    } catch (err) {
-      res.status(500).json({ error: "retrieve interval id error" });
-      return;
-    }
-
-    //store the ids
-    addedIntervalIds.push(addedIntervalId[0].id);
   });
 
   try {
-    //for each interval insert exclusions
-    addedIntervalIds.map(async (intervalId) => {
-      req.body.exclusions.map(async (exclusion) => {
-        await query(
-          `INSERT INTO time_exclusions (time_interval_id, hour_begins, min_begins, hour_ends, min_ends) VALUES (${intervalId}, '${exclusion.from.getHours()}', '${exclusion.from.getMinutes()}' '${exclusion.to.getHours()}' '${exclusion.to.getMinutes()}');`
-        );
-      });
+    //insert exclusions
+    req.body.exclusions.map(async (exclusion) => {
+      await query(
+        `INSERT INTO time_exclusions (time_interval_id, hour_begins, min_begins, hour_ends, min_ends) VALUES (${
+          intervalId[0].id
+        }, '${exclusion.from.getHours()}', '${exclusion.from.getMinutes()}', '${exclusion.to.getHours()}', '${exclusion.to.getMinutes()}');`
+      );
     });
   } catch (err) {
-    res.status(500).json({ error: "insert exclusion error" });
+    res.status(500).json({ error: "insert exclusions error" });
     return;
   }
 }
