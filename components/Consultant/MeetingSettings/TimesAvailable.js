@@ -8,6 +8,14 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControl from "@mui/material/FormControl";
 import RadioGroup from "@mui/material/RadioGroup";
 import Radio from "@mui/material/Radio";
+import Chip from "@mui/material/Chip";
+import Timeline from "@mui/lab/Timeline";
+import TimelineItem from "@mui/lab/TimelineItem";
+import TimelineSeparator from "@mui/lab/TimelineSeparator";
+import TimelineConnector from "@mui/lab/TimelineConnector";
+import TimelineContent from "@mui/lab/TimelineContent";
+import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
+import TimelineDot from "@mui/lab/TimelineDot";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
@@ -15,7 +23,6 @@ import axios from "axios";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import Divider from "@mui/material/Divider";
-import { set } from "date-fns";
 
 export default function TimesAvailable(props) {
   const [isAddIntervalOpen, setIsAddIntervalOpen] = useState(false);
@@ -32,9 +39,12 @@ export default function TimesAvailable(props) {
 
   const [checkedDays, setCheckedDays] = useState([]);
 
-  const [errors, setErrors] = useState({ availableFrom: "", availableTo: "" });
+  const [errors, setErrors] = useState({});
+
+  const [intervals, setIntervals] = useState(props.intervals);
 
   const handleAddInterval = async (e) => {
+    e.preventDefault();
     await axios.post("/api/consultant/meeting-settings/new-interval", {
       days: checkedDays,
       from: addIntervalFrom,
@@ -42,14 +52,45 @@ export default function TimesAvailable(props) {
       exclusions: addIntervalExclusions,
       priority: e.target.priority.value,
     });
+
+    setIsAddIntervalOpen(false);
+    setAddIntervalFrom(null);
+    setAddIntervalTo(null);
+    setAddIntervalExcludeFrom(null);
+    setAddIntervalExcludeTo(null);
+    setAddIntervalExclusions([]);
+    setCheckedDays([]);
+    setIsAddIntervalFromToDisabled(false);
+    setIsAddIntervalExcludeOpen(false);
+    setErrors({});
+
+    const intervalsRes = await axios.get(
+      "/api/consultant/meeting-settings/get-intervals"
+    );
+    setIntervals(intervalsRes.data);
+    console.log(intervalsRes);
+  };
+
+  const handleRemoveInterval = async (e, id) => {
+    e.preventDefault();
+    console.log(id);
+    await axios.post("/api/consultant/meeting-settings/interval-remove", {
+      id: id,
+    });
+
+    const intervalsRes = await axios.get(
+      "/api/consultant/meeting-settings/get-intervals"
+    );
+    console.log(intervalsRes);
+    setIntervals(intervalsRes.data);
   };
 
   const isValueValid = (value) => {
     if (value instanceof Date)
       if (
-        value.getHours() <= 24 &&
+        value.getHours() < 24 &&
         value.getHours() >= 0 &&
-        value.getMinutes() <= 59 &&
+        value.getMinutes() < 60 &&
         value.getMinutes() >= 0
       )
         return true;
@@ -84,16 +125,28 @@ export default function TimesAvailable(props) {
     } else return false;
   };
 
+  const stringToTime = (time) => {
+    let date = new Date();
+    date.setHours(time.slice(0, 2));
+    date.setMinutes(time.slice(3, 5));
+    return date;
+  };
+
+  const appendZero = (time) => {
+    return ("0" + time).slice(-2);
+  };
+
+  const daysOfWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+
   const renderAddInterval = () => {
-    const daysOfWeek = [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday",
-    ];
     return (
       <Box>
         <form
@@ -208,10 +261,10 @@ export default function TimesAvailable(props) {
                     marginBottom="8px"
                   >
                     <Typography marginRight="1%">
-                      Except from {("0" + exclusion.from.getHours()).slice(-2)}:
-                      {("0" + exclusion.from.getMinutes()).slice(-2)} to{" "}
-                      {("0" + exclusion.to.getHours()).slice(-2)}:
-                      {("0" + exclusion.to.getMinutes()).slice(-2)}
+                      Except from {appendZero(exclusion.from.getHours())}:
+                      {appendZero(exclusion.from.getMinutes())} to{" "}
+                      {appendZero(exclusion.to.getHours())}:
+                      {appendZero(exclusion.to.getMinutes())}
                     </Typography>
                     <Button
                       onClick={() => {
@@ -506,7 +559,23 @@ export default function TimesAvailable(props) {
             <Button variant="contained" sx={{ mr: "1%" }} type="submit">
               Complete
             </Button>
-            <Button variant="outlined" color="warning">
+            <Button
+              variant="outlined"
+              color="warning"
+              onClick={(e) => {
+                e.preventDefault();
+                setIsAddIntervalOpen(false);
+                setAddIntervalFrom(null);
+                setAddIntervalTo(null);
+                setAddIntervalExcludeFrom(null);
+                setAddIntervalExcludeTo(null);
+                setAddIntervalExclusions([]);
+                setCheckedDays([]);
+                setIsAddIntervalFromToDisabled(false);
+                setIsAddIntervalExcludeOpen(false);
+                setErrors({});
+              }}
+            >
               Cancel
             </Button>
           </Box>
@@ -514,6 +583,109 @@ export default function TimesAvailable(props) {
       </Box>
     );
   };
+
+  function Interval(props) {
+    const sortedExclusions = props.interval.exclusions.sort((a, b) =>
+      a.begins.localeCompare(b.begins)
+    );
+    return (
+      <Timeline>
+        <Box display="flex" justifyContent="center" marginBottom="8px">
+          {props.interval.priority === 0 ? (
+            <Typography color="#2e7d32">Preferred meeting time</Typography>
+          ) : (
+            <Typography color="#ef6c00">Possible meeting time</Typography>
+          )}
+        </Box>
+        <Box display="flex" justifyContent="center" flexWrap="wrap">
+          {props.interval.days.map((index) => (
+            <Chip
+              key={index}
+              label={daysOfWeek[index]}
+              sx={{ margin: "0 1% 8px 1%" }}
+            />
+          ))}
+        </Box>
+        <TimelineItem>
+          <TimelineOppositeContent
+            color="green"
+            variant="body2"
+            alignSelf="flex-end"
+          >
+            available
+          </TimelineOppositeContent>
+          <TimelineSeparator>
+            <TimelineDot color="success" />
+            <TimelineConnector sx={{ bgcolor: "success.light" }} />
+          </TimelineSeparator>
+          <TimelineContent>
+            {appendZero(stringToTime(props.interval.begins).getHours())}:
+            {appendZero(stringToTime(props.interval.begins).getMinutes())}
+          </TimelineContent>
+        </TimelineItem>
+        {sortedExclusions.map((exclusion) => (
+          <>
+            <TimelineItem>
+              <TimelineOppositeContent
+                color="grey.500"
+                variant="body2"
+                alignSelf="flex-end"
+              >
+                busy
+              </TimelineOppositeContent>
+              <TimelineSeparator>
+                <TimelineDot color="error" variant="outlined" />
+                <TimelineConnector sx={{ bgcolor: "error.light" }} />
+              </TimelineSeparator>
+
+              <TimelineContent>
+                {appendZero(stringToTime(exclusion.begins).getHours())}:
+                {appendZero(stringToTime(exclusion.begins).getMinutes())}
+              </TimelineContent>
+            </TimelineItem>
+            <TimelineItem>
+              <TimelineOppositeContent
+                color="green"
+                variant="body2"
+                alignSelf="flex-end"
+              >
+                available
+              </TimelineOppositeContent>
+              <TimelineSeparator>
+                <TimelineDot color="error" variant="outlined" />
+                <TimelineConnector
+                  sx={{ height: "3px", bgcolor: "success.light" }}
+                />
+              </TimelineSeparator>
+              <TimelineContent>
+                {appendZero(stringToTime(exclusion.ends).getHours())}:
+                {appendZero(stringToTime(exclusion.ends).getMinutes())}
+              </TimelineContent>
+            </TimelineItem>
+          </>
+        ))}
+        <TimelineItem>
+          <TimelineSeparator>
+            <TimelineDot color="success" />
+          </TimelineSeparator>
+          <TimelineContent>
+            {appendZero(stringToTime(props.interval.ends).getHours())}:
+            {appendZero(stringToTime(props.interval.ends).getMinutes())}
+          </TimelineContent>
+        </TimelineItem>
+        <Button
+          sx={{ mb: "16px" }}
+          onClick={(e) => {
+            handleRemoveInterval(e, props.interval.id);
+          }}
+        >
+          Remove
+        </Button>
+        <Divider />
+      </Timeline>
+    );
+  }
+
   return (
     <Box
       padding="8px 2%"
@@ -522,6 +694,11 @@ export default function TimesAvailable(props) {
       borderRadius="5px"
     >
       <Typography marginBottom="16px">Times Available:</Typography>
+      <Box>
+        {intervals.map((interval) => {
+          return <Interval key={interval.id} interval={interval} />;
+        })}
+      </Box>
       {isAddIntervalOpen ? (
         renderAddInterval()
       ) : (

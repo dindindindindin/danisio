@@ -51,6 +51,60 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   );
   const locations = JSON.parse(JSON.stringify(locationsRes));
 
+  ///////////////////////////////////////////////////////
+
+  const stringToTimeString = (hour, min) => {
+    let date = new Date();
+    date.setHours(parseInt(hour), parseInt(min));
+    return date.toTimeString();
+  };
+
+  //retrieve intervals
+  var intervalsRes = await query(
+    `SELECT id, hour_begins, min_begins, hour_ends, min_ends, priority_id FROM time_intervals WHERE user_id = ${userId};`
+  );
+  const intervals = JSON.parse(JSON.stringify(intervalsRes));
+
+  let intervalsArr = [];
+
+  //for each interval
+  for (let i = 0; i < intervals.length; i++) {
+    //retrieve dayIds
+    var dayIdsRes = await query(
+      `SELECT day_id FROM time_interval_days WHERE time_interval_id = ${intervals[i].id};`
+    );
+
+    let dayIds = dayIdsRes.map((dayId) => dayId.day_id);
+
+    //retrieve exclusions
+    var exclusionsRes = await query(
+      `SELECT hour_begins, min_begins, hour_ends, min_ends FROM time_exclusions WHERE time_interval_id = ${intervals[i].id};`
+    );
+
+    //parse exclusionsRes to time
+    const exclusions = exclusionsRes.map((exclusion) => ({
+      begins: stringToTimeString(exclusion.hour_begins, exclusion.min_begins),
+      ends: stringToTimeString(exclusion.hour_ends, exclusion.min_ends),
+    }));
+
+    //create an array for response
+    intervalsArr.push({
+      id: intervals[i].id,
+      begins: stringToTimeString(
+        intervals[i].hour_begins,
+        intervals[i].min_begins
+      ),
+      ends: stringToTimeString(intervals[i].hour_ends, intervals[i].min_ends),
+      priority: intervals[i].priority_id,
+      days: dayIds,
+      exclusions: exclusions,
+    });
+  }
+
+  console.log(intervalsArr);
+
+  ///////////////////////////////////////////////////////
+
   return {
     props: {
       ...(await serverSideTranslations(context.locale, ["common"])),
@@ -60,6 +114,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
       cities,
       addresses,
       locations,
+      intervalsArr,
       // Will be passed to the page component as props
     },
   };
@@ -86,7 +141,7 @@ export default function MeetingSettings(props) {
             locations={props.locations}
             {...props}
           />
-          <TimesAvailable />
+          <TimesAvailable intervals={props.intervalsArr} {...props} />
         </Container>
       </ConsultantSettingsLayout>
     </Layout>

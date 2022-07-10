@@ -1,13 +1,14 @@
 import query from "../../../../db";
 const admin = require("../../../../fbAdmin.config");
+import { toDate } from "date-fns";
 
 //is value a valid time?
 const isValueValid = (value) => {
   if (value instanceof Date)
     if (
-      value.getHours() <= 24 &&
+      value.getHours() < 24 &&
       value.getHours() >= 0 &&
-      value.getMinutes() <= 59 &&
+      value.getMinutes() < 60 &&
       value.getMinutes() >= 0
     )
       return true;
@@ -30,7 +31,6 @@ const isLater = (from, to) => {
 
 //is 'to' later than or equal to 'from'?
 const isLaterOrEqual = (from, to) => {
-  console.log("from: ", from, " to: ", to);
   if (from instanceof Date && to instanceof Date) {
     if (from.getHours() < to.getHours()) {
       return true;
@@ -45,6 +45,11 @@ const isLaterOrEqual = (from, to) => {
 const stringToTime = (hour, min) => {
   let date = new Date();
   date.setHours(parseInt(hour), parseInt(min));
+  return date;
+};
+
+const reqStringToTime = (time) => {
+  let date = new Date(time);
   return date;
 };
 
@@ -67,6 +72,15 @@ export default async function newInterval(req, res) {
   } catch (err) {
     res.status(500).json({ error: "retrieve userId error" });
     return;
+  }
+
+  req.body.from = reqStringToTime(req.body.from);
+  req.body.to = reqStringToTime(req.body.to);
+  for (let i = 0; i < req.body.exclusions.length; i++) {
+    req.body.exclusions[i] = {
+      from: reqStringToTime(req.body.exclusions[i].from),
+      to: reqStringToTime(req.body.exclusions[i].to),
+    };
   }
 
   if (
@@ -139,7 +153,7 @@ export default async function newInterval(req, res) {
   try {
     //retrieve previous intervals for comparison
     var intervals = await query(
-      `SELECT days.id AS 'day_id', hour_begins, min_begins, hour_ends, min_ends FROM time_intervals INNER JOIN time_interval_days ON time_interval_days.time_interval_id = time_intervals.id INNER JOIN days ON days.id = time_interval_days.day_id WHERE user_id = ${userId[0].id};`
+      `SELECT day_id, hour_begins, min_begins, hour_ends, min_ends FROM time_intervals INNER JOIN time_interval_days ON time_interval_days.time_interval_id = time_intervals.id WHERE user_id = ${userId[0].id};`
     );
   } catch (err) {
     res.status(500).json({ error: "retrieve previous intervals error" });
@@ -149,7 +163,8 @@ export default async function newInterval(req, res) {
   for (let i = 0; i < intervals.length; i++) {
     for (let j = 0; j < req.body.days.length; j++) {
       //if there's a same day interval
-      if (intervals[i].day_id === req.body.days[j]) {
+      if (intervals[i].day_id == req.body.days[j]) {
+        console.log("inside same day");
         if (
           //if from is between other intervals
           (isLaterOrEqual(
@@ -194,7 +209,7 @@ export default async function newInterval(req, res) {
       `INSERT INTO time_intervals (user_id, hour_begins, min_begins, hour_ends, min_ends, priority_id) VALUES (${
         userId[0].id
       }, '${req.body.from.getHours()}', '${req.body.from.getMinutes()}', '${req.body.to.getHours()}', '${req.body.to.getMinutes()}', ${
-        req.body.priority === "primary" ? 0 : 1
+        req.body.priority === "preferred" ? 0 : 1
       });`
     );
   } catch (err) {
@@ -239,4 +254,6 @@ export default async function newInterval(req, res) {
     res.status(500).json({ error: "insert exclusions error" });
     return;
   }
+
+  res.status(200).json({ success: "success" });
 }

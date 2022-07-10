@@ -1,10 +1,10 @@
 import query from "../../../../db";
 const admin = require("../../../../fbAdmin.config");
 
-const stringToTime = (hour, min) => {
+const stringToTimeString = (hour, min) => {
   let date = new Date();
   date.setHours(parseInt(hour), parseInt(min));
-  return date;
+  return date.toTimeString();
 };
 
 export default async function getIntervals(req, res) {
@@ -28,8 +28,6 @@ export default async function getIntervals(req, res) {
     return;
   }
 
-  let intervalsObj = {};
-
   try {
     //retrieve intervals
     var intervals = await query(
@@ -40,22 +38,25 @@ export default async function getIntervals(req, res) {
     return;
   }
 
+  let intervalsArr = [];
+
   //for each interval
-  intervals.map(async (interval) => {
+  for (let i = 0; i < intervals.length; i++) {
     try {
       //retrieve dayIds
-      var dayIds = await query(
-        `SELECT day_id FROM time_interval_days WHERE time_interval_id = ${interval.id};`
+      var dayIdsRes = await query(
+        `SELECT day_id FROM time_interval_days WHERE time_interval_id = ${intervals[i].id};`
       );
     } catch (err) {
       res.status(500).json({ error: "retrieve dayIds error" });
       return;
     }
+    let dayIds = dayIdsRes.map((dayId) => dayId.day_id);
 
     try {
       //retrieve exclusions
       var exclusionsRes = await query(
-        `SELECT hour_begins, min_begins, hour_ends, min_ends FROM time_exclusions WHERE time_interval_id = ${interval.id};`
+        `SELECT hour_begins, min_begins, hour_ends, min_ends FROM time_exclusions WHERE time_interval_id = ${intervals[i].id};`
       );
     } catch (err) {
       res.status(500).json({ error: "retrieve exclusions error" });
@@ -64,21 +65,23 @@ export default async function getIntervals(req, res) {
 
     //parse exclusionsRes to time
     const exclusions = exclusionsRes.map((exclusion) => ({
-      begins: stringToTime(exclusion.hour_begins, exclusion.min_begins),
-      ends: stringToTime(exclusion.hour_ends, exclusion.min_ends),
+      begins: stringToTimeString(exclusion.hour_begins, exclusion.min_begins),
+      ends: stringToTimeString(exclusion.hour_ends, exclusion.min_ends),
     }));
 
     //create an object for response
-    intervalsObj = {
-      [interval.id]: {
-        begins: stringToTime(interval.hour_begins, interval.min_begins),
-        ends: stringToTime(interval.hour_ends, interval.min_ends),
-        priority: interval.priority_id,
-        days: dayIds,
-        exclusions: exclusions,
-      },
-    };
-  });
+    intervalsArr.push({
+      id: intervals[i].id,
+      begins: stringToTimeString(
+        intervals[i].hour_begins,
+        intervals[i].min_begins
+      ),
+      ends: stringToTimeString(intervals[i].hour_ends, intervals[i].min_ends),
+      priority: intervals[i].priority_id,
+      days: dayIds,
+      exclusions: exclusions,
+    });
+  }
 
-  res.status(200).json(intervalsObj);
+  res.status(200).json(intervalsArr);
 }

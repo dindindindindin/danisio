@@ -9,6 +9,11 @@ DROP TABLE IF EXISTS cities;
 DROP TABLE IF EXISTS states;
 DROP TABLE IF EXISTS countries;
 DROP TABLE IF EXISTS regions;
+DROP TABLE IF EXISTS time_interval_days;
+DROP TABLE IF EXISTS time_exclusions;
+DROP TABLE IF EXISTS time_intervals;
+DROP TABLE IF EXISTS days;
+DROP TABLE IF EXISTS priorities;
 
 
 CREATE TABLE users (
@@ -90,6 +95,41 @@ CREATE TABLE consultant_locations(
     FOREIGN KEY(user_id) REFERENCES consultants(user_id),
     FOREIGN KEY(city_id) REFERENCES cities(id));
 
+CREATE TABLE priorities(
+    id INT(1) NOT NULL PRIMARY KEY,
+    priority VARCHAR(20) NOT NULL);
+
+CREATE TABLE days(
+    id INT(1) NOT NULL PRIMARY KEY,
+    day VARCHAR(10) NOT NULL);
+
+CREATE TABLE time_intervals(
+    id INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(6) NOT NULL,
+    hour_begins VARCHAR(2) NOT NULL,
+    min_begins VARCHAR(2) NOT NULL,
+    hour_ends VARCHAR(2) NOT NULL,
+    min_ends VARCHAR(2) NOT NULL,
+    priority_id INT(1) NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES consultants(user_id),
+    FOREIGN KEY(priority_id) REFERENCES priorities(id));
+
+CREATE TABLE time_exclusions(
+    id INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    time_interval_id INT(8) NOT NULL,
+    hour_begins VARCHAR(2) NOT NULL,
+    min_begins VARCHAR(2) NOT NULL,
+    hour_ends VARCHAR(2) NOT NULL,
+    min_ends VARCHAR(2) NOT NULL,
+    FOREIGN KEY(time_interval_id) REFERENCES time_intervals(id));
+
+CREATE TABLE time_interval_days(
+    id INT(8) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    time_interval_id INT(8) NOT NULL,
+    day_id INT(1) NOT NULL,
+    FOREIGN KEY(time_interval_id) REFERENCES time_intervals(id),
+    FOREIGN KEY(day_id) REFERENCES days(id));
+
 DELIMITER $$
 CREATE TRIGGER consultant_creator_trigger
 AFTER INSERT ON users
@@ -129,3 +169,14 @@ INSERT INTO cities (city, country_id) VALUES ('Adana', 7);
 INSERT INTO services (service) VALUES ('High School Education');
 INSERT INTO services (service) VALUES ('University Education');
 INSERT INTO services (service) VALUES ('Language School');
+
+INSERT INTO days (id, day) VALUES (0, 'Monday');
+INSERT INTO days (id, day) VALUES (1, 'Tuesday');
+INSERT INTO days (id, day) VALUES (2, 'Wednesday');
+INSERT INTO days (id, day) VALUES (3, 'Thursday');
+INSERT INTO days (id, day) VALUES (4, 'Friday');
+INSERT INTO days (id, day) VALUES (5, 'Saturday');
+INSERT INTO days (id, day) VALUES (6, 'Sunday');
+
+INSERT INTO priorities (id, priority) VALUES (0, 'Preferred');
+INSERT INTO priorities (id, priority) VALUES (1, 'Possible');
