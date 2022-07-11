@@ -164,7 +164,6 @@ export default async function newInterval(req, res) {
     for (let j = 0; j < req.body.days.length; j++) {
       //if there's a same day interval
       if (intervals[i].day_id == req.body.days[j]) {
-        console.log("inside same day");
         if (
           //if from is between other intervals
           (isLaterOrEqual(

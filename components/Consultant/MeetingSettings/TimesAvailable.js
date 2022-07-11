@@ -45,6 +45,9 @@ export default function TimesAvailable(props) {
 
   const handleAddInterval = async (e) => {
     e.preventDefault();
+
+    setIsAddIntervalOpen(false);
+
     await axios.post("/api/consultant/meeting-settings/new-interval", {
       days: checkedDays,
       from: addIntervalFrom,
@@ -53,7 +56,6 @@ export default function TimesAvailable(props) {
       priority: e.target.priority.value,
     });
 
-    setIsAddIntervalOpen(false);
     setAddIntervalFrom(null);
     setAddIntervalTo(null);
     setAddIntervalExcludeFrom(null);
@@ -68,12 +70,11 @@ export default function TimesAvailable(props) {
       "/api/consultant/meeting-settings/get-intervals"
     );
     setIntervals(intervalsRes.data);
-    console.log(intervalsRes);
   };
 
   const handleRemoveInterval = async (e, id) => {
     e.preventDefault();
-    console.log(id);
+
     await axios.post("/api/consultant/meeting-settings/interval-remove", {
       id: id,
     });
@@ -81,7 +82,7 @@ export default function TimesAvailable(props) {
     const intervalsRes = await axios.get(
       "/api/consultant/meeting-settings/get-intervals"
     );
-    console.log(intervalsRes);
+
     setIntervals(intervalsRes.data);
   };
 
@@ -113,7 +114,6 @@ export default function TimesAvailable(props) {
 
   //is 'to' later than or equal to 'from'?
   const isLaterOrEqual = (from, to) => {
-    console.log("from: ", from, " to: ", to);
     if (from instanceof Date && to instanceof Date) {
       if (from.getHours() < to.getHours()) {
         return true;
@@ -195,7 +195,6 @@ export default function TimesAvailable(props) {
                       )
                     );
                   }
-                  console.log(checkedDays);
                 }}
               />
             ))}
