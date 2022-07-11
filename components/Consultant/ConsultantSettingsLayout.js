@@ -12,6 +12,7 @@ import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import KeyIcon from "@mui/icons-material/Key";
 import HandshakeIcon from "@mui/icons-material/Handshake";
 import MenuIcon from "@mui/icons-material/Menu";
+import CallIcon from "@mui/icons-material/Call";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "next-i18next";
@@ -72,6 +73,26 @@ export default function MemberSettingsLayout(props) {
                 <ListItemText
                   primary={t(
                     "settings.meeting-settings.meeting-settings-title"
+                  )}
+                />
+              </ListItemButton>
+            </ListItem>
+          </MuiLink>
+        </NextLink>
+        <NextLink
+          key="contactSettings"
+          href="/consultant/contact-settings"
+          passHref
+        >
+          <MuiLink color="inherit" underline="none">
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <CallIcon />
+                </ListItemIcon>
+                <ListItemText
+                  primary={t(
+                    "settings.contact-settings.contact-settings-title"
                   )}
                 />
               </ListItemButton>

@@ -79,7 +79,8 @@
         "addresses-example": "(Örneğin Şirket Adresi)",
         "location-default-value": "Yurt Caddesi Starbucks"
       }
-    }
+    },
+    "contact-settings": { "contact-settings-title": "Contact Settings" }
   },
   "countries": {
     "Japan": "Japonya",
@@ -96,8 +97,8 @@
     "Asia": "Asya"
   },
   "services": {
-    "High School": "Lise",
-    "University": "Üniversite",
+    "High School Education": "Lise Eğitimi",
+    "University Education": "Üniversite Eğitimi",
     "Language School": "Dil Okulu"
   }
 }
