@@ -1,7 +1,7 @@
 import query from "../../../../db";
 const admin = require("../../../../fbAdmin.config");
 
-export default async function getPhoneNumbers(req, res) {
+export default async function phoneNumberRemove(req, res) {
   //check token
   try {
     const firebaseUser = await admin.auth().verifyIdToken(req.cookies.idToken);
@@ -22,14 +22,15 @@ export default async function getPhoneNumbers(req, res) {
     return;
   }
 
+  //remove number
   try {
-    var phoneNumbers = await query(
-      `SELECT phone_numbers.id, number, dial_code, type FROM phone_numbers INNER JOIN contact_types ON contact_types.id = phone_numbers.contact_type_id WHERE user_id = ${userId[0].id};`
+    await query(
+      `DELETE FROM phone_numbers WHERE id = ${req.body.numberId} AND user_id = ${userId[0].id};`
     );
   } catch (err) {
-    res.status(500).json({ error: "retrieve numbers error" });
+    res.status(500).json({ error: "remove number error" });
     return;
   }
 
-  res.status(200).json(phoneNumbers);
+  res.status(200).json({ success: "success" });
 }

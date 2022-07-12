@@ -27,18 +27,23 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const meetingCountryId = dbUserRes[0].country_id;
   const userId = dbUserRes[0].id;
 
+  //retrieve contact types
   const contactTypesRes = await query("SELECT id, type FROM contact_types;");
   const contactTypes = JSON.parse(JSON.stringify(contactTypesRes));
-  console.log(contactTypes);
+
+  //retrieve phone numbers
   const phoneNumbersRes = await query(
     `SELECT phone_numbers.id, number, dial_code, type FROM phone_numbers INNER JOIN contact_types ON contact_types.id = phone_numbers.contact_type_id WHERE user_id = ${userId};`
   );
   const phoneNumbers = JSON.parse(JSON.stringify(phoneNumbersRes));
 
-  const consultantCountryCode = await query(
+  //retrieve country code of the consultant's country
+  const consultantCountryCodeRes = await query(
     `SELECT code FROM countries WHERE id = ${meetingCountryId};`
   );
-  console.log(consultantCountryCode);
+  const consultantCountryCode = JSON.parse(
+    JSON.stringify(consultantCountryCodeRes)
+  );
 
   return {
     props: {

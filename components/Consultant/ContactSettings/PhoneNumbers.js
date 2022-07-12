@@ -1,31 +1,13 @@
 import Typography from "@mui/material/Typography";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import TextField from "@mui/material/TextField";
-import Checkbox from "@mui/material/Checkbox";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import FormGroup from "@mui/material/FormGroup";
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
-import RadioGroup from "@mui/material/RadioGroup";
-import Radio from "@mui/material/Radio";
-import Chip from "@mui/material/Chip";
-import Timeline from "@mui/lab/Timeline";
-import TimelineItem from "@mui/lab/TimelineItem";
-import TimelineSeparator from "@mui/lab/TimelineSeparator";
-import TimelineConnector from "@mui/lab/TimelineConnector";
-import TimelineContent from "@mui/lab/TimelineContent";
-import TimelineOppositeContent from "@mui/lab/TimelineOppositeContent";
-import TimelineDot from "@mui/lab/TimelineDot";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import axios from "axios";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
-import Divider from "@mui/material/Divider";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/material.css";
 // import { styled } from "@mui/material/styles";
@@ -35,13 +17,17 @@ import "react-phone-input-2/lib/material.css";
 // }));
 
 export default function PhoneNumbers(props) {
+  const [isAddNumberOpen, setIsAddNumberOpen] = useState(false);
+  //phone numbers list state
   const [phoneNumbers, setPhoneNumbers] = useState(props.phoneNumbers);
+  //type of contact id (company or personal)
   const [contactTypeId, setContactTypeId] = useState(props.contactTypes[0].id);
+  //other add phone number states
   const [phoneNumber, setPhoneNumber] = useState(null);
   const [dialCode, setDialCode] = useState(null);
   const [countryCode, setCountryCode] = useState(null);
-  const [isAddNumberOpen, setIsAddNumberOpen] = useState(false);
 
+  //add number api call
   const handleAddNumber = async (e) => {
     e.preventDefault();
     await axios.post("/api/consultant/contact-settings/new-phone-number", {
@@ -51,19 +37,53 @@ export default function PhoneNumbers(props) {
       contactTypeId: contactTypeId,
     });
 
+    //retrieve numbers again
     const phoneNumbersRes = await axios.get(
       "/api/consultant/contact-settings/get-phone-numbers"
     );
+    setPhoneNumbers(phoneNumbersRes.data);
+  };
 
+  //remove number api call
+  const handleRemoveNumber = async (e, id) => {
+    e.preventDefault();
+    await axios.post("/api/consultant/contact-settings/phone-number-remove", {
+      numberId: id,
+    });
+
+    //retrieve numbers again
+    const phoneNumbersRes = await axios.get(
+      "/api/consultant/contact-settings/get-phone-numbers"
+    );
     setPhoneNumbers(phoneNumbersRes.data);
   };
 
   return (
     <Box padding="8px 2%" border="2px solid #f0f0f4" borderRadius="5px">
-      <Typography marginBottom="16px">Phone Numbers:</Typography>
-      {phoneNumbers.map((number) => (
-        <Typography>{number.number}</Typography>
-      ))}
+      <Typography marginBottom="8px">Phone Numbers:</Typography>
+      {phoneNumbers.map((number) => {
+        const formattedNumber =
+          "+" +
+          number.dial_code +
+          " " +
+          number.number.slice(number.dial_code.length);
+        return (
+          <Box
+            key={number.id}
+            display="flex"
+            marginBottom="8px"
+            alignItems="center"
+          >
+            <Typography marginRight="1%" color="#616161">
+              {number.type}:
+            </Typography>
+            <Typography marginRight="1%">{formattedNumber}</Typography>
+            <Button onClick={(e) => handleRemoveNumber(e, number.id)}>
+              Remove
+            </Button>
+          </Box>
+        );
+      })}
       {isAddNumberOpen ? (
         <Box>
           <Box display="flex" flexWrap="wrap">
@@ -76,14 +96,16 @@ export default function PhoneNumbers(props) {
                   onChange={(e) => setContactTypeId(e.target.value)}
                 >
                   {props.contactTypes.map((type) => (
-                    <MenuItem value={type.id}>{type.type}</MenuItem>
+                    <MenuItem key={type.id} value={type.id}>
+                      {type.type}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>
             </Box>
             <Box marginBottom="8px">
               <PhoneInput
-                country="tr"
+                country={props.consultantCountryCode[0].code}
                 value={phoneNumber}
                 onChange={(number, data) => {
                   setPhoneNumber(number);
@@ -93,8 +115,25 @@ export default function PhoneNumbers(props) {
               />
             </Box>
           </Box>
-          <Button variant="outlined" onClick={handleAddNumber}>
+
+          <Button
+            sx={{ mr: "1%" }}
+            variant="outlined"
+            onClick={handleAddNumber}
+          >
             Add
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              //states to default
+              setContactTypeId(props.contactTypes[0].id);
+              setPhoneNumber(null);
+              setDialCode(null);
+              setIsAddNumberOpen(false);
+            }}
+          >
+            Cancel
           </Button>
         </Box>
       ) : (
