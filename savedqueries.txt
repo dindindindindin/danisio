@@ -1,3 +1,10 @@
+DROP TABLE IF EXISTS time_exclusions;
+DROP TABLE IF EXISTS time_interval_days;
+DROP TABLE IF EXISTS time_intervals;
+DROP TABLE IF EXISTS priorities;
+DROP TABLE IF EXISTS days;
+DROP TABLE IF EXISTS phone_numbers;
+DROP TABLE IF EXISTS contact_types;
 DROP TABLE IF EXISTS consultant_services;
 DROP TABLE IF EXISTS services;
 DROP TABLE IF EXISTS consultant_addresses;
@@ -32,6 +39,7 @@ CREATE TABLE countries(
     is_consultant_country BOOLEAN NOT NULL,
     has_states BOOLEAN DEFAULT 0,
     state_variant VARCHAR(30),
+    code VARCHAR(2) NOT NULL,
     FOREIGN KEY(region_id) REFERENCES regions(id));
 
 CREATE TABLE consultants(
@@ -130,6 +138,21 @@ CREATE TABLE time_interval_days(
     FOREIGN KEY(time_interval_id) REFERENCES time_intervals(id),
     FOREIGN KEY(day_id) REFERENCES days(id));
 
+CREATE TABLE contact_types(
+    id INT(1) NOT NULL PRIMARY KEY,
+    type VARCHAR(30) NOT NULL);
+
+CREATE TABLE phone_numbers(
+    id INT(7) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT(6) NOT NULL,
+    number VARCHAR(15) NOT NULL,
+    dial_code VARCHAR(4) NOT NULL,
+    contact_type_id INT(1) NOT NULL,
+    country_id INT(3) NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES consultants(user_id),
+    FOREIGN KEY(contact_type_id) REFERENCES contact_types(id),
+	FOREIGN KEY(country_id) REFERENCES countries(id));
+
 DELIMITER $$
 CREATE TRIGGER consultant_creator_trigger
 AFTER INSERT ON users
@@ -147,13 +170,13 @@ INSERT INTO regions (region) VALUES ('North America');
 INSERT INTO regions (region) VALUES ('Europe');
 INSERT INTO regions (region) VALUES ('Asia');
 
-INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant) VALUES ('United States', 1, true, true, 'State');
-INSERT INTO countries (country, region_id, is_consultant_country, has_states) VALUES ('United Kingdom', 2, true, false);
-INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant) VALUES ('Germany', 2, true, true, 'State');
-INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant) VALUES ('Canada', 1, true, true, 'Province');
-INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant) VALUES ('China', 3, true, true, 'Province');
-INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant) VALUES ('Japan', 3, true, true, 'Prefecture');
-INSERT INTO countries (country, region_id, is_consultant_country, has_states) VALUES ('Turkey', 2, true, false);
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant, code) VALUES ('United States', 1, true, true, 'State', 'us');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, code) VALUES ('United Kingdom', 2, true, false, 'gb');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant, code) VALUES ('Germany', 2, true, true, 'State', 'de');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant, code) VALUES ('Canada', 1, true, true, 'Province', 'ca');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant, code) VALUES ('China', 3, true, true, 'Province', 'cn');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, state_variant, code) VALUES ('Japan', 3, true, true, 'Prefecture', 'jp');
+INSERT INTO countries (country, region_id, is_consultant_country, has_states, code) VALUES ('Turkey', 2, true, false, 'tr');
 
 INSERT INTO states (state, country_id) VALUES ('New York', 1);
 INSERT INTO states (state, country_id) VALUES ('California', 1);
@@ -180,3 +203,6 @@ INSERT INTO days (id, day) VALUES (6, 'Sunday');
 
 INSERT INTO priorities (id, priority) VALUES (0, 'Preferred');
 INSERT INTO priorities (id, priority) VALUES (1, 'Possible');
+
+INSERT INTO contact_types (id, type) VALUES (0, 'Personal');
+INSERT INTO contact_types (id, type) VALUES (1, 'Company');
