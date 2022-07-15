@@ -5,7 +5,6 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import query from "../../db";
 import Container from "@mui/material/Container";
-
 import PhoneNumbers from "../../components/Consultant/ContactSettings/PhoneNumbers";
 //import { styled } from "@mui/material/styles";
 
@@ -44,7 +43,13 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const consultantCountryCode = JSON.parse(
     JSON.stringify(consultantCountryCodeRes)
   );
+  console.log(consultantCountryCode);
 
+  //retrieve whatsapp number
+  const whatsappNumberIdRes = await query(
+    `SELECT phone_number_id FROM whatsapp_numbers WHERE user_id = ${userId};`
+  );
+  let whatsappNumberId = JSON.parse(JSON.stringify(whatsappNumberIdRes));
   return {
     props: {
       ...(await serverSideTranslations(context.locale, ["common"])),
@@ -52,6 +57,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
       contactTypes,
       phoneNumbers,
       consultantCountryCode,
+      whatsappNumberId,
       // Will be passed to the page component as props
     },
   };
@@ -74,6 +80,7 @@ export default function ContactSettings(props) {
             contactTypes={props.contactTypes}
             phoneNumbers={props.phoneNumbers}
             consultantCountryCode={props.consultantCountryCode}
+            whatsappNumberId={props.whatsappNumberId}
             {...props}
           />
         </Container>

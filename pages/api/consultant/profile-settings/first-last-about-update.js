@@ -34,10 +34,51 @@ export default async function firstLastAboutUpdate(req, res) {
     return;
   }
 
+  //check if username is valid
+  if (!/^[a-zA-Z1-9]+$/.test(req.body.username)) {
+    res.status(500).json({ error: "username invalid" });
+    return;
+  }
+
+  //retrieve username
+  try {
+    var username = await query(
+      `SELECT username FROM consultants WHERE user_id = '${userId[0].id}';`
+    );
+  } catch (err) {
+    res.status(500).json({ error: "retrieve username error" });
+    return;
+  }
+
+  //if username is changed
+  if (username !== req.body.username) {
+    try {
+      //look for same username
+      var doesExist = await query(
+        `SELECT username FROM consultants WHERE username = '${req.body.username}';`
+      );
+    } catch (err) {
+      res.status(500).json({ error: "retrieve comparison username error" });
+      return;
+    }
+    //if there's same username
+    if (doesExist.length !== 0) {
+      res.status(500).json({
+        error: "username already exists",
+        errorCode: "username-exists",
+      });
+      return;
+    }
+  }
+
   //update db
   try {
     await query(
-      `UPDATE consultants SET first_name = '${req.body.firstName}', last_name = '${req.body.lastName}', about = '${req.body.aboutMe}' WHERE user_id = ${userId[0].id};`
+      `UPDATE consultants SET username = '${req.body.username.toLowerCase()}', first_name = '${
+        req.body.firstName
+      }', last_name = '${req.body.lastName}', about = '${
+        req.body.aboutMe
+      }' WHERE user_id = ${userId[0].id};`
     );
   } catch (err) {
     res.status(500).json({ error: "db update error" });

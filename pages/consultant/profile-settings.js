@@ -24,12 +24,14 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 
   //retrieve id and profilePicUrl from db
   const dbUserRes = await query(
-    `SELECT users.id, profile_picture_url, first_name, last_name, about FROM consultants INNER JOIN users ON users.id = consultants.user_id WHERE email = '${user.email}';`
+    `SELECT users.id, profile_picture_url, username, first_name, last_name, about FROM consultants INNER JOIN users ON users.id = consultants.user_id WHERE email = '${user.email}';`
   );
   const profilePicUrl = dbUserRes[0].profile_picture_url;
   const userId = dbUserRes[0].id;
 
   //if null change to empty string
+  if (dbUserRes[0].username === null) var username = "";
+  else var username = dbUserRes[0].username;
   if (dbUserRes[0].first_name === null) var firstName = "";
   else var firstName = dbUserRes[0].first_name;
   if (dbUserRes[0].last_name === null) var lastName = "";
@@ -81,6 +83,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
       user,
       profilePicUrl,
       userId,
+      username,
       firstName,
       lastName,
       aboutMe,
@@ -112,6 +115,7 @@ export default function ProfileSettings(props) {
               userId={props.userId}
             />
             <FirstLastAbout
+              username={props.username}
               firstName={props.firstName}
               lastName={props.lastName}
               aboutMe={props.aboutMe}
