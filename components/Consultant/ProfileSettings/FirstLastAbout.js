@@ -14,7 +14,7 @@ export default function FirstLastAbout(props) {
   const [error, setError] = useState("");
 
   const { t } = useTranslation();
-
+  console.log(firstName);
   const handleSubmit = async (e) => {
     e.preventDefault();
 

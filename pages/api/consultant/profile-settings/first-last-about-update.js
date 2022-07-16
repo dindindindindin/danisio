@@ -51,7 +51,7 @@ export default async function firstLastAboutUpdate(req, res) {
   }
 
   //if username is changed
-  if (username !== req.body.username) {
+  if (username[0].username !== req.body.username) {
     try {
       //look for same username
       var doesExist = await query(

@@ -49,7 +49,7 @@ CREATE TABLE consultants(
     username VARCHAR(100) UNIQUE,
     first_name VARCHAR(60),
     last_name VARCHAR(40),
-    about VARCHAR(200),
+    about VARCHAR(1000),
     phone_number VARCHAR(12),
     profile_picture_url VARCHAR(150) DEFAULT '/images/default-profile-picture.png',
     country_id INT(3),
