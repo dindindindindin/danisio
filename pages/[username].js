@@ -4,6 +4,7 @@ import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import Layout from "../components/Layout";
 import Container from "@mui/material/Container";
 import Box from "@mui/material/Box";
+import Chip from "@mui/material/Chip";
 
 import { styled } from "@mui/material/styles";
 import Image from "next/image";
@@ -57,7 +58,7 @@ export async function getServerSideProps({ locale, params }) {
 
   //retrieve consultant services
   const consultantServicesRes = await query(
-    `SELECT service FROM consultant_services INNER JOIN services ON services.id = consuntant_services.service_id WHERE user_id = ${idFirstLast[0].user_id};`
+    `SELECT service FROM consultant_services INNER JOIN services ON services.id = consultant_services.service_id WHERE user_id = ${idFirstLast[0].user_id};`
   );
   const consultantServices = JSON.parse(JSON.stringify(consultantServicesRes));
 
@@ -82,7 +83,8 @@ const StyledImage = styled(Image)(({ theme }) => ({
 export default function Profile(props) {
   const router = useRouter();
   const { username } = router.query;
-  console.log(props.profileInfo);
+  const aboutLines = props.profileInfo[0].about.split("\n");
+  console.log(props.consultantServices);
   return (
     <Layout props>
       <Container disableGutters={true} maxWidth="sm">
@@ -92,7 +94,7 @@ export default function Profile(props) {
           border="2px solid #f0f0f4"
           borderRadius="5px"
         >
-          <Box display="flex" justifyContent="center">
+          <Box display="flex" justifyContent="center" marginTop="16px">
             <StyledImage
               src={props.profileInfo[0].profile_picture_url}
               alt="Consultant profile picture"
@@ -101,7 +103,7 @@ export default function Profile(props) {
             />
           </Box>
           <Box display="flex" justifyContent="center" marginTop="16px">
-            <Typography variant="h5">
+            <Typography variant="h5" color="primary">
               {props.firstName} {props.lastName}
             </Typography>
           </Box>
@@ -126,7 +128,47 @@ export default function Profile(props) {
           border="2px solid #f0f0f4"
           borderRadius="5px"
         >
-          <Typography>{props.profileInfo[0].about}</Typography>
+          {aboutLines.map((line) => {
+            return <Typography>{line}</Typography>;
+          })}
+        </Box>
+        <Box
+          padding="8px 2%"
+          marginTop="16px"
+          border="2px solid #f0f0f4"
+          borderRadius="5px"
+        >
+          <Typography textAlign="center" color="primary">
+            Services
+          </Typography>
+          <Box display="flex" flexWrap="wrap" marginTop="8px">
+            {props.consultantServices.map((service) => (
+              <Chip
+                key={service.service}
+                sx={{ mr: "1%", mb: "8px" }}
+                label={service.service}
+              />
+            ))}
+          </Box>
+        </Box>
+        <Box
+          padding="8px 2%"
+          marginTop="16px"
+          border="2px solid #f0f0f4"
+          borderRadius="5px"
+        >
+          <Typography textAlign="center" color="primary">
+            Countries Served
+          </Typography>
+          <Box display="flex" flexWrap="wrap" marginTop="8px">
+            {props.consultantCountries.map((country) => (
+              <Chip
+                key={country.country}
+                sx={{ mr: "1%", mb: "8px" }}
+                label={country.country}
+              />
+            ))}
+          </Box>
         </Box>
       </Container>
     </Layout>
