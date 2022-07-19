@@ -110,6 +110,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
       ...(await serverSideTranslations(context.locale, [
         "settings",
         "countries",
+        "titles",
         "nav",
       ])),
       user,
@@ -129,11 +130,11 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 // }));
 
 export default function MeetingSettings(props) {
-  const { t } = useTranslation("settings");
+  const { t } = useTranslation(["settings", "titles"]);
   return (
     <Layout>
       <ConsultantSettingsLayout
-        heading={t("settings.meeting-settings.meeting-settings-title")}
+        heading={t("meeting-settings-title", { ns: "titles" })}
       >
         <Container disableGutters={true}>
           <Addresses

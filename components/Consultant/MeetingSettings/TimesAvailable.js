@@ -25,6 +25,7 @@ import { useState } from "react";
 import Divider from "@mui/material/Divider";
 
 export default function TimesAvailable(props) {
+  const { t } = useTranslation("settings");
   const [isAddIntervalOpen, setIsAddIntervalOpen] = useState(false);
   const [isAddIntervalExcludeOpen, setIsAddIntervalExcludeOpen] =
     useState(false);
@@ -46,16 +47,24 @@ export default function TimesAvailable(props) {
   const handleAddInterval = async (e) => {
     e.preventDefault();
 
+    try {
+      await axios.post("/api/consultant/meeting-settings/new-interval", {
+        days: checkedDays,
+        from: addIntervalFrom,
+        to: addIntervalTo,
+        exclusions: addIntervalExclusions,
+        priority: e.target.priority.value,
+      });
+    } catch (err) {
+      setErrors({
+        availableFrom: t(
+          "settings.meeting-settings.intervals.intervals-collided"
+        ),
+      });
+      return;
+    }
+
     setIsAddIntervalOpen(false);
-
-    await axios.post("/api/consultant/meeting-settings/new-interval", {
-      days: checkedDays,
-      from: addIntervalFrom,
-      to: addIntervalTo,
-      exclusions: addIntervalExclusions,
-      priority: e.target.priority.value,
-    });
-
     setAddIntervalFrom(null);
     setAddIntervalTo(null);
     setAddIntervalExcludeFrom(null);
@@ -137,13 +146,13 @@ export default function TimesAvailable(props) {
   };
 
   const daysOfWeek = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
+    t("settings.meeting-settings.intervals.monday"),
+    t("settings.meeting-settings.intervals.tuesday"),
+    t("settings.meeting-settings.intervals.wednesday"),
+    t("settings.meeting-settings.intervals.thursday"),
+    t("settings.meeting-settings.intervals.friday"),
+    t("settings.meeting-settings.intervals.saturday"),
+    t("settings.meeting-settings.intervals.sunday"),
   ];
 
   const renderAddInterval = () => {
@@ -160,10 +169,17 @@ export default function TimesAvailable(props) {
               if (checkedDays.length !== 0) {
                 setErrors({});
                 handleAddInterval(e);
-              } else setErrors({ availableFrom: "Please select the days." });
+              } else
+                setErrors({
+                  availableFrom: t(
+                    "settings.meeting-settings.intervals.select-days"
+                  ),
+                });
             } else
               setErrors({
-                availableFrom: "Please enter a valid interval.",
+                availableFrom: t(
+                  "settings.meeting-settings.intervals.valid-interval"
+                ),
               });
           }}
         >
@@ -207,7 +223,7 @@ export default function TimesAvailable(props) {
               marginBottom="8px"
             >
               <TimePicker
-                label="Available From"
+                label={t("settings.meeting-settings.intervals.available-from")}
                 value={addIntervalFrom}
                 ampm={false}
                 maxTime={addIntervalTo}
@@ -224,7 +240,7 @@ export default function TimesAvailable(props) {
                 )}
               />
               <TimePicker
-                label="Available Until"
+                label={t("settings.meeting-settings.intervals.available-to")}
                 value={addIntervalTo}
                 ampm={false}
                 minTime={addIntervalFrom}
@@ -232,7 +248,9 @@ export default function TimesAvailable(props) {
                   setAddIntervalTo(newValue);
                   if (isLater(newValue, addIntervalFrom)) {
                     setErrors({
-                      availableTo: "Must be later than 'Available From'",
+                      availableTo: t(
+                        "settings.meeting-settings.intervals.later-than-available-from"
+                      ),
                     });
                   } else {
                     setErrors({ availableTo: "" });
@@ -260,10 +278,13 @@ export default function TimesAvailable(props) {
                     marginBottom="8px"
                   >
                     <Typography marginRight="1%">
-                      Except from {appendZero(exclusion.from.getHours())}:
-                      {appendZero(exclusion.from.getMinutes())} to{" "}
+                      {t("settings.meeting-settings.intervals.except-from")}{" "}
+                      {appendZero(exclusion.from.getHours())}:
+                      {appendZero(exclusion.from.getMinutes())}{" "}
+                      {t("settings.meeting-settings.intervals.to")}{" "}
                       {appendZero(exclusion.to.getHours())}:
                       {appendZero(exclusion.to.getMinutes())}
+                      {t("settings.meeting-settings.intervals.harici")}
                     </Typography>
                     <Button
                       onClick={() => {
@@ -278,7 +299,7 @@ export default function TimesAvailable(props) {
                         });
                       }}
                     >
-                      Remove
+                      {t("settings.meeting-settings.intervals.remove")}
                     </Button>
                   </Box>
                 );
@@ -294,7 +315,9 @@ export default function TimesAvailable(props) {
                   marginBottom="8px"
                 >
                   <TimePicker
-                    label="Exclude From"
+                    label={t(
+                      "settings.meeting-settings.intervals.exclude-from"
+                    )}
                     value={addIntervalExcludeFrom}
                     ampm={false}
                     minTime={addIntervalFrom}
@@ -303,13 +326,15 @@ export default function TimesAvailable(props) {
                       setAddIntervalExcludeFrom(newValue);
                       if (isLaterOrEqual(newValue, addIntervalFrom))
                         setErrors({
-                          addIntervalExcludeFrom:
-                            "Must be later than 'Available From'",
+                          addIntervalExcludeFrom: t(
+                            "settings.meeting-settings.intervals.later-than-available-from"
+                          ),
                         });
                       else if (isLaterOrEqual(addIntervalTo, newValue))
                         setErrors({
-                          addIntervalExcludeFrom:
-                            "Must be earlier than 'Available Until'",
+                          addIntervalExcludeFrom: t(
+                            "settings.meeting-settings.intervals.earlier-than-available-to"
+                          ),
                         });
                       else
                         setErrors({
@@ -325,7 +350,7 @@ export default function TimesAvailable(props) {
                     )}
                   />
                   <TimePicker
-                    label="Exclude Until"
+                    label={t("settings.meeting-settings.intervals.exclude-to")}
                     value={addIntervalExcludeTo}
                     ampm={false}
                     minTime={addIntervalExcludeFrom}
@@ -335,13 +360,15 @@ export default function TimesAvailable(props) {
                       setAddIntervalExcludeTo(newValue);
                       if (isLater(newValue, addIntervalExcludeFrom))
                         setErrors({
-                          addIntervalExcludeTo:
-                            "Must be later than 'Exclude From'",
+                          addIntervalExcludeTo: t(
+                            "settings.meeting-settings.intervals.later-than-exclude-from"
+                          ),
                         });
                       else if (isLaterOrEqual(addIntervalTo, newValue))
                         setErrors({
-                          addIntervalExcludeTo:
-                            "Must be earlier than 'Available Until'",
+                          addIntervalExcludeTo: t(
+                            "settings.meeting-settings.intervals.earlier-than-available-to"
+                          ),
                         });
                       else setErrors({ addIntervalExcludeTo: "" });
                     }}
@@ -399,8 +426,9 @@ export default function TimesAvailable(props) {
                                 ))
                             ) {
                               setErrors({
-                                addIntervalExcludeFrom:
-                                  "Previous exclusions must not collide.",
+                                addIntervalExcludeFrom: t(
+                                  "settings.meeting-settings.intervals.collided"
+                                ),
                               });
                               return;
                             }
@@ -422,14 +450,16 @@ export default function TimesAvailable(props) {
                             isLaterOrEqual(addIntervalTo, addIntervalExcludeTo)
                           ) {
                             setErrors({
-                              addIntervalExcludeFrom:
-                                "Must be between available times.",
+                              addIntervalExcludeFrom: t(
+                                "settings.meeting-settings.intervals.between-available"
+                              ),
                             });
                           } else {
                             //if between then proceed
                             setErrors({
-                              addIntervalExcludeFrom:
-                                "Must be between available times.",
+                              addIntervalExcludeFrom: t(
+                                "settings.meeting-settings.intervals.between-available"
+                              ),
                             });
                             setAddIntervalExclusions((state) => [
                               ...state,
@@ -460,8 +490,9 @@ export default function TimesAvailable(props) {
                             isLaterOrEqual(addIntervalTo, addIntervalExcludeTo)
                           ) {
                             setErrors({
-                              addIntervalExcludeFrom:
-                                "Must be between available times.",
+                              addIntervalExcludeFrom: t(
+                                "settings.meeting-settings.intervals.between-available"
+                              ),
                             });
                           } else {
                             //if between available times proceed
@@ -483,12 +514,16 @@ export default function TimesAvailable(props) {
                       } else {
                         //if not valid
                         setErrors({
-                          addIntervalExcludeFrom: "Please enter a valid time.",
+                          addIntervalExcludeFrom: t(
+                            "settings.meeting-settings.intervals.valid-time"
+                          ),
                         });
                       }
                     }}
                   >
-                    Complete Exclusion
+                    {t(
+                      "settings.meeting-settings.intervals.complete-exclusion"
+                    )}
                   </Button>
                   <Button
                     variant="outlined"
@@ -502,7 +537,7 @@ export default function TimesAvailable(props) {
                       setIsAddIntervalExcludeOpen(false);
                     }}
                   >
-                    Cancel Exclusion
+                    {t("settings.meeting-settings.intervals.cancel-exclusion")}
                   </Button>
                 </Box>
               </Box>
@@ -522,18 +557,22 @@ export default function TimesAvailable(props) {
                         setIsAddIntervalFromToDisabled(true);
                       } else
                         setErrors({
-                          availableFrom: "Times available are not valid.",
+                          availableFrom: t(
+                            "settings.meeting-settings.intervals.available-not-valid"
+                          ),
                         });
                     } else
                       setErrors({
-                        availableFrom: "Please enter times available first.",
+                        availableFrom: t(
+                          "settings.meeting-settings.intervals.enter-available"
+                        ),
                       });
                   }}
                 >
-                  Exclude Interval
+                  {t("settings.meeting-settings.intervals.exclude-interval")}
                 </Button>
                 <Typography variant="body2" color="GrayText">
-                  (ie. your lunchtime)
+                  {t("settings.meeting-settings.intervals.exclude-example")}
                 </Typography>
               </Box>
             )}
@@ -544,19 +583,23 @@ export default function TimesAvailable(props) {
                 <FormControlLabel
                   value="preferred"
                   control={<Radio />}
-                  label="Meeting preferred at this time."
+                  label={t(
+                    "settings.meeting-settings.intervals.meeting-preferred"
+                  )}
                 />
                 <FormControlLabel
                   value="possible"
                   control={<Radio />}
-                  label="Meeting possible at this time."
+                  label={t(
+                    "settings.meeting-settings.intervals.meeting-possible"
+                  )}
                 />
               </RadioGroup>
             </FormControl>
           </Box>
           <Box display="flex">
             <Button variant="contained" sx={{ mr: "1%" }} type="submit">
-              Complete
+              {t("settings.meeting-settings.intervals.complete")}
             </Button>
             <Button
               variant="outlined"
@@ -575,7 +618,7 @@ export default function TimesAvailable(props) {
                 setErrors({});
               }}
             >
-              Cancel
+              {t("settings.meeting-settings.intervals.cancel")}
             </Button>
           </Box>
         </form>
@@ -588,100 +631,110 @@ export default function TimesAvailable(props) {
       a.begins.localeCompare(b.begins)
     );
     return (
-      <Timeline>
-        <Box display="flex" justifyContent="center" marginBottom="8px">
-          {props.interval.priority === 0 ? (
-            <Typography color="#2e7d32">Preferred meeting time</Typography>
-          ) : (
-            <Typography color="#ef6c00">Possible meeting time</Typography>
-          )}
-        </Box>
-        <Box display="flex" justifyContent="center" flexWrap="wrap">
-          {props.interval.days.map((index) => (
-            <Chip
-              key={index}
-              label={daysOfWeek[index]}
-              sx={{ margin: "0 1% 8px 1%" }}
-            />
-          ))}
-        </Box>
-        <TimelineItem>
-          <TimelineOppositeContent
-            color="green"
-            variant="body2"
-            alignSelf="flex-end"
-          >
-            available
-          </TimelineOppositeContent>
-          <TimelineSeparator>
-            <TimelineDot color="success" />
-            <TimelineConnector sx={{ bgcolor: "success.light" }} />
-          </TimelineSeparator>
-          <TimelineContent>
-            {appendZero(stringToTime(props.interval.begins).getHours())}:
-            {appendZero(stringToTime(props.interval.begins).getMinutes())}
-          </TimelineContent>
-        </TimelineItem>
-        {sortedExclusions.map((exclusion) => (
-          <>
-            <TimelineItem>
-              <TimelineOppositeContent
-                color="grey.500"
-                variant="body2"
-                alignSelf="flex-end"
-              >
-                busy
-              </TimelineOppositeContent>
-              <TimelineSeparator>
-                <TimelineDot color="error" variant="outlined" />
-                <TimelineConnector sx={{ bgcolor: "error.light" }} />
-              </TimelineSeparator>
+      <Box>
+        <Timeline sx={{ mb: "0px" }}>
+          <Box display="flex" justifyContent="center" marginBottom="8px">
+            {props.interval.priority === 0 ? (
+              <Typography color="#2e7d32">
+                {t(
+                  "settings.meeting-settings.intervals.preferred-meeting-time"
+                )}
+              </Typography>
+            ) : (
+              <Typography color="#ef6c00">
+                {t("settings.meeting-settings.intervals.possible-meeting-time")}
+              </Typography>
+            )}
+          </Box>
+          <Box display="flex" justifyContent="center" flexWrap="wrap">
+            {props.interval.days.map((index) => (
+              <Chip
+                key={index}
+                label={daysOfWeek[index]}
+                sx={{ margin: "0 1% 8px 1%" }}
+              />
+            ))}
+          </Box>
+          <TimelineItem>
+            <TimelineOppositeContent
+              color="green"
+              variant="body2"
+              alignSelf="flex-end"
+            >
+              {t("settings.meeting-settings.intervals.available")}
+            </TimelineOppositeContent>
+            <TimelineSeparator>
+              <TimelineDot color="success" />
+              <TimelineConnector sx={{ bgcolor: "success.light" }} />
+            </TimelineSeparator>
+            <TimelineContent>
+              {appendZero(stringToTime(props.interval.begins).getHours())}:
+              {appendZero(stringToTime(props.interval.begins).getMinutes())}
+            </TimelineContent>
+          </TimelineItem>
+          {sortedExclusions.map((exclusion) => (
+            <>
+              <TimelineItem>
+                <TimelineOppositeContent
+                  color="grey.500"
+                  variant="body2"
+                  alignSelf="flex-end"
+                >
+                  {t("settings.meeting-settings.intervals.busy")}
+                </TimelineOppositeContent>
+                <TimelineSeparator>
+                  <TimelineDot color="error" variant="outlined" />
+                  <TimelineConnector sx={{ bgcolor: "error.light" }} />
+                </TimelineSeparator>
 
-              <TimelineContent>
-                {appendZero(stringToTime(exclusion.begins).getHours())}:
-                {appendZero(stringToTime(exclusion.begins).getMinutes())}
-              </TimelineContent>
-            </TimelineItem>
-            <TimelineItem>
-              <TimelineOppositeContent
-                color="green"
-                variant="body2"
-                alignSelf="flex-end"
-              >
-                available
-              </TimelineOppositeContent>
-              <TimelineSeparator>
-                <TimelineDot color="error" variant="outlined" />
-                <TimelineConnector
-                  sx={{ height: "3px", bgcolor: "success.light" }}
-                />
-              </TimelineSeparator>
-              <TimelineContent>
-                {appendZero(stringToTime(exclusion.ends).getHours())}:
-                {appendZero(stringToTime(exclusion.ends).getMinutes())}
-              </TimelineContent>
-            </TimelineItem>
-          </>
-        ))}
-        <TimelineItem>
-          <TimelineSeparator>
-            <TimelineDot color="success" />
-          </TimelineSeparator>
-          <TimelineContent>
-            {appendZero(stringToTime(props.interval.ends).getHours())}:
-            {appendZero(stringToTime(props.interval.ends).getMinutes())}
-          </TimelineContent>
-        </TimelineItem>
-        <Button
-          sx={{ mb: "16px" }}
-          onClick={(e) => {
-            handleRemoveInterval(e, props.interval.id);
-          }}
-        >
-          Remove
-        </Button>
-        <Divider />
-      </Timeline>
+                <TimelineContent>
+                  {appendZero(stringToTime(exclusion.begins).getHours())}:
+                  {appendZero(stringToTime(exclusion.begins).getMinutes())}
+                </TimelineContent>
+              </TimelineItem>
+              <TimelineItem>
+                <TimelineOppositeContent
+                  color="green"
+                  variant="body2"
+                  alignSelf="flex-end"
+                >
+                  {t("settings.meeting-settings.intervals.available")}
+                </TimelineOppositeContent>
+                <TimelineSeparator>
+                  <TimelineDot color="error" variant="outlined" />
+                  <TimelineConnector
+                    sx={{ height: "3px", bgcolor: "success.light" }}
+                  />
+                </TimelineSeparator>
+                <TimelineContent>
+                  {appendZero(stringToTime(exclusion.ends).getHours())}:
+                  {appendZero(stringToTime(exclusion.ends).getMinutes())}
+                </TimelineContent>
+              </TimelineItem>
+            </>
+          ))}
+          <TimelineItem>
+            <TimelineSeparator>
+              <TimelineDot color="success" />
+            </TimelineSeparator>
+            <TimelineContent>
+              {appendZero(stringToTime(props.interval.ends).getHours())}:
+              {appendZero(stringToTime(props.interval.ends).getMinutes())}
+            </TimelineContent>
+          </TimelineItem>
+        </Timeline>
+        <Box display="flex" justifyContent="center">
+          <Button
+            sx={{ mb: "16px" }}
+            onClick={(e) => {
+              handleRemoveInterval(e, props.interval.id);
+            }}
+          >
+            {t("settings.meeting-settings.intervals.remove")}
+          </Button>
+        </Box>
+        <Divider sx={{ mb: "16px" }} />
+      </Box>
     );
   }
 
@@ -692,7 +745,9 @@ export default function TimesAvailable(props) {
       border="2px solid #f0f0f4"
       borderRadius="5px"
     >
-      <Typography marginBottom="16px">Times Available:</Typography>
+      <Typography marginBottom="16px">
+        {t("settings.meeting-settings.intervals.times-available")}:
+      </Typography>
       <Box>
         {intervals.map((interval) => {
           return <Interval key={interval.id} interval={interval} />;
@@ -702,7 +757,7 @@ export default function TimesAvailable(props) {
         renderAddInterval()
       ) : (
         <Button variant="contained" onClick={() => setIsAddIntervalOpen(true)}>
-          Add Interval
+          {t("settings.meeting-settings.intervals.add-interval")}
         </Button>
       )}
     </Box>

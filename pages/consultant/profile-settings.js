@@ -83,6 +83,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
         "settings",
         "countries",
         "services",
+        "titles",
         "nav",
       ])),
       user,
@@ -102,7 +103,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 });
 
 export default function ProfileSettings(props) {
-  const { t } = useTranslation(["settings"]);
+  const { t } = useTranslation(["settings", "titles"]);
 
   return (
     <>
@@ -111,7 +112,7 @@ export default function ProfileSettings(props) {
       </Head>
       <Layout>
         <ConsultantSettingsLayout
-          heading={t("settings.profile-settings.profile-settings-title")}
+          heading={t("profile-settings-title", { ns: "titles" })}
         >
           <Container disableGutters={true}>
             <ProfilePicture

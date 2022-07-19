@@ -30,6 +30,8 @@ export default function PhoneNumbers(props) {
   const [dialCode, setDialCode] = useState(null);
   const [countryCode, setCountryCode] = useState(null);
 
+  const { t } = useTranslation("contact-settings");
+
   //add number api call
   const handleAddNumber = async (e) => {
     e.preventDefault();
@@ -83,7 +85,7 @@ export default function PhoneNumbers(props) {
   return (
     <Box>
       <Box padding="8px 2%" border="2px solid #f0f0f4" borderRadius="5px">
-        <Typography marginBottom="8px">Phone Numbers:</Typography>
+        <Typography marginBottom="8px">{t("phone-numbers")}:</Typography>
         {phoneNumbers.map((number) => {
           const formattedNumber =
             "+" +
@@ -98,11 +100,11 @@ export default function PhoneNumbers(props) {
               alignItems="center"
             >
               <Typography marginRight="1%" color="#616161">
-                {number.type}:
+                {t(`${number.type}`)}:
               </Typography>
               <Typography marginRight="1%">{formattedNumber}</Typography>
               <Button onClick={(e) => handleRemoveNumber(e, number.id)}>
-                Remove
+                {t("remove")}
               </Button>
             </Box>
           );
@@ -112,15 +114,15 @@ export default function PhoneNumbers(props) {
             <Box display="flex" flexWrap="wrap">
               <Box marginBottom="8px" marginRight="1%">
                 <FormControl>
-                  <InputLabel>Contact Type</InputLabel>
+                  <InputLabel>{t("contact-type")}</InputLabel>
                   <Select
                     value={contactTypeId}
-                    label="ContactType"
+                    label={t("contact-type")}
                     onChange={(e) => setContactTypeId(e.target.value)}
                   >
                     {props.contactTypes.map((type) => (
                       <MenuItem key={type.id} value={type.id}>
-                        {type.type}
+                        {t(`${type.type}`)}
                       </MenuItem>
                     ))}
                   </Select>
@@ -148,7 +150,7 @@ export default function PhoneNumbers(props) {
               variant="outlined"
               onClick={handleAddNumber}
             >
-              Add
+              {t("add")}
             </Button>
             <Button
               variant="outlined"
@@ -160,7 +162,7 @@ export default function PhoneNumbers(props) {
                 setIsAddNumberOpen(false);
               }}
             >
-              Cancel
+              {t("cancel")}
             </Button>
           </Box>
         ) : (
@@ -170,7 +172,7 @@ export default function PhoneNumbers(props) {
               setIsAddNumberOpen(true);
             }}
           >
-            Add Number
+            {t("add-number")}
           </Button>
         )}
       </Box>
@@ -180,7 +182,7 @@ export default function PhoneNumbers(props) {
         border="2px solid #f0f0f4"
         borderRadius="5px"
       >
-        <Typography>Whatsapp Number:</Typography>
+        <Typography>{t("whatsapp-number")}:</Typography>
         <form onChange={handleWhatsappChange}>
           <FormControl>
             <RadioGroup
@@ -210,7 +212,7 @@ export default function PhoneNumbers(props) {
                 key="noWhatsapp"
                 value="noWhatsapp"
                 control={<Radio />}
-                label="I'm not using Whatsapp."
+                label={t("not-using-whatsapp")}
               />
             </RadioGroup>
           </FormControl>

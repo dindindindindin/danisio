@@ -43,7 +43,6 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   const consultantCountryCode = JSON.parse(
     JSON.stringify(consultantCountryCodeRes)
   );
-  console.log(consultantCountryCode);
 
   //retrieve whatsapp number
   const whatsappNumberIdRes = await query(
@@ -52,7 +51,11 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   let whatsappNumberId = JSON.parse(JSON.stringify(whatsappNumberIdRes));
   return {
     props: {
-      ...(await serverSideTranslations(context.locale, ["settings", "nav"])),
+      ...(await serverSideTranslations(context.locale, [
+        "contact-settings",
+        "titles",
+        "nav",
+      ])),
       user,
       contactTypes,
       phoneNumbers,
@@ -68,13 +71,10 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 // }));
 
 export default function ContactSettings(props) {
-  const { t } = useTranslation("settings");
+  const { t } = useTranslation("titles");
   return (
     <Layout>
-      <ConsultantSettingsLayout
-        heading={t("settings.contact-settings.contact-settings-title")}
-        {...props}
-      >
+      <ConsultantSettingsLayout heading={t("contact-settings-title")}>
         <Container disableGutters={true}>
           <PhoneNumbers
             contactTypes={props.contactTypes}

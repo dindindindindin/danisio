@@ -4,10 +4,5 @@ cookies must persist
 profile pic in settings is not stable
 'none of the options match with' error autocomplete
 SelectCountry array populate inside a function?
-meeting-settings is userId needed?
-does translator call only the necessary ones?
-only the primary address appears on your profile.
-margin padding refactoring in addresses
-add textbox warnings to addresses
-enter available from first
-enter available times first for exclusion
+validations for addresses and locations
+validations for contact settings

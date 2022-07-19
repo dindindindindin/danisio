@@ -11,11 +11,12 @@ import Image from "next/image";
 import { Typography } from "@mui/material";
 
 export async function getServerSideProps({ locale, params }) {
+  console.log("inside slug");
   //retrieve id, first, last
   const idFirstLast = await query(
     `SELECT user_id, first_name, last_name FROM consultants WHERE username = '${params.username}';`
   );
-  console.log(idFirstLast[0].first_name);
+
   const firstName = idFirstLast[0].first_name;
   const lastName = idFirstLast[0].last_name;
 
@@ -33,7 +34,7 @@ export async function getServerSideProps({ locale, params }) {
   const profileInfoRes = await query(
     `SELECT about, profile_picture_url, country, has_states, state_variant FROM consultants LEFT JOIN countries ON countries.id = consultants.country_id WHERE user_id = ${idFirstLast[0].user_id};`
   );
-  const profileInfo = JSON.parse(JSON.stringify(profileInfoRes));
+  let profileInfo = JSON.parse(JSON.stringify(profileInfoRes));
 
   if (profileInfo[0].country === null) profileInfo[0].country = "";
   if (profileInfo[0].about === null) profileInfo[0].about = "";
@@ -64,7 +65,11 @@ export async function getServerSideProps({ locale, params }) {
 
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["common"])),
+      ...(await serverSideTranslations(locale, [
+        "nav",
+        "countries",
+        "services",
+      ])),
       firstName,
       lastName,
       profileInfo,
@@ -81,10 +86,10 @@ const StyledImage = styled(Image)(({ theme }) => ({
 }));
 
 export default function Profile(props) {
-  const router = useRouter();
-  const { username } = router.query;
+  // const router = useRouter();
+  // const { username } = router.query;
   const aboutLines = props.profileInfo[0].about.split("\n");
-  console.log(props.consultantServices);
+
   return (
     <Layout props>
       <Container disableGutters={true} maxWidth="sm">
@@ -128,8 +133,8 @@ export default function Profile(props) {
           border="2px solid #f0f0f4"
           borderRadius="5px"
         >
-          {aboutLines.map((line) => {
-            return <Typography>{line}</Typography>;
+          {aboutLines.map((line, index) => {
+            return <Typography key={index}>{line}</Typography>;
           })}
         </Box>
         <Box

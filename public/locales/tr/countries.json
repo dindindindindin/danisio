@@ -6,7 +6,12 @@
     "United States": "Amerika",
     "Germany": "Almanya",
     "Canada": "Kanada",
-    "Turkey": "Türkiye"
+    "Turkey": "Türkiye",
+    "state-variant": {
+      "Province": "Eyalet",
+      "State": "Eyalet",
+      "Prefecture": "Eyalet"
+    }
   },
   "regions": {
     "North America": "Kuzey Amerika",

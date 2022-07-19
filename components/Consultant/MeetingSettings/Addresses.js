@@ -321,6 +321,7 @@ export default function Addresses(props) {
       <TextField
         label={t("settings.meeting-settings.addresses.address")}
         variant="outlined"
+        helperText={t("settings.meeting-settings.addresses.no-company-name")}
         multiline
         fullWidth
         sx={{ marginBottom: "8px" }}

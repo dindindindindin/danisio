@@ -30,7 +30,7 @@ export default function MemberSettingsLayout(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const { t } = useTranslation("settings");
+  const { t } = useTranslation("titles");
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -50,11 +50,7 @@ export default function MemberSettingsLayout(props) {
                 <ListItemIcon>
                   <ManageAccountsIcon />
                 </ListItemIcon>
-                <ListItemText
-                  primary={t(
-                    "settings.profile-settings.profile-settings-title"
-                  )}
-                />
+                <ListItemText primary={t("profile-settings-title")} />
               </ListItemButton>
             </ListItem>
           </MuiLink>
@@ -70,11 +66,7 @@ export default function MemberSettingsLayout(props) {
                 <ListItemIcon>
                   <HandshakeIcon />
                 </ListItemIcon>
-                <ListItemText
-                  primary={t(
-                    "settings.meeting-settings.meeting-settings-title"
-                  )}
-                />
+                <ListItemText primary={t("meeting-settings-title")} />
               </ListItemButton>
             </ListItem>
           </MuiLink>
@@ -90,11 +82,7 @@ export default function MemberSettingsLayout(props) {
                 <ListItemIcon>
                   <CallIcon />
                 </ListItemIcon>
-                <ListItemText
-                  primary={t(
-                    "settings.contact-settings.contact-settings-title"
-                  )}
-                />
+                <ListItemText primary={t("contact-settings-title")} />
               </ListItemButton>
             </ListItem>
           </MuiLink>
@@ -110,7 +98,7 @@ export default function MemberSettingsLayout(props) {
                 <ListItemIcon>
                   <KeyIcon />
                 </ListItemIcon>
-                <ListItemText primary={t("settings.changepw.changepwtitle")} />
+                <ListItemText primary={t("change-pw-title")} />
               </ListItemButton>
             </ListItem>
           </MuiLink>

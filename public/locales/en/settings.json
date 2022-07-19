@@ -1,7 +1,6 @@
 {
   "settings": {
     "changepw": {
-      "changepwtitle": "Change Password",
       "loginagain": "For security reasons you need to login again to change your password.",
       "changepwsuccess": "Your password has been changed.",
       "changepw": "CHANGE PASSWORD",
@@ -9,7 +8,6 @@
       "repeatnewpw": "Repeat New Password"
     },
     "profile-settings": {
-      "profile-settings-title": "Profile Settings",
       "username": "Username",
       "username-helper": "For your profile link.",
       "first-name": "First Name",
@@ -21,14 +19,13 @@
       "username-exists": "This username already exists.",
       "first-name-error": "First name cannot be longer than 60 characters.",
       "last-name-error": "Last name cannot be longer than 40 characters.",
-      "about-me-error": "About me section cannot be longer than 200 characters.",
+      "about-me-error": "About me section cannot be longer than 1000 characters.",
       "relevant-countries": "Add countries relevant to you:",
       "countries": "Countries",
       "offered-services": "Add services you offer:",
       "services": "Services"
     },
     "meeting-settings": {
-      "meeting-settings-title": "Meeting Settings",
       "addresses": {
         "country-first": "Please select your country first",
         "country": "Country",
@@ -48,11 +45,53 @@
         "country-change-alert": "WARNING: If country is changed, addresses and locations are removed.",
         "locations": "Meeting Locations",
         "new-location": "Add Location",
-        "locations-example": "(ie. A Coffee Shop)",
+        "locations-example": "(ie. Starbucks on Elm St.)",
         "addresses-example": "(ie. Your Company Address)",
-        "location-default-value": "Starbucks on Elm Street"
+        "location-default-value": "Starbucks on Elm Street",
+        "no-company-name": "Please do not mention company name."
+      },
+      "intervals": {
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday",
+        "sunday": "Sunday",
+        "select-days": "Please select the days.",
+        "valid-interval": "Please enter a valid interval.",
+        "available-from": "Available From",
+        "available-to": "Available Until",
+        "later-than-available-from": "Must be later than 'Available From'",
+        "except-from": "Except from",
+        "to": "to",
+        "harici": "",
+        "remove": "Remove",
+        "exclude-from": "Exclude From",
+        "earlier-than-available-to": "Must be earlier than 'Available Until'",
+        "exclude-to": "Exclude Until",
+        "later-than-exclude-from": "Must be later than 'Exclude From'",
+        "collided": "Previous exclusions must not collide.",
+        "between-available": "Must be between available times.",
+        "valid-time": "Please enter a valid time.",
+        "complete-exclusion": "Complete Exclusion",
+        "cancel-exclusion": "Cancel Exclusion",
+        "available-not-valid": "Times available are not valid.",
+        "enter-available": "Please enter times available first.",
+        "exclude-interval": "Exclude Interval",
+        "exclude-example": "(ie. your lunchtime)",
+        "meeting-preferred": "Meeting preferred at this time.",
+        "meeting-possible": "Meeting possible at this time.",
+        "complete": "Complete",
+        "cancel": "Cancel",
+        "preferred-meeting-time": "Preferred meeting time",
+        "possible-meeting-time": "Possible meeting time",
+        "available": "available",
+        "busy": "busy",
+        "times-available": "Times Available",
+        "add-interval": "Add Interval",
+        "intervals-collided": "Other intervals must not collide."
       }
-    },
-    "contact-settings": { "contact-settings-title": "Contact Settings" }
+    }
   }
 }

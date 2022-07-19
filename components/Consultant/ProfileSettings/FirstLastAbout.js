@@ -27,7 +27,7 @@ export default function FirstLastAbout(props) {
       setError(t("settings.profile-settings.first-name-error"));
     else if (lastName.length > 40)
       setError(t("settings.profile-settings.last-name-error"));
-    else if (aboutMe.length > 200)
+    else if (aboutMe.length > 1000)
       setError(t("settings.profile-settings.about-me-error"));
     else {
       setError("");
