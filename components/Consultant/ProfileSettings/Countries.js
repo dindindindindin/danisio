@@ -6,7 +6,7 @@ import { useTranslation } from "next-i18next";
 import axios from "axios";
 
 export default function Countries(props) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["settings", "countries"]);
 
   //translate and push into countries array
   const rawCountries = JSON.parse(props.countries);
@@ -14,8 +14,8 @@ export default function Countries(props) {
   rawCountries.map((country) => {
     countries.push({
       id: country.id,
-      country: t(`countries.${country.country}`),
-      region: t(`regions.${country.region}`),
+      country: t(`countries.${country.country}`, { ns: "countries" }),
+      region: t(`regions.${country.region}`, { ns: "countries" }),
     });
   });
 

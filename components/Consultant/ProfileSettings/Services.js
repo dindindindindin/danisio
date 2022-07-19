@@ -6,14 +6,14 @@ import { useTranslation } from "next-i18next";
 import axios from "axios";
 
 export default function Services(props) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["settings", "services"]);
 
   //translate and push into countries array
   const services = [];
   props.services.map((service) => {
     services.push({
       id: service.id,
-      service: t(`services.${service.service}`),
+      service: t(`services.${service.service}`, { ns: "services" }),
     });
   });
 

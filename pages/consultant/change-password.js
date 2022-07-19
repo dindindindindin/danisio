@@ -41,7 +41,7 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   }
   return {
     props: {
-      ...(await serverSideTranslations(context.locale, ["common"])),
+      ...(await serverSideTranslations(context.locale, ["settings", "nav"])),
       user,
       // Will be passed to the page component as props
     },
@@ -55,7 +55,7 @@ export default function ChangePassword(props) {
   const [loading, setLoading] = useState(false);
   const [successful, setSuccessful] = useState(false);
 
-  const { t } = useTranslation();
+  const { t } = useTranslation("settings");
   const user = auth.currentUser;
 
   const handleSubmit = async (e) => {
@@ -116,7 +116,7 @@ export default function ChangePassword(props) {
   };
 
   return (
-    <Layout props>
+    <Layout>
       <ConsultantSettingsLayout heading={t("settings.changepw.changepwtitle")}>
         <Wrapper disableGutters={true}>
           <StyledPaper>

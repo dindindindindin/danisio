@@ -13,7 +13,7 @@ export default function FirstLastAbout(props) {
   const [aboutMe, setAboutMe] = useState(props.aboutMe);
   const [error, setError] = useState("");
 
-  const { t } = useTranslation();
+  const { t } = useTranslation("settings");
   console.log(firstName);
   const handleSubmit = async (e) => {
     e.preventDefault();

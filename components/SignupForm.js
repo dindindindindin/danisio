@@ -36,7 +36,7 @@ const SignupForm = (props) => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const { t } = useTranslation();
+  const { t } = useTranslation("account");
   const router = useRouter();
   const dispatch = useDispatch();
 

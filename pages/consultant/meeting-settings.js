@@ -107,7 +107,11 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 
   return {
     props: {
-      ...(await serverSideTranslations(context.locale, ["common"])),
+      ...(await serverSideTranslations(context.locale, [
+        "settings",
+        "countries",
+        "nav",
+      ])),
       user,
       countries,
       meetingCountryId,
@@ -125,12 +129,11 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 // }));
 
 export default function MeetingSettings(props) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("settings");
   return (
-    <Layout props>
+    <Layout>
       <ConsultantSettingsLayout
         heading={t("settings.meeting-settings.meeting-settings-title")}
-        {...props}
       >
         <Container disableGutters={true}>
           <Addresses
@@ -139,9 +142,8 @@ export default function MeetingSettings(props) {
             cities={props.cities}
             addresses={props.addresses}
             locations={props.locations}
-            {...props}
           />
-          <TimesAvailable intervals={props.intervalsArr} {...props} />
+          <TimesAvailable intervals={props.intervalsArr} />
         </Container>
       </ConsultantSettingsLayout>
     </Layout>

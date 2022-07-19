@@ -20,7 +20,7 @@ const Wrapper = styled("div")(({ theme }) => ({
 export async function getServerSideProps({ locale }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["common"])),
+      ...(await serverSideTranslations(locale, ["account", "nav"])),
       // Will be passed to the page component as props
     },
   };
@@ -46,7 +46,7 @@ const Account = (props) => {
     setCurrentTab(newValue);
   };
 
-  const { t } = useTranslation();
+  const { t } = useTranslation("account");
   const router = useRouter();
   const user = useSelector((state) => state.user);
 
@@ -54,7 +54,7 @@ const Account = (props) => {
     if (user && user.token) router.push("/");
   }, [user]);
   return (
-    <Layout props>
+    <Layout>
       <Container maxWidth="xs">
         <Wrapper>
           <Tabs value={currentTab} variant="fullWidth" onChange={handleChange}>

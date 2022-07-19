@@ -1,0 +1,58 @@
+{
+  "settings": {
+    "changepw": {
+      "changepwtitle": "Şifremi Değiştir",
+      "loginagain": "Güvenlik sebebiyle şifrenizi değiştirebilmek için yeniden giriş yapmanız gerekli.",
+      "changepwsuccess": "Şifreniz değişmiştir.",
+      "changepw": "ŞİFREMİ DEĞİŞTİR",
+      "newpw": "Yeni Şifre",
+      "repeatnewpw": "Tekrar Yeni Şifre"
+    },
+    "profile-settings": {
+      "profile-settings-title": "Profil Ayarları",
+      "username": "Kullanıcı Adı",
+      "username-helper": "Profil linkiniz için.",
+      "first-name": "İsim",
+      "last-name": "Soyisim",
+      "about-me": "Hakkımda",
+      "update": "GÜNCELLE",
+      "username-error": "Kullanıcı adı sadece Türkçe karakter ve sayıdan oluşabilir. (Boşluk ve semboller kullanılamaz)",
+      "username-length-error": "Kullanıcı adı 100 karakterden uzun olamaz.",
+      "username-exists": "Bu kullanıcı adı zaten kullanımda.",
+      "first-name-error": "İsim 60 karakterden uzun olamaz.",
+      "last-name-error": "Soyisim 40 karakterden uzun olamaz.",
+      "about-me-error": "Hakkımda kısmı 200 karakterden uzun olamaz.",
+      "relevant-countries": "İlgili olduğunuz ülkeleri ekleyiniz:",
+      "countries": "Ülkeler",
+      "offered-services": "Verdiğiniz hizmetleri ekleyiniz:",
+      "services": "Hizmetler"
+    },
+    "meeting-settings": {
+      "meeting-settings-title": "Buluşma Ayarları",
+      "addresses": {
+        "country-first": "Lütfen önce ülkenizi giriniz",
+        "country": "Ülke",
+        "change": "Değiştir",
+        "addresses": "Buluşma Adresleri",
+        "new-address": "Yeni Adres Ekle",
+        "city": "Şehir",
+        "address": "Adres",
+        "add": "Ekle",
+        "primary-checkbox": "Birincil adres: profilde görünür.",
+        "cancel": "Vazgeç",
+        "primary-address": "Birincil Adres",
+        "edit": "Düzenle",
+        "remove": "Sil",
+        "location": "Mekan",
+        "update": "Güncelle",
+        "country-change-alert": "DİKKAT: Ülke değişirse, adresler ve yerler silinir.",
+        "locations": "Buluşma Mekanları",
+        "new-location": "Yeni Mekan Ekle",
+        "locations-example": "(Örneğin Kahve Dükkanı)",
+        "addresses-example": "(Örneğin Şirket Adresi)",
+        "location-default-value": "Yurt Caddesi Starbucks"
+      }
+    },
+    "contact-settings": { "contact-settings-title": "Contact Settings" }
+  }
+}

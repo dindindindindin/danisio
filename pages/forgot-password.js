@@ -23,7 +23,7 @@ const SubmitButton = styled(Button)(({ theme }) => ({
 export async function getServerSideProps({ locale }) {
   return {
     props: {
-      ...(await serverSideTranslations(locale, ["common"])),
+      ...(await serverSideTranslations(locale, ["account", "nav"])),
       // Will be passed to the page component as props
     },
   };
@@ -34,7 +34,7 @@ const ForgotPassword = (props) => {
   const [errors, setErrors] = useState("");
   const [success, setSuccess] = useState("");
 
-  const { t } = useTranslation();
+  const { t } = useTranslation("account");
   const router = useRouter();
   const user = useSelector((state) => state.user);
 
@@ -68,7 +68,7 @@ const ForgotPassword = (props) => {
   };
 
   return (
-    <Layout props>
+    <Layout>
       <Container maxWidth="xs">
         <Form noValidate>
           <TextField

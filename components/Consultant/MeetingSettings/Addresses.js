@@ -11,7 +11,7 @@ import { useState } from "react";
 import Divider from "@mui/material/Divider";
 
 export default function Addresses(props) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["settings", "countries"]);
   const [isNewAddressOpen, setIsNewAddressOpen] = useState(false);
   const [isEditAddressOpen, setIsEditAddressOpen] = useState(false);
   const [isNewLocationOpen, setIsNewLocationOpen] = useState(false);
@@ -64,8 +64,8 @@ export default function Addresses(props) {
   props.countries.map((country) => {
     countries.push({
       id: country.id,
-      country: t(`countries.${country.country}`),
-      region: t(`regions.${country.region}`),
+      country: t(`countries.${country.country}`, { ns: "countries" }),
+      region: t(`regions.${country.region}`, { ns: "countries" }),
     });
   });
 
@@ -458,7 +458,10 @@ export default function Addresses(props) {
           {countryHasStates ? (
             <Typography>
               <strong>
-                {t(`countries.state-variant.${countryStateVariant}`)}:
+                {t(`countries.state-variant.${countryStateVariant}`, {
+                  ns: "countries",
+                })}
+                :
               </strong>{" "}
               {props.state}
             </Typography>
@@ -683,7 +686,10 @@ export default function Addresses(props) {
           {countryHasStates ? (
             <Typography>
               <strong>
-                {t(`countries.state-variant.${countryStateVariant}`)}:
+                {t(`countries.state-variant.${countryStateVariant}`, {
+                  ns: "countries",
+                })}
+                :
               </strong>{" "}
               {props.state}
             </Typography>
@@ -761,7 +767,7 @@ export default function Addresses(props) {
       <Box margin="16px 2% 16px 2%" display="flex">
         <Typography alignSelf="center">
           {t("settings.meeting-settings.addresses.country")}:{" "}
-          {t(`countries.${countrySelected}`)}
+          {t(`countries.${countrySelected}`, { ns: "countries" })}
         </Typography>
         <Button
           sx={{ marginLeft: "1%" }}

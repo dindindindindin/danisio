@@ -30,7 +30,7 @@ export default function MemberSettingsLayout(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const { t } = useTranslation();
+  const { t } = useTranslation("settings");
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);

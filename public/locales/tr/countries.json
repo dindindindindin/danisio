@@ -1,0 +1,16 @@
+{
+  "countries": {
+    "Japan": "Japonya",
+    "United Kingdom": "Birleşik Krallık",
+    "China": "Çin",
+    "United States": "Amerika",
+    "Germany": "Almanya",
+    "Canada": "Kanada",
+    "Turkey": "Türkiye"
+  },
+  "regions": {
+    "North America": "Kuzey Amerika",
+    "Europe": "Avrupa",
+    "Asia": "Asya"
+  }
+}

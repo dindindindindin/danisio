@@ -1,0 +1,21 @@
+{
+  "countries": {
+    "Japan": "Japan",
+    "United Kingdom": "United Kingdom",
+    "China": "China",
+    "United States": "United States",
+    "Germany": "Germany",
+    "Canada": "Canada",
+    "Turkey": "Turkey",
+    "state-variant": {
+      "Province": "Province",
+      "State": "State",
+      "Prefecture": "Prefecture"
+    }
+  },
+  "regions": {
+    "North America": "North America",
+    "Europe": "Europe",
+    "Asia": "Asia"
+  }
+}

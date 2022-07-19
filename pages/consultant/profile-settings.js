@@ -79,7 +79,12 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 
   return {
     props: {
-      ...(await serverSideTranslations(context.locale, ["common"])),
+      ...(await serverSideTranslations(context.locale, [
+        "settings",
+        "countries",
+        "services",
+        "nav",
+      ])),
       user,
       profilePicUrl,
       userId,
@@ -97,17 +102,16 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
 });
 
 export default function ProfileSettings(props) {
-  const { t } = useTranslation();
+  const { t } = useTranslation(["settings"]);
 
   return (
     <>
       <Head>
         <meta http-equiv="cache-control" content="no-cache, must-revalidate" />
       </Head>
-      <Layout props>
+      <Layout>
         <ConsultantSettingsLayout
           heading={t("settings.profile-settings.profile-settings-title")}
-          {...props}
         >
           <Container disableGutters={true}>
             <ProfilePicture
@@ -119,17 +123,14 @@ export default function ProfileSettings(props) {
               firstName={props.firstName}
               lastName={props.lastName}
               aboutMe={props.aboutMe}
-              {...props}
             />
             <Countries
               countries={props.countries}
               consultantCountries={props.consultantCountries}
-              {...props}
             />
             <Services
               services={props.services}
               consultantServices={props.consultantServices}
-              {...props}
             />
           </Container>
         </ConsultantSettingsLayout>

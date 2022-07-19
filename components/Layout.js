@@ -81,7 +81,7 @@ export default function Layout(props) {
   const [transOpen, setTransOpen] = useState(false);
   const transAnchorRef = useRef(null);
 
-  const { t } = useTranslation();
+  const { t } = useTranslation("nav");
   const router = useRouter();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
