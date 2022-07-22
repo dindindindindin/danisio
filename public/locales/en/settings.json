@@ -40,15 +40,18 @@
         "primary-address": "Primary Address",
         "edit": "Edit",
         "remove": "Remove",
-        "location": "Location",
+        "location": "Place",
         "update": "Update",
-        "country-change-alert": "WARNING: If country is changed, addresses and locations are removed.",
-        "locations": "Meeting Locations",
-        "new-location": "Add Location",
+        "country-change-alert": "WARNING: If country is changed, addresses and places are removed.",
+        "locations": "Meeting Places",
+        "new-location": "Add Place",
         "locations-example": "(ie. Starbucks on Elm St.)",
         "addresses-example": "(ie. Your Company Address)",
         "location-default-value": "Starbucks on Elm Street",
-        "no-company-name": "Please do not mention company name."
+        "no-company-name": "Please do not mention company name.",
+        "select-city": "Please select a city.",
+        "enter-address": "Please enter an address.",
+        "enter-location": "Please specify a place."
       },
       "intervals": {
         "monday": "Monday",

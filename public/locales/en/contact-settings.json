@@ -8,5 +8,7 @@
   "whatsapp-number": "Whatsapp Number",
   "not-using-whatsapp": "I'm not using Whatsapp.",
   "Personal": "Personal",
-  "Company": "Company"
+  "Company": "Company",
+  "same-number-same-user": "You have already added this number.",
+  "same-number-different-user": "This number is used by someone else."
 }

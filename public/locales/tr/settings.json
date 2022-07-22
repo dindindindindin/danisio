@@ -48,7 +48,10 @@
         "locations-example": "(Örneğin Yurt Caddesi Starbucks)",
         "addresses-example": "(Örneğin Şirket Adresi)",
         "location-default-value": "Yurt Caddesi Starbucks",
-        "no-company-name": "Lütfen şirket ismi belirtmeyiniz."
+        "no-company-name": "Lütfen şirket ismi belirtmeyiniz.",
+        "select-city": "Lütfen bir şehir seçiniz.",
+        "enter-address": "Lütfen adres giriniz.",
+        "enter-location": "Lütfen mekan belirleyiniz."
       },
       "intervals": {
         "monday": "Pazartesi",

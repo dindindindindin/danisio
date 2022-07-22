@@ -9,14 +9,15 @@ import axios from "axios";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import Divider from "@mui/material/Divider";
+import LinearProgress from "@mui/material/LinearProgress";
 
 export default function Addresses(props) {
-  const { t } = useTranslation(["settings", "countries"]);
   const [isNewAddressOpen, setIsNewAddressOpen] = useState(false);
   const [isEditAddressOpen, setIsEditAddressOpen] = useState(false);
   const [isNewLocationOpen, setIsNewLocationOpen] = useState(false);
   const [isEditLocationOpen, setIsEditLocationOpen] = useState(false);
   //selected country states
+  const [isSelectCountryLoading, setIsSelectCountryLoading] = useState(false);
   const [countryHasStates, setCountryHasStates] = useState(false);
   const [countryStateVariant, setCountryStateVariant] = useState(null);
   const [countrySelected, setCountrySelected] = useState(() => {
@@ -38,26 +39,46 @@ export default function Addresses(props) {
   const [locations, setLocations] = useState(props.locations);
   const [cities, setCities] = useState(props.cities);
   //add new address form states
+  const [isNewAddressLoading, setIsNewAddressLoading] = useState(false);
+  const [isNewAddressAddButtonDisabled, setIsNewAddressAddButtonDisabled] =
+    useState(false);
   const [newSelectedCityId, setNewSelectedCityId] = useState(null);
   const [newAddress, setNewAddress] = useState("");
   const [isNewAddressPrimary, setIsNewAddressPrimary] = useState(false);
   //edit address form states
+  const [isEditAddressLoading, setIsEditAddressLoading] = useState(false);
+  const [
+    isEditAddressUpdateButtonDisabled,
+    setIsEditAddressUpdateButtonDisabled,
+  ] = useState(false);
   const [editAddressId, setEditAddressId] = useState(null);
   const [editSelectedCity, setEditSelectedCity] = useState(null);
   const [editSelectedCityId, setEditSelectedCityId] = useState(null);
   const [editAddress, setEditAddress] = useState("");
   const [isEditAddressPrimary, setIsEditAddressPrimary] = useState(false);
   //add new location form states
+  const [isNewLocationLoading, setIsNewLocationLoading] = useState(false);
+  const [isNewLocationAddButtonDisabled, setIsNewLocationAddButtonDisabled] =
+    useState(false);
   const [newLocationSelectedCityId, setNewLocationSelectedCityId] =
     useState(null);
   const [newLocation, setNewLocation] = useState("");
   //edit location form states
+  const [isEditLocationLoading, setIsEditLocationLoading] = useState(false);
+  const [
+    isEditLocationUpdateButtonDisabled,
+    setIsEditLocationUpdateButtonDisabled,
+  ] = useState(false);
   const [editLocationId, setEditLocationId] = useState(null);
   const [editLocationSelectedCity, setEditLocationSelectedCity] =
     useState(null);
   const [editLocationSelectedCityId, setEditLocationSelectedCityId] =
     useState(null);
   const [editLocation, setEditLocation] = useState("");
+
+  const [errors, setErrors] = useState({});
+
+  const { t } = useTranslation(["settings", "countries"]);
 
   //inside a function?
   const countries = [];
@@ -70,21 +91,31 @@ export default function Addresses(props) {
   });
 
   const handleCountryChange = async (e, value, reason) => {
+    setIsSelectCountryLoading(true);
+
     //update meeting country in db
     if (reason === "selectOption") {
       //api call
-      await axios.put(
-        "/api/consultant/meeting-settings/meeting-country-update",
-        {
-          countryId: value.id,
-        }
-      );
+      try {
+        await axios.put(
+          "/api/consultant/meeting-settings/meeting-country-update",
+          {
+            countryId: value.id,
+          }
+        );
+      } catch (err) {
+        console.log(err.response.data);
+      }
 
       //retrieve cities again
-      const citiesRes = await axios.post(
-        "/api/consultant/meeting-settings/get-cities",
-        { countryId: value.id }
-      );
+      try {
+        var citiesRes = await axios.post(
+          "/api/consultant/meeting-settings/get-cities",
+          { countryId: value.id }
+        );
+      } catch (err) {
+        console.log(err.response.data);
+      }
       setCities(citiesRes.data);
 
       //update the parent state
@@ -107,59 +138,103 @@ export default function Addresses(props) {
       });
 
       //retrieve addresses again
-      const addressesRes = await axios.get(
-        "/api/consultant/meeting-settings/get-addresses"
-      );
+      try {
+        var addressesRes = await axios.get(
+          "/api/consultant/meeting-settings/get-addresses"
+        );
+      } catch (err) {
+        console.log(err.response.data);
+      }
       setAddresses(addressesRes.data);
 
       //retrieve locations again
-      const locationsRes = await axios.get(
-        "/api/consultant/meeting-settings/get-locations"
-      );
+      try {
+        var locationsRes = await axios.get(
+          "/api/consultant/meeting-settings/get-locations"
+        );
+      } catch (err) {
+        console.log(err.response.data);
+      }
       setLocations(locationsRes.data);
 
       //currently useless
     } else if (reason === "removeOption") {
       //update as null in db
-      await axios.put(
-        "/api/consultant/meeting-settings/meeting-country-remove"
-      );
+      try {
+        await axios.put(
+          "/api/consultant/meeting-settings/meeting-country-remove"
+        );
+      } catch (err) {
+        console.log(err.response.data);
+      }
     }
+    setIsSelectCountryLoading(false);
   };
 
   const handleNewAddressSubmit = async (e) => {
     e.preventDefault();
 
-    //insert into consultant_addresses
-    await axios.post("/api/consultant/meeting-settings/new-address", {
-      cityId: newSelectedCityId,
-      address: newAddress,
-      isPrimary: isNewAddressPrimary,
-    });
+    if (newSelectedCityId === null) {
+      setErrors({ newAddressCity: true });
+      return;
+    } else if (newAddress === "") {
+      setErrors({ newAddress: true });
+      return;
+    }
 
-    //retrieve addresses again
-    const addressesRes = await axios.get(
-      "/api/consultant/meeting-settings/get-addresses"
-    );
-    setAddresses(addressesRes.data);
+    setIsNewAddressAddButtonDisabled(true);
+    setIsNewAddressLoading(true);
+
+    //insert into consultant_addresses
+    try {
+      await axios.post("/api/consultant/meeting-settings/new-address", {
+        cityId: newSelectedCityId,
+        address: newAddress,
+        isPrimary: isNewAddressPrimary,
+      });
+    } catch (err) {
+      console.log(err.response.data);
+    }
 
     //set states back to default values
     setNewSelectedCityId(null);
     setNewAddress("");
     setIsNewAddressPrimary(false);
+
+    setIsNewAddressOpen(false);
+    setIsNewAddressAddButtonDisabled(false);
+    setIsNewAddressLoading(false);
+
+    //retrieve addresses again
+    try {
+      var addressesRes = await axios.get(
+        "/api/consultant/meeting-settings/get-addresses"
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
+    setAddresses(addressesRes.data);
   };
 
   //remove address by id
   const handleAddressRemove = async (addressId) => {
     //api call
-    await axios.post("/api/consultant/meeting-settings/address-remove", {
-      addressId: addressId,
-    });
+    try {
+      await axios.post("/api/consultant/meeting-settings/address-remove", {
+        addressId: addressId,
+      });
+    } catch (err) {
+      console.log(err.response.data);
+    }
 
     //retrieve addresses again
-    const addressesRes = await axios.get(
-      "/api/consultant/meeting-settings/get-addresses"
-    );
+    try {
+      var addressesRes = await axios.get(
+        "/api/consultant/meeting-settings/get-addresses"
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
     setAddresses(addressesRes.data);
   };
 
@@ -172,24 +247,47 @@ export default function Addresses(props) {
   const handleEditAddressSubmit = async (e) => {
     e.preventDefault();
 
-    //insert into consultant_addresses
-    await axios.put("/api/consultant/meeting-settings/address-update", {
-      cityId: editSelectedCityId,
-      address: editAddress,
-      isPrimary: isEditAddressPrimary,
-      addressId: editAddressId,
-    });
+    if (editSelectedCityId === null) {
+      setErrors({ editAddressCity: true });
+      return;
+    } else if (editAddress === "") {
+      setErrors({ editAddress: true });
+      return;
+    }
 
-    //retrieve addresses again
-    const addressesRes = await axios.get(
-      "/api/consultant/meeting-settings/get-addresses"
-    );
-    setAddresses(addressesRes.data);
+    setIsEditAddressUpdateButtonDisabled(true);
+    setIsEditAddressLoading(true);
+
+    //insert into consultant_addresses
+    try {
+      await axios.put("/api/consultant/meeting-settings/address-update", {
+        cityId: editSelectedCityId,
+        address: editAddress,
+        isPrimary: isEditAddressPrimary,
+        addressId: editAddressId,
+      });
+    } catch (err) {
+      console.log(err.response.data);
+    }
 
     //set states back to default values
     setEditSelectedCityId(null);
     setEditAddress("");
     setIsEditAddressPrimary(false);
+
+    setIsEditAddressOpen(false);
+    setIsEditAddressUpdateButtonDisabled(false);
+    setIsEditAddressLoading(false);
+
+    //retrieve addresses again
+    try {
+      var addressesRes = await axios.get(
+        "/api/consultant/meeting-settings/get-addresses"
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
+    setAddresses(addressesRes.data);
   };
 
   //populate edit selected city state
@@ -203,34 +301,63 @@ export default function Addresses(props) {
   const handleNewLocationSubmit = async (e) => {
     e.preventDefault();
 
+    if (newLocationSelectedCityId === null) {
+      setErrors({ newLocationCity: true });
+      return;
+    } else if (newLocation === "") {
+      setErrors({ newLocation: true });
+      return;
+    }
+
+    setIsNewLocationAddButtonDisabled(true);
+    setIsNewLocationLoading(true);
+
     //insert into consultant_locations
-    await axios.post("/api/consultant/meeting-settings/new-location", {
-      cityId: newLocationSelectedCityId,
-      location: newLocation,
-    });
-
-    //retrieve locations again
-    const locationsRes = await axios.get(
-      "/api/consultant/meeting-settings/get-locations"
-    );
-    setLocations(locationsRes.data);
-
+    try {
+      await axios.post("/api/consultant/meeting-settings/new-location", {
+        cityId: newLocationSelectedCityId,
+        location: newLocation,
+      });
+    } catch (err) {
+      console.log(err.response.data);
+    }
     //set states back to default values
     setNewLocationSelectedCityId(null);
     setNewLocation("");
+    setIsNewLocationOpen(false);
+    setIsNewLocationAddButtonDisabled(false);
+    setIsNewLocationLoading(false);
+
+    //retrieve locations again
+    try {
+      var locationsRes = await axios.get(
+        "/api/consultant/meeting-settings/get-locations"
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
+    setLocations(locationsRes.data);
   };
 
   //remove address by id
   const handleLocationRemove = async (locationId) => {
     //api call
-    await axios.post("/api/consultant/meeting-settings/location-remove", {
-      locationId: locationId,
-    });
+    try {
+      await axios.post("/api/consultant/meeting-settings/location-remove", {
+        locationId: locationId,
+      });
+    } catch (err) {
+      console.log(err.response.data);
+    }
 
     //retrieve locations again
-    const locationsRes = await axios.get(
-      "/api/consultant/meeting-settings/get-locations"
-    );
+    try {
+      var locationsRes = await axios.get(
+        "/api/consultant/meeting-settings/get-locations"
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
     setLocations(locationsRes.data);
   };
 
@@ -243,22 +370,45 @@ export default function Addresses(props) {
   const handleEditLocationSubmit = async (e) => {
     e.preventDefault();
 
-    //update consultant_locations
-    await axios.put("/api/consultant/meeting-settings/location-update", {
-      cityId: editLocationSelectedCityId,
-      location: editLocation,
-      locationId: editLocationId,
-    });
+    if (editLocationSelectedCityId === null) {
+      setErrors({ editLocationCity: true });
+      return;
+    } else if (editLocation === "") {
+      setErrors({ editLocation: true });
+      return;
+    }
 
-    //retrieve locations again
-    const locationsRes = await axios.get(
-      "/api/consultant/meeting-settings/get-locations"
-    );
-    setLocations(locationsRes.data);
+    setIsEditLocationUpdateButtonDisabled(true);
+    setIsEditLocationLoading(true);
+
+    //update consultant_locations
+    try {
+      await axios.put("/api/consultant/meeting-settings/location-update", {
+        cityId: editLocationSelectedCityId,
+        location: editLocation,
+        locationId: editLocationId,
+      });
+    } catch (err) {
+      console.log(err.response.data);
+    }
 
     //set states back to default values
     setEditLocationSelectedCityId(null);
     setEditLocation("");
+
+    setIsEditLocationOpen(false);
+    setIsEditLocationUpdateButtonDisabled(false);
+    setIsEditLocationLoading(false);
+
+    //retrieve locations again
+    try {
+      var locationsRes = await axios.get(
+        "/api/consultant/meeting-settings/get-locations"
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
+    setLocations(locationsRes.data);
   };
 
   //populate edit selected city state
@@ -294,6 +444,11 @@ export default function Addresses(props) {
             return (
               <TextField
                 {...params}
+                helperText={
+                  errors.newAddressCity
+                    ? t("settings.meeting-settings.addresses.select-city")
+                    : ""
+                }
                 label={t("settings.meeting-settings.addresses.city")}
               />
             );
@@ -310,6 +465,11 @@ export default function Addresses(props) {
             return (
               <TextField
                 {...params}
+                helperText={
+                  errors.newAddressCity
+                    ? t("settings.meeting-settings.addresses.select-city")
+                    : ""
+                }
                 label={t("settings.meeting-settings.addresses.city")}
               />
             );
@@ -321,7 +481,11 @@ export default function Addresses(props) {
       <TextField
         label={t("settings.meeting-settings.addresses.address")}
         variant="outlined"
-        helperText={t("settings.meeting-settings.addresses.no-company-name")}
+        helperText={
+          !errors.newAddress
+            ? t("settings.meeting-settings.addresses.no-company-name")
+            : t("settings.meeting-settings.addresses.enter-address")
+        }
         multiline
         fullWidth
         sx={{ marginBottom: "8px" }}
@@ -335,24 +499,29 @@ export default function Addresses(props) {
         }
         label={t("settings.meeting-settings.addresses.primary-checkbox")}
       />
+      {isNewAddressLoading ? (
+        <LinearProgress sx={{ marginBottom: "8px", marginTop: "8px" }} />
+      ) : (
+        <></>
+      )}
       <Box display="flex" marginBottom="8px" marginTop="8px">
         <Button
           variant="outlined"
           type="submit"
           sx={{ mr: "1%" }}
+          disabled={isNewAddressAddButtonDisabled}
           onClick={(e) => {
             handleNewAddressSubmit(e);
-            setIsNewAddressOpen(false);
           }}
         >
           {t("settings.meeting-settings.addresses.add")}
         </Button>
         <Button
           variant="outlined"
-          type="submit"
           color="warning"
           onClick={(e) => {
             setIsNewAddressOpen(false);
+            setErrors({});
           }}
         >
           {t("settings.meeting-settings.addresses.cancel")}
@@ -376,6 +545,11 @@ export default function Addresses(props) {
               return (
                 <TextField
                   {...params}
+                  helperText={
+                    errors.editAddressCity
+                      ? t("settings.meeting-settings.addresses.select-city")
+                      : ""
+                  }
                   label={t("settings.meeting-settings.addresses.city")}
                 />
               );
@@ -393,6 +567,11 @@ export default function Addresses(props) {
               return (
                 <TextField
                   {...params}
+                  helperText={
+                    errors.editAddressCity
+                      ? t("settings.meeting-settings.addresses.select-city")
+                      : ""
+                  }
                   label={t("settings.meeting-settings.addresses.city")}
                 />
               );
@@ -407,6 +586,11 @@ export default function Addresses(props) {
           multiline
           fullWidth
           value={editAddress}
+          helperText={
+            !errors.editAddress
+              ? t("settings.meeting-settings.addresses.no-company-name")
+              : t("settings.meeting-settings.addresses.enter-address")
+          }
           sx={{ marginBottom: "8px" }}
           onChange={(e) => setEditAddress(e.target.value)}
         />
@@ -419,14 +603,19 @@ export default function Addresses(props) {
           }
           label={t("settings.meeting-settings.addresses.primary-checkbox")}
         />
+        {isEditAddressLoading ? (
+          <LinearProgress sx={{ marginBottom: "8px", marginTop: "8px" }} />
+        ) : (
+          <></>
+        )}
         <Box display="flex" marginBottom="8px" marginTop="8px">
           <Button
             variant="outlined"
             type="submit"
             sx={{ mr: "1%" }}
+            disabled={isEditAddressUpdateButtonDisabled}
             onClick={(e) => {
               handleEditAddressSubmit(e);
-              setIsEditAddressOpen(false);
             }}
           >
             {t("settings.meeting-settings.addresses.update")}
@@ -437,6 +626,7 @@ export default function Addresses(props) {
             color="warning"
             onClick={(e) => {
               setIsEditAddressOpen(false);
+              setErrors({});
             }}
           >
             {t("settings.meeting-settings.addresses.cancel")}
@@ -532,6 +722,11 @@ export default function Addresses(props) {
             return (
               <TextField
                 {...params}
+                helperText={
+                  errors.newLocationCity
+                    ? t("settings.meeting-settings.addresses.select-city")
+                    : ""
+                }
                 label={t("settings.meeting-settings.addresses.city")}
               />
             );
@@ -548,6 +743,11 @@ export default function Addresses(props) {
             return (
               <TextField
                 {...params}
+                helperText={
+                  errors.newLocationCity
+                    ? t("settings.meeting-settings.addresses.select-city")
+                    : ""
+                }
                 label={t("settings.meeting-settings.addresses.city")}
               />
             );
@@ -561,31 +761,40 @@ export default function Addresses(props) {
         variant="outlined"
         multiline
         fullWidth
+        helperText={
+          errors.newLocation
+            ? t("settings.meeting-settings.addresses.enter-location")
+            : ""
+        }
         placeholder={t(
           "settings.meeting-settings.addresses.location-default-value"
         )}
         sx={{ marginBottom: "8px" }}
         onChange={(e) => setNewLocation(e.target.value)}
       />
-
+      {isNewLocationLoading ? (
+        <LinearProgress sx={{ marginBottom: "8px", marginTop: "8px" }} />
+      ) : (
+        <></>
+      )}
       <Box display="flex" marginBottom="8px" marginTop="8px">
         <Button
           variant="outlined"
           type="submit"
           sx={{ mr: "1%" }}
+          disabled={isNewLocationAddButtonDisabled}
           onClick={(e) => {
             handleNewLocationSubmit(e);
-            setIsNewLocationOpen(false);
           }}
         >
           {t("settings.meeting-settings.addresses.add")}
         </Button>
         <Button
           variant="outlined"
-          type="submit"
           color="warning"
           onClick={(e) => {
             setIsNewLocationOpen(false);
+            setErrors({});
           }}
         >
           {t("settings.meeting-settings.addresses.cancel")}
@@ -609,6 +818,11 @@ export default function Addresses(props) {
               return (
                 <TextField
                   {...params}
+                  helperText={
+                    errors.editLocationCity
+                      ? t("settings.meeting-settings.addresses.select-city")
+                      : ""
+                  }
                   label={t("settings.meeting-settings.addresses.city")}
                 />
               );
@@ -626,6 +840,11 @@ export default function Addresses(props) {
               return (
                 <TextField
                   {...params}
+                  helperText={
+                    errors.editLocationCity
+                      ? t("settings.meeting-settings.addresses.select-city")
+                      : ""
+                  }
                   label={t("settings.meeting-settings.addresses.city")}
                 />
               );
@@ -643,18 +862,27 @@ export default function Addresses(props) {
             "settings.meeting-settings.addresses.location-default-value"
           )}
           value={editLocation}
+          helperText={
+            errors.editLocation
+              ? t("settings.meeting-settings.addresses.enter-location")
+              : ""
+          }
           sx={{ marginBottom: "8px" }}
           onChange={(e) => setEditLocation(e.target.value)}
         />
-
+        {isEditLocationLoading ? (
+          <LinearProgress sx={{ marginBottom: "8px", marginTop: "8px" }} />
+        ) : (
+          <></>
+        )}
         <Box display="flex" marginBottom="8px" marginTop="8px">
           <Button
             variant="outlined"
             type="submit"
             sx={{ mr: "1%" }}
+            disabled={isEditLocationUpdateButtonDisabled}
             onClick={(e) => {
               handleEditLocationSubmit(e);
-              setIsEditLocationOpen(false);
             }}
           >
             {t("settings.meeting-settings.addresses.update")}
@@ -665,6 +893,7 @@ export default function Addresses(props) {
             color="warning"
             onClick={(e) => {
               setIsEditLocationOpen(false);
+              setErrors({});
             }}
           >
             {t("settings.meeting-settings.addresses.cancel")}
@@ -762,6 +991,11 @@ export default function Addresses(props) {
         }}
         onChange={handleCountryChange}
       />
+      {isSelectCountryLoading ? (
+        <LinearProgress sx={{ margin: "0 2% 15px 2%" }} />
+      ) : (
+        <></>
+      )}
     </Box>
   ) : (
     <Box border="2px solid #f0f0f4" borderRadius="5px">

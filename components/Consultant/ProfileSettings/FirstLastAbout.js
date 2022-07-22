@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import LinearProgress from "@mui/material/LinearProgress";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import axios from "axios";
@@ -12,11 +13,15 @@ export default function FirstLastAbout(props) {
   const [lastName, setLastName] = useState(props.lastName);
   const [aboutMe, setAboutMe] = useState(props.aboutMe);
   const [error, setError] = useState("");
+  const [isUpdateButtonDisabled, setIsUpdateButtonDisabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const { t } = useTranslation("settings");
-  console.log(firstName);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsUpdateButtonDisabled(true);
+    setIsLoading(true);
 
     //character validation
     if (!/^[a-zA-Z1-9]+$/.test(username))
@@ -47,6 +52,8 @@ export default function FirstLastAbout(props) {
         if (err.response.data.errorCode === "username-exists")
           setError(t("settings.profile-settings.username-exists"));
       }
+      setIsUpdateButtonDisabled(false);
+      setIsLoading(false);
     }
   };
 
@@ -87,15 +94,20 @@ export default function FirstLastAbout(props) {
           value={aboutMe}
           onChange={(e) => setAboutMe(e.target.value)}
         />
+        {isLoading ? <LinearProgress sx={{ margin: "0 2% 15px 2%" }} /> : <></>}
         {error ? (
           <Typography color="error" sx={{ margin: "0 2% 15px 2%" }}>
             {error}
           </Typography>
         ) : (
-          ""
+          <></>
         )}
         <Box display="flex" justifyContent="flex-end" margin="0 2% 15px 2%">
-          <Button type="submit" variant="contained">
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={isUpdateButtonDisabled}
+          >
             {t("settings.profile-settings.update")}
           </Button>
         </Box>

@@ -4,5 +4,6 @@ cookies must persist
 profile pic in settings is not stable
 'none of the options match with' error autocomplete
 SelectCountry array populate inside a function?
-validations for addresses and locations
-validations for contact settings
+about multiline placeholder on profile settings
+contact-settings emails (and combobox choice of receiving emails and maybe display to users?)
+contact-settings receive sms to which number (or should i send sms)

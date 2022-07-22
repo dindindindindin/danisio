@@ -2,10 +2,14 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
+import LinearProgress from "@mui/material/LinearProgress";
 import { useTranslation } from "next-i18next";
 import axios from "axios";
+import { useState } from "react";
 
 export default function Services(props) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const { t } = useTranslation(["settings", "services"]);
 
   //translate and push into countries array
@@ -21,7 +25,7 @@ export default function Services(props) {
   let currentServiceIds = props.consultantServices;
 
   const handleChange = async (e, values, reason) => {
-    console.log("e: ", e.target, " values: ", values, " reason: ", reason);
+    setIsLoading(true);
 
     //add consultant country to db
     if (reason === "selectOption") {
@@ -31,9 +35,13 @@ export default function Services(props) {
           currentServiceIds.push(value.id);
 
           //api call
-          await axios.post("/api/consultant/profile-settings/service-add", {
-            id: value.id,
-          });
+          try {
+            await axios.post("/api/consultant/profile-settings/service-add", {
+              id: value.id,
+            });
+          } catch (err) {
+            console.log(err.response.data);
+          }
         }
       });
     }
@@ -49,15 +57,23 @@ export default function Services(props) {
           idToRemove = currentServiceId;
 
           //api call
-          await axios.post("/api/consultant/profile-settings/service-remove", {
-            serviceId: currentServiceId,
-          });
+          try {
+            await axios.post(
+              "/api/consultant/profile-settings/service-remove",
+              {
+                serviceId: currentServiceId,
+              }
+            );
+          } catch (err) {
+            console.log(err.response.data);
+          }
         }
       });
       for (let i = 0; i < currentServiceIds.length; i++) {
         if (currentServiceIds[i] === idToRemove) currentServiceIds.splice(i, 1);
       }
     }
+    setIsLoading(false);
   };
 
   //get sorted list of countries
@@ -102,6 +118,7 @@ export default function Services(props) {
           onChange={handleChange}
         />
       </form>
+      {isLoading ? <LinearProgress sx={{ margin: "0 2% 15px 2%" }} /> : <></>}
     </Box>
   );
 }

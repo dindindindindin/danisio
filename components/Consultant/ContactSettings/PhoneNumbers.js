@@ -8,6 +8,7 @@ import MenuItem from "@mui/material/MenuItem";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
+import LinearProgress from "@mui/material/LinearProgress";
 import axios from "axios";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
@@ -30,42 +31,83 @@ export default function PhoneNumbers(props) {
   const [dialCode, setDialCode] = useState(null);
   const [countryCode, setCountryCode] = useState(null);
 
+  const [isAddButtonDisabled, setIsAddButtonDisabled] = useState(false);
+  const [isAddNumberLoading, setIsAddNumberLoading] = useState(false);
+
+  const [errors, setErrors] = useState({});
+
   const { t } = useTranslation("contact-settings");
 
   //add number api call
   const handleAddNumber = async (e) => {
     e.preventDefault();
-    await axios.post("/api/consultant/contact-settings/new-phone-number", {
-      number: phoneNumber,
-      dialCode: dialCode,
-      countryCode: countryCode,
-      contactTypeId: contactTypeId,
-    });
 
-    //retrieve numbers again
-    const phoneNumbersRes = await axios.get(
-      "/api/consultant/contact-settings/get-phone-numbers"
-    );
-    setPhoneNumbers(phoneNumbersRes.data);
+    setIsAddButtonDisabled(true);
+    setIsAddNumberLoading(true);
+
+    try {
+      await axios.post("/api/consultant/contact-settings/new-phone-number", {
+        number: phoneNumber,
+        dialCode: dialCode,
+        countryCode: countryCode,
+        contactTypeId: contactTypeId,
+      });
+    } catch (err) {
+      if (err.response.data.errorCode === "same-number-same-user") {
+        setErrors({ addNumber: t("same-number-same-user") });
+        setIsAddNumberLoading(false);
+        setIsAddButtonDisabled(false);
+        return;
+      } else if (err.response.data.errorCode === "same-number-different-user") {
+        setErrors({ addNumber: t("same-number-different-user") });
+        setIsAddNumberLoading(false);
+        setIsAddButtonDisabled(false);
+        return;
+      }
+      console.log(err.response.data);
+    }
 
     //states to default
     setContactTypeId(props.contactTypes[0].id);
     setPhoneNumber(null);
     setDialCode(null);
+    setErrors({});
+
     setIsAddNumberOpen(false);
+    setIsAddButtonDisabled(false);
+    setIsAddNumberLoading(false);
+
+    //retrieve numbers again
+    try {
+      var phoneNumbersRes = await axios.get(
+        "/api/consultant/contact-settings/get-phone-numbers"
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
+    setPhoneNumbers(phoneNumbersRes.data);
   };
 
   //remove number api call
   const handleRemoveNumber = async (e, id) => {
     e.preventDefault();
-    await axios.post("/api/consultant/contact-settings/phone-number-remove", {
-      numberId: id,
-    });
+
+    try {
+      await axios.post("/api/consultant/contact-settings/phone-number-remove", {
+        numberId: id,
+      });
+    } catch (err) {
+      console.log(err.response.data);
+    }
 
     //retrieve numbers again
-    const phoneNumbersRes = await axios.get(
-      "/api/consultant/contact-settings/get-phone-numbers"
-    );
+    try {
+      var phoneNumbersRes = await axios.get(
+        "/api/consultant/contact-settings/get-phone-numbers"
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
     setPhoneNumbers(phoneNumbersRes.data);
   };
 
@@ -73,13 +115,21 @@ export default function PhoneNumbers(props) {
     console.log(e.target.value, e.target.numbers);
 
     if (e.target.value !== "noWhatsapp")
-      await axios.put("/api/consultant/contact-settings/whatsapp-update", {
-        phoneNumberId: e.target.value,
-      });
+      try {
+        await axios.put("/api/consultant/contact-settings/whatsapp-update", {
+          phoneNumberId: e.target.value,
+        });
+      } catch (err) {
+        console.log(err.response.data);
+      }
     else
-      await axios.put("/api/consultant/contact-settings/whatsapp-update", {
-        phoneNumberId: null,
-      });
+      try {
+        await axios.put("/api/consultant/contact-settings/whatsapp-update", {
+          phoneNumberId: null,
+        });
+      } catch (err) {
+        console.log(err.response.data);
+      }
   };
 
   return (
@@ -144,10 +194,14 @@ export default function PhoneNumbers(props) {
                 />
               </Box>
             </Box>
-
+            <Typography variant="body2" color="error">
+              {errors.addNumber}
+            </Typography>
+            {isAddNumberLoading ? <LinearProgress sx={{ mb: "8px" }} /> : <></>}
             <Button
               sx={{ mr: "1%" }}
               variant="outlined"
+              disabled={isAddButtonDisabled}
               onClick={handleAddNumber}
             >
               {t("add")}
@@ -160,6 +214,7 @@ export default function PhoneNumbers(props) {
                 setPhoneNumber(null);
                 setDialCode(null);
                 setIsAddNumberOpen(false);
+                setErrors({});
               }}
             >
               {t("cancel")}

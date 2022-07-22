@@ -23,6 +23,7 @@ import axios from "axios";
 import { useTranslation } from "next-i18next";
 import { useState } from "react";
 import Divider from "@mui/material/Divider";
+import LinearProgress from "@mui/material/LinearProgress";
 
 export default function TimesAvailable(props) {
   const { t } = useTranslation("settings");
@@ -30,6 +31,9 @@ export default function TimesAvailable(props) {
   const [isAddIntervalExcludeOpen, setIsAddIntervalExcludeOpen] =
     useState(false);
   //states for adding interval
+  const [isCompleteButtonDisabled, setIsCompleteButtonDisabled] =
+    useState(false);
+  const [isAddIntervalLoading, setIsAddIntervalLoading] = useState(false);
   const [addIntervalFrom, setAddIntervalFrom] = useState(null);
   const [addIntervalTo, setAddIntervalTo] = useState(null);
   const [addIntervalExcludeFrom, setAddIntervalExcludeFrom] = useState(null);
@@ -46,6 +50,9 @@ export default function TimesAvailable(props) {
 
   const handleAddInterval = async (e) => {
     e.preventDefault();
+
+    setIsCompleteButtonDisabled(true);
+    setIsAddIntervalLoading(true);
 
     try {
       await axios.post("/api/consultant/meeting-settings/new-interval", {
@@ -64,6 +71,8 @@ export default function TimesAvailable(props) {
       return;
     }
 
+    setIsCompleteButtonDisabled(false);
+    setIsAddIntervalLoading(false);
     setIsAddIntervalOpen(false);
     setAddIntervalFrom(null);
     setAddIntervalTo(null);
@@ -75,22 +84,34 @@ export default function TimesAvailable(props) {
     setIsAddIntervalExcludeOpen(false);
     setErrors({});
 
-    const intervalsRes = await axios.get(
-      "/api/consultant/meeting-settings/get-intervals"
-    );
+    try {
+      var intervalsRes = await axios.get(
+        "/api/consultant/meeting-settings/get-intervals"
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
     setIntervals(intervalsRes.data);
   };
 
   const handleRemoveInterval = async (e, id) => {
     e.preventDefault();
 
-    await axios.post("/api/consultant/meeting-settings/interval-remove", {
-      id: id,
-    });
+    try {
+      await axios.post("/api/consultant/meeting-settings/interval-remove", {
+        id: id,
+      });
+    } catch (err) {
+      console.log(err.response.data);
+    }
 
-    const intervalsRes = await axios.get(
-      "/api/consultant/meeting-settings/get-intervals"
-    );
+    try {
+      var intervalsRes = await axios.get(
+        "/api/consultant/meeting-settings/get-intervals"
+      );
+    } catch (err) {
+      console.log(err.response.data);
+    }
 
     setIntervals(intervalsRes.data);
   };
@@ -597,8 +618,14 @@ export default function TimesAvailable(props) {
               </RadioGroup>
             </FormControl>
           </Box>
+          {isAddIntervalLoading ? <LinearProgress sx={{ mb: "8px" }} /> : <></>}
           <Box display="flex">
-            <Button variant="contained" sx={{ mr: "1%" }} type="submit">
+            <Button
+              variant="contained"
+              sx={{ mr: "1%" }}
+              type="submit"
+              disabled={isCompleteButtonDisabled}
+            >
               {t("settings.meeting-settings.intervals.complete")}
             </Button>
             <Button

@@ -8,5 +8,7 @@
   "whatsapp-number": "Whatsapp Numarası",
   "not-using-whatsapp": "Whatsapp kullanmıyorum.",
   "Personal": "Kişisel",
-  "Company": "Şirket"
+  "Company": "Şirket",
+  "same-number-same-user": "Bu numarayı zaten eklediniz.",
+  "same-number-different-user": "Bu numara başkası tarafından kullanılmakta."
 }
