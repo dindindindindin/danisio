@@ -10,9 +10,10 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import KeyIcon from "@mui/icons-material/Key";
-import HandshakeIcon from "@mui/icons-material/Handshake";
 import MenuIcon from "@mui/icons-material/Menu";
 import CallIcon from "@mui/icons-material/Call";
+import PlaceIcon from "@mui/icons-material/Place";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { useTranslation } from "next-i18next";
@@ -56,17 +57,29 @@ export default function MemberSettingsLayout(props) {
           </MuiLink>
         </NextLink>
         <NextLink
-          key="meetingSettings"
-          href="/consultant/meeting-settings"
+          key="meetingLocations"
+          href="/consultant/meeting-locations"
           passHref
         >
           <MuiLink color="inherit" underline="none">
             <ListItem disablePadding>
               <ListItemButton>
                 <ListItemIcon>
-                  <HandshakeIcon />
+                  <PlaceIcon />
                 </ListItemIcon>
                 <ListItemText primary={t("meeting-settings-title")} />
+              </ListItemButton>
+            </ListItem>
+          </MuiLink>
+        </NextLink>
+        <NextLink key="availability" href="/consultant/availability" passHref>
+          <MuiLink color="inherit" underline="none">
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <AccessTimeIcon />
+                </ListItemIcon>
+                <ListItemText primary={t("availability-title")} />
               </ListItemButton>
             </ListItem>
           </MuiLink>

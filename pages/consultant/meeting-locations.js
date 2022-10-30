@@ -4,9 +4,9 @@ import { withConsultantAuth } from "../../lib/HOC/withAuthSSR";
 import { serverSideTranslations } from "next-i18next/serverSideTranslations";
 import { useTranslation } from "next-i18next";
 import Container from "@mui/material/Container";
-import Addresses from "../../components/Consultant/MeetingSettings/Addresses";
+import Addresses from "../../components/Consultant/MeetingLocations/Addresses";
 import query from "../../db";
-import TimesAvailable from "../../components/Consultant/MeetingSettings/TimesAvailable";
+import TimesAvailable from "../../components/Consultant/MeetingLocations/TimesAvailable";
 //import { styled } from "@mui/material/styles";
 
 export const getServerSideProps = withConsultantAuth(async (context, error) => {
@@ -100,8 +100,6 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
       exclusions: exclusions,
     });
   }
-
-  console.log(intervalsArr);
 
   ///////////////////////////////////////////////////////
 

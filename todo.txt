@@ -7,3 +7,5 @@ SelectCountry array populate inside a function?
 about multiline placeholder on profile settings
 contact-settings emails (and combobox choice of receiving emails and maybe display to users?)
 contact-settings receive sms to which number (or should i send sms)
+change meeting settings to meeting locations
+new page for times available (user friendly)
