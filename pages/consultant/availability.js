@@ -12,6 +12,10 @@ import StepContent from "@mui/material/StepContent";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
+import TextField from "@mui/material/TextField";
+import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import query from "../../db";
 import { useState } from "react";
 //import { styled } from "@mui/material/styles";
@@ -82,8 +86,6 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
     });
   }
 
-  ///////////////////////////////////////////////////////
-
   return {
     props: {
       ...(await serverSideTranslations(context.locale, [
@@ -98,28 +100,10 @@ export const getServerSideProps = withConsultantAuth(async (context, error) => {
   };
 });
 
-const steps = [
-  {
-    label: "Select campaign settings",
-    description: `For each ad campaign that you create, you can control how much
-                you're willing to spend on clicks and conversions, which networks
-                and geographical locations you want your ads to show on, and more.`,
-  },
-  {
-    label: "Create an ad group",
-    description:
-      "An ad group contains one or more ads which target a shared set of keywords.",
-  },
-  {
-    label: "Create an ad",
-    description: `Try out different ad text to see what brings in the most customers,
-                and learn how to enhance your ads using features like ad extensions.
-                If you run into any problems with your ads, find out how to tell if
-                they're running and how to resolve approval issues.`,
-  },
-];
-
 export default function Availability(props) {
+  const [preferredBegins, setPreferredBegins] = useState(null);
+  const [preferredEnds, setPreferredEnds] = useState(null);
+
   const { t } = useTranslation(["availability", "titles"]);
   const [activeStep, setActiveStep] = useState(0);
 
@@ -134,6 +118,20 @@ export default function Availability(props) {
   const handleReset = () => {
     setActiveStep(0);
   };
+
+  const isValueValid = (value) => {
+    if (value instanceof Date)
+      if (
+        value.getHours() < 24 &&
+        value.getHours() >= 0 &&
+        value.getMinutes() < 60 &&
+        value.getMinutes() >= 0
+      )
+        return true;
+      else return false;
+    else return false;
+  };
+
   return (
     <Layout>
       <ConsultantSettingsLayout
@@ -142,42 +140,136 @@ export default function Availability(props) {
         <Container disableGutters={true}>
           <Box>
             <Stepper activeStep={activeStep} orientation="vertical">
-              {steps.map((step, index) => (
-                <Step key={step.label}>
-                  <StepLabel
-                    optional={
-                      index === 2 ? (
-                        <Typography variant="caption">Last step</Typography>
-                      ) : null
-                    }
-                  >
-                    {step.label}
-                  </StepLabel>
-                  <StepContent>
-                    <Typography>{step.description}</Typography>
-                    <Box sx={{ mb: 2 }}>
-                      <div>
-                        <Button
-                          variant="contained"
-                          onClick={handleNext}
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          {index === steps.length - 1 ? "Finish" : "Continue"}
-                        </Button>
-                        <Button
-                          disabled={index === 0}
-                          onClick={handleBack}
-                          sx={{ mt: 1, mr: 1 }}
-                        >
-                          Back
-                        </Button>
-                      </div>
+              <Step>
+                <StepLabel>Let's begin</StepLabel>
+                <StepContent>
+                  <Typography sx={{ mb: 1 }}>
+                    There are 2 kinds of time range. The time you prefer to meet
+                    and the time it is still possible to meet. After you choose
+                    them, you can choose the days it applies to.
+                  </Typography>
+                  <Box sx={{ mb: 1 }}>
+                    <Button
+                      variant="contained"
+                      onClick={() => setActiveStep(1)}
+                    >
+                      Continue
+                    </Button>
+                  </Box>
+                </StepContent>
+              </Step>
+              <Step>
+                <StepLabel>Time preferred</StepLabel>
+                <StepContent>
+                  <Typography sx={{ mb: 1 }}>
+                    Please choose the time range you prefer to meet at. Click on
+                    the icon to choose visually.
+                  </Typography>
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <Box
+                      display="flex"
+                      flexWrap="wrap"
+                      gap={1}
+                      marginBottom={1}
+                    >
+                      <TimePicker
+                        label="Begins"
+                        value={preferredBegins}
+                        ampm={false}
+                        maxTime={preferredEnds}
+                        onChange={(newValue) => {
+                          setPreferredBegins(newValue);
+                        }}
+                        // disabled={isAddIntervalFromToDisabled}
+                        renderInput={(params) => (
+                          <TextField
+                            // helperText={errors.availableFrom}
+                            {...params}
+                          />
+                        )}
+                      />
+                      <TimePicker
+                        label="Ends"
+                        value={preferredEnds}
+                        ampm={false}
+                        minTime={preferredBegins}
+                        onChange={(newValue) => {
+                          setPreferredEnds(newValue);
+                        }}
+                        disabled={!isValueValid(preferredBegins)}
+                        renderInput={(params) => (
+                          <TextField
+                            // helperText={errors.availableFrom}
+                            {...params}
+                          />
+                        )}
+                      />
                     </Box>
-                  </StepContent>
-                </Step>
-              ))}
+                  </LocalizationProvider>
+                  <Typography variant="body2" sx={{ mb: 1 }}>
+                    You can skip this step if it's only possible to meet on
+                    these days.
+                  </Typography>
+                  <Box display="flex" flexWrap="wrap" gap={1} marginBottom={1}>
+                    <Button
+                      variant="contained"
+                      onClick={() => setActiveStep(2)}
+                    >
+                      Continue
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="warning"
+                      onClick={() => setActiveStep(2)}
+                    >
+                      Skip
+                    </Button>
+                    <Button onClick={() => setActiveStep(0)}>Back</Button>
+                  </Box>
+                </StepContent>
+              </Step>
+              <Step>
+                <StepLabel>Time possible</StepLabel>
+                <StepContent>
+                  <Typography>Some text.</Typography>
+                  <Box sx={{ mb: 1 }}>
+                    <div>
+                      <Button
+                        variant="contained"
+                        onClick={handleNext}
+                        sx={{ mt: 1, mr: 1 }}
+                      >
+                        Continue
+                      </Button>
+                      <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
+                        Back
+                      </Button>
+                    </div>
+                  </Box>
+                </StepContent>
+              </Step>
+              <Step>
+                <StepLabel>Choose days</StepLabel>
+                <StepContent>
+                  <Typography>Some text.</Typography>
+                  <Box sx={{ mb: 2 }}>
+                    <div>
+                      <Button
+                        variant="contained"
+                        onClick={handleNext}
+                        sx={{ mt: 1, mr: 1 }}
+                      >
+                        Finish
+                      </Button>
+                      <Button onClick={handleBack} sx={{ mt: 1, mr: 1 }}>
+                        Back
+                      </Button>
+                    </div>
+                  </Box>
+                </StepContent>
+              </Step>
             </Stepper>
-            {activeStep === steps.length && (
+            {activeStep === 4 && (
               <Paper square elevation={0} sx={{ p: 3 }}>
                 <Typography>
                   All steps completed - you&apos;re finished
